@@ -18,7 +18,6 @@ import java.util.Date;
 @Data
 public class Salarie  {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id ;
@@ -53,7 +52,7 @@ public class Salarie  {
     private Absence absence;
 
     @OneToOne(mappedBy = "salarie")
-    private sPoste poste;
+    private Poste poste;
 
     @OneToOne(mappedBy = "salarie")
     private User user;
