@@ -35,4 +35,12 @@ public class Conge {
     @UpdateTimestamp
     private Date dateModification;
 
+    @ManyToOne
+    private TypeConge type;
+
+    @ManyToOne
+    private Salarie salarie;
+
+
+
 }

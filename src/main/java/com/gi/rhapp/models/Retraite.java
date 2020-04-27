@@ -33,4 +33,10 @@ public class Retraite {
     @UpdateTimestamp
     private Date dateModification;
 
+    @ManyToOne
+    private TypeRetraite type;
+
+    @ManyToOne
+    private Salarie salarie;
+
 }

@@ -33,4 +33,15 @@ public class Poste {
 
     @UpdateTimestamp
     private Date dateModification;
+
+    private String division;
+
+    @OneToOne(mappedBy = "poste", cascade = CascadeType.ALL)
+    private Salarie salarie;
+
+    @ManyToOne
+    private Service service;
+
+    @ManyToOne
+    private Direction direction;
 }
