@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.Path;
+
 @SpringBootApplication
 @RestController
 public class RhappApplication {
@@ -15,6 +17,6 @@ public class RhappApplication {
 
     @GetMapping("/")
     public String helloWorld() {
-        return "Hello From RH APP";
+        return "Hello From RH APP from HEROKU";
     }
 }
