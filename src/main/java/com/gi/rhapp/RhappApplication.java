@@ -17,6 +17,6 @@ public class RhappApplication {
 
     @GetMapping("/")
     public String helloWorld() {
-        return "Hello From RH APP from HEROKU";
+        return "Hello From RH APP from HEROKU v2";
     }
 }
