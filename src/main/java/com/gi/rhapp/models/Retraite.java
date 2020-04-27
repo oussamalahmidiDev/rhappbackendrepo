@@ -16,6 +16,7 @@ import java.util.Date;
 @Entity
 public class Retraite {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

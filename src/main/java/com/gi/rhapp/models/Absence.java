@@ -15,6 +15,7 @@ import java.util.Date;
 @Entity
 public class Absence {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

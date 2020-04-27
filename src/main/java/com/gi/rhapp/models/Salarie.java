@@ -18,6 +18,7 @@ import java.util.Date;
 @Data
 public class Salarie  {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id ;

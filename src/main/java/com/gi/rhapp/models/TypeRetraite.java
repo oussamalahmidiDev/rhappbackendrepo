@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Data
 public class TypeRetraite {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

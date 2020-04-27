@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Data
 public class TypeAvantage {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

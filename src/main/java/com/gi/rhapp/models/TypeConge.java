@@ -13,6 +13,7 @@ import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
 @Data
 public class TypeConge {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

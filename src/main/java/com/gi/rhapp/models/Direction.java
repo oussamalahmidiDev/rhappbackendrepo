@@ -15,6 +15,7 @@ import java.util.Date;
 @Data
 public class Direction {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
