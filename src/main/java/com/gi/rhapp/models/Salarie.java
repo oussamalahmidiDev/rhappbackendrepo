@@ -1,6 +1,7 @@
 package com.gi.rhapp.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 
 import java.util.Date;
 import java.util.List;
@@ -50,7 +52,10 @@ public class Salarie {
 
     private String fonction;
 
-    private String cinUrg , nomUrg  , prenomUrg , adresseUrg , emailUrg ;
+    private String cinUrg , nomUrg  , prenomUrg , adresseUrg;
+
+    @Email
+    private String emailUrg ;
     private Long solde;
 
     @ManyToOne
@@ -68,6 +73,8 @@ public class Salarie {
     private Poste poste;
 
     @OneToOne
+    @JsonIgnoreProperties({"salarie", "id", "dateCreation", "dateModification"})
+    @JsonUnwrapped
     private User user;
 
     @OneToMany(mappedBy = "salarie")
