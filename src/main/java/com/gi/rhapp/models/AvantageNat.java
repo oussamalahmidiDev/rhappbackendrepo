@@ -10,7 +10,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class AvantageNat {
+public class AvantageNat  {
 
 
     @Id

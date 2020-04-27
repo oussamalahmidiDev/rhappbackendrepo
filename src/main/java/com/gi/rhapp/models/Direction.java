@@ -13,7 +13,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Data
-public class Direction {
+public class Direction  {
 
 
     @Id

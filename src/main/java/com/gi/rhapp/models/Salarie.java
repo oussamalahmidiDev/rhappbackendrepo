@@ -16,7 +16,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Data
-public class Salarie  {
+public class Salarie {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

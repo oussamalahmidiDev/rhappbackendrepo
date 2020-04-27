@@ -14,7 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Data
-public class Service {
+public class Service  {
 
 
     @Id

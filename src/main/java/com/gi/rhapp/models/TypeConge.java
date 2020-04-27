@@ -11,7 +11,7 @@ import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
 @Getter
 @Setter
 @Data
-public class TypeConge {
+public class TypeConge  {
 
 
     @Id

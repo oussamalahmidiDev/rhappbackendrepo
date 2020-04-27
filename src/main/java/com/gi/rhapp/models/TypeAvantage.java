@@ -8,7 +8,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class TypeAvantage {
+public class TypeAvantage  {
 
 
     @Id

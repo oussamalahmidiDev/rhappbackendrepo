@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Data
-public class TypeRetraite {
+public class TypeRetraite  {
 
 
     @Id
