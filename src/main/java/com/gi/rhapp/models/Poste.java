@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Poste {
+public class sPoste {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

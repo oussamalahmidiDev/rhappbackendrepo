@@ -2,10 +2,7 @@ package com.gi.rhapp.models;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
 
 @Entity
@@ -20,4 +17,7 @@ public class TypeConge {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String typeConge;
+
+    @OneToMany(mappedBy = "conge", fetch = FetchType.LAZY)
+    private Conge conge;
 }

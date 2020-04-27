@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.hibernate.annotations.CreationTimestamp;
 
 
-import java.io.Serializable;
 import javax.persistence.*;
 
 import java.util.Date;
@@ -17,7 +16,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Data
-public class Salarie {
+public class Salarie  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +42,27 @@ public class Salarie {
     private String cinUrg , nomUrg  , prenomUrg , adresseUrg , emailUrg ;
     private Long solde;
 
+    @OneToOne(mappedBy = "salarie")
     private Direction direction;
+
+    @OneToOne(mappedBy = "salarie")
     private Service service ;
+
+    @OneToMany(mappedBy = "absence", fetch = FetchType.LAZY)
+    private Absence absence;
+
+    @OneToOne(mappedBy = "salarie")
+    private sPoste poste;
+
+    @OneToOne(mappedBy = "salarie")
+    private User user;
+
+    @OneToOne(mappedBy = "salarie")
+    private Conge conge;
+
+    @OneToOne(mappedBy = "salarie")
+    private Retraite retraite;
+
+    @OneToMany(mappedBy = "avantageNat", fetch = FetchType.LAZY)
+    private AvantageNat avantageNat;
 }

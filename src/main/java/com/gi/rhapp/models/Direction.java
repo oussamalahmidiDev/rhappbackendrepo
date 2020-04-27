@@ -4,10 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -28,4 +25,7 @@ public class Direction {
 
     @UpdateTimestamp
     private Date dateUpdate;
+
+    @OneToOne(mappedBy = "direction")
+    private Salarie salarie;
 }
