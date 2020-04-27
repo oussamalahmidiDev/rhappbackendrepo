@@ -1,6 +1,7 @@
 package com.gi.rhapp.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -15,6 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @Data
+@Builder
 public class Service  {
 
 
@@ -30,8 +32,10 @@ public class Service  {
     private Date dateUpdate;
 
     @OneToMany(mappedBy = "service")
+    @JsonIgnoreProperties({"service"})
     private List<Salarie> salaries;
 
     @OneToMany(mappedBy = "direction")
+    @JsonIgnoreProperties({"service"})
     private List<Poste> postes;
 }

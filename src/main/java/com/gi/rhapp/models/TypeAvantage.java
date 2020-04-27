@@ -1,5 +1,6 @@
 package com.gi.rhapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class TypeAvantage  {
 
 
@@ -19,5 +21,6 @@ public class TypeAvantage  {
 
 
     @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"type"})
     private List<AvantageNat> avantages;
 }

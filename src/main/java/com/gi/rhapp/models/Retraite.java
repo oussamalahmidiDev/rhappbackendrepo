@@ -2,6 +2,7 @@ package com.gi.rhapp.models;
 
 import com.gi.rhapp.enumerations.EtatRetraite;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,6 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 public class Retraite  {
 
 

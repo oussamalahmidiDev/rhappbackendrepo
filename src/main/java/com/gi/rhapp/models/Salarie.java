@@ -1,5 +1,6 @@
 package com.gi.rhapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -17,6 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @Data
+@Builder
 public class Salarie {
 
     @Id
@@ -53,20 +55,25 @@ public class Salarie {
     private Service service;
 
     @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"salarie"})
     private List<Absence> absences;
 
     @OneToOne(mappedBy = "salarie")
+    @JsonIgnoreProperties({"salarie"})
     private Poste poste;
 
     @OneToOne
     private User user;
 
     @OneToMany(mappedBy = "salarie")
+    @JsonIgnoreProperties({"salarie"})
     private List<Conge> conges;
 
     @OneToOne(mappedBy = "salarie")
+    @JsonIgnoreProperties({"salarie"})
     private Retraite retraite;
 
     @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"salarie"})
     private List<AvantageNat> avantages;
 }

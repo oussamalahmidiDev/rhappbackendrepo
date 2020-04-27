@@ -1,5 +1,6 @@
 package com.gi.rhapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @Data
+@Builder
 public class TypeConge  {
 
 
@@ -21,5 +23,6 @@ public class TypeConge  {
     private String typeConge;
 
     @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"type"})
     private List<Conge> conges;
 }

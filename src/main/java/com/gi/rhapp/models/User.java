@@ -1,7 +1,9 @@
 package com.gi.rhapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gi.rhapp.enumerations.Role;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,6 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 public class User implements UserDetails {
 
     @Id
@@ -43,6 +46,7 @@ public class User implements UserDetails {
     private Date dateModification;
 
     @OneToOne(mappedBy = "user", cascade = {CascadeType.ALL})
+    @JsonIgnoreProperties({"user"})
     private Salarie salarie;
 
 
