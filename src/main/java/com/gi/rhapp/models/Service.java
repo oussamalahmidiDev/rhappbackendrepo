@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -28,6 +29,9 @@ public class Service  {
     @UpdateTimestamp
     private Date dateUpdate;
 
-    @OneToOne(mappedBy = "service")
-    private Salarie salarie;
+    @OneToMany(mappedBy = "service")
+    private List<Salarie> salaries;
+
+    @OneToMany(mappedBy = "direction")
+    private List<Poste> postes;
 }

@@ -3,6 +3,7 @@ package com.gi.rhapp.models;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -17,6 +18,6 @@ public class TypeAvantage  {
     private String typeAvanatge;
 
 
-    @OneToMany(mappedBy = "avantageNat", fetch = FetchType.LAZY)
-    private AvantageNat avantageNat;
+    @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
+    private List<AvantageNat> avantages;
 }

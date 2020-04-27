@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -42,14 +43,14 @@ public class Salarie {
     private String cinUrg , nomUrg  , prenomUrg , adresseUrg , emailUrg ;
     private Long solde;
 
-    @OneToOne(mappedBy = "salarie")
+    @ManyToOne
     private Direction direction;
 
-    @OneToOne(mappedBy = "salarie")
-    private Service service ;
+    @ManyToOne
+    private Service service;
 
-    @OneToMany(mappedBy = "absence", fetch = FetchType.LAZY)
-    private Absence absence;
+    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY)
+    private List<Absence> absences;
 
     @OneToOne(mappedBy = "salarie")
     private Poste poste;
@@ -57,12 +58,12 @@ public class Salarie {
     @OneToOne(mappedBy = "salarie")
     private User user;
 
-    @OneToOne(mappedBy = "salarie")
-    private Conge conge;
+    @OneToMany(mappedBy = "salarie")
+    private List<Conge> conges;
 
     @OneToOne(mappedBy = "salarie")
     private Retraite retraite;
 
-    @OneToMany(mappedBy = "avantageNat", fetch = FetchType.LAZY)
-    private AvantageNat avantageNat;
+    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY)
+    private List<AvantageNat> avantages;
 }

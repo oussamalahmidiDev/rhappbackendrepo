@@ -3,6 +3,7 @@ package com.gi.rhapp.models;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -18,6 +19,6 @@ public class TypeRetraite  {
     private Long id;
     private String typeRetraite;
 
-    @OneToMany(mappedBy = "retraite", fetch = FetchType.LAZY)
-    private Retraite retraite;
+    @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
+    private List<Retraite> retraites;
 }

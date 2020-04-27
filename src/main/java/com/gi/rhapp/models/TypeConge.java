@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -19,6 +20,6 @@ public class TypeConge  {
     private Long id;
     private String typeConge;
 
-    @OneToMany(mappedBy = "conge", fetch = FetchType.LAZY)
-    private Conge conge;
+    @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
+    private List<Conge> conges;
 }

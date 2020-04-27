@@ -37,7 +37,7 @@ public class Retraite  {
     @ManyToOne
     private TypeRetraite type;
 
-    @ManyToOne
+    @OneToOne
     private Salarie salarie;
 
 }
