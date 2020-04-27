@@ -1,0 +1,1 @@
+Here goes services classes (authentication service, mail service ...)

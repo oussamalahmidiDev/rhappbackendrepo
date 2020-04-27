@@ -1,29 +1,11 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This README contains the steps to install and setup RHAPP project on your environment.
 
-### What is this repository for? ###
+### Setup ###
 
-* Quick summary
-* Version
+* **git clone https://{your_username}@bitbucket.org/rhteam/rhappbackendrepo.git**
+* cp application.properties.copy application.properties
+* setup database url, username, password accordingly in your **application.properties** 
+* run **RhappApplication**
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact

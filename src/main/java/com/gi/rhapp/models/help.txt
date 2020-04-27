@@ -1,0 +1,1 @@
+Here goes models classes (entities, http requests, http responses).
