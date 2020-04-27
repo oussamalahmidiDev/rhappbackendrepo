@@ -37,7 +37,7 @@ public class Poste  {
 
     private String division;
 
-    @OneToOne(mappedBy = "poste", cascade = CascadeType.ALL)
+    @OneToOne
     private Salarie salarie;
 
     @ManyToOne

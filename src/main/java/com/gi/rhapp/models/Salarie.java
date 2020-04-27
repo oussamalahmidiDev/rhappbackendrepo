@@ -55,7 +55,7 @@ public class Salarie {
     @OneToOne(mappedBy = "salarie")
     private Poste poste;
 
-    @OneToOne(mappedBy = "salarie")
+    @OneToOne
     private User user;
 
     @OneToMany(mappedBy = "salarie")
