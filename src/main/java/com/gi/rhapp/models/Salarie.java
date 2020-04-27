@@ -22,8 +22,11 @@ public class Salarie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id ;
+
+    @Column(unique = true)
     private Long numSomme;
     private String nom , prenom , telephone, adresse;
+
     private Date dateNaissance ;
     private String lieuNaissance ;
 
