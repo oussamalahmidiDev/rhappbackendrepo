@@ -1,4 +1,7 @@
 package com.gi.rhapp.repositories;
 
-public interface AbsenceRepository {
+import com.gi.rhapp.models.Absence;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AbsenceRepository  extends JpaRepository<Absence , Long> {
 }
