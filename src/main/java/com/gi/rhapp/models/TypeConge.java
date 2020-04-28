@@ -16,7 +16,6 @@ import java.util.List;
 @Builder
 public class TypeConge  {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

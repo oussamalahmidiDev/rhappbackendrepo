@@ -42,4 +42,10 @@ public class Retraite  {
     @OneToOne
     private Salarie salarie;
 
+    //just for test
+    public Retraite(Date dateRetraite , Date dateValidation , Salarie salarie) {
+        this.dateCreation=dateRetraite;
+        this.dateValidation = dateValidation;
+        this.salarie=salarie;
+    }
 }

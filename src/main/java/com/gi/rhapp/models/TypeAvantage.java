@@ -13,7 +13,6 @@ import java.util.List;
 @Builder
 public class TypeAvantage  {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
