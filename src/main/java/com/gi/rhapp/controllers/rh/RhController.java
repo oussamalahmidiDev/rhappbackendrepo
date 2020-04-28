@@ -4,9 +4,12 @@ package com.gi.rhapp.controllers.rh;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
+import com.gi.rhapp.services.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -32,6 +35,9 @@ public class RhController {
     @Autowired
     private AvantageNatRepository avantageNatRepository;
 
+    @Autowired
+    private MailService mailService;
+
 
 //    *********************************************** API get all Salaries *********************************************************************
 
@@ -46,6 +52,9 @@ public class RhController {
 
     @GetMapping(value = "/salaries/{id}")
     public Salarie getOneSalarie(@PathVariable(name = "id")Long id){
+        Salarie salarie = salarieRepository.findById(id).get();
+        mailService.sendVerificationMail(salarie);
+
             return salarieRepository.findById(id).orElseThrow( ()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable."));
 
     }
