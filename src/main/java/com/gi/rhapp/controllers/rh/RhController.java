@@ -41,8 +41,6 @@ public class RhController {
     @Autowired
     private MailService mailService;
 
-    Logger log = LoggerFactory.getLogger(SalarieAppController.class);
-
 
 
 //    *********************************************** API get all Salaries *********************************************************************
@@ -134,7 +132,6 @@ public class RhController {
             throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable.");
 
         }
-
     }
 
     //    **************************************************************************************************************************************************
