@@ -53,7 +53,7 @@ public class RhController {
     @GetMapping(value = "/salaries/{id}")
     public Salarie getOneSalarie(@PathVariable(name = "id")Long id){
         Salarie salarie = salarieRepository.findById(id).get();
-        mailService.sendVerificationMail(salarie);
+//        mailService.sendVerificationMail(salarie); just for test
 
             return salarieRepository.findById(id).orElseThrow( ()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable."));
 
