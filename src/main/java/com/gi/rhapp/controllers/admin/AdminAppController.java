@@ -38,7 +38,7 @@ public class AdminAppController {
         return userRepository.findAll();
     }
 
-    @GetMapping("/users/{id]")
+    @GetMapping("/users/{id}")
     public User getUser(@PathVariable(value = "id") Long id) {
         return userRepository.findById(id).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable.")
