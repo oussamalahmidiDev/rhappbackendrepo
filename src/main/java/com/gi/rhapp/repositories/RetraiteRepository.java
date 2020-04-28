@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface RetraiteRepository extends JpaRepository<Retraite,Long> {
     Optional<Retraite> findBySalarieId(Long id);
+
 }

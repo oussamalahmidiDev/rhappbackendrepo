@@ -47,16 +47,16 @@ public class RhappApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-//        Salarie salarie = salarieRepository.save(new Salarie("EE952974","KHALIL","DAOULAT",new Date(), "INDIA" , "MOL CHI"));
-//        Salarie salarie2 = salarieRepository.save(new Salarie("EE958974","OUSSAMA","LAHMIDI",new Date(), "INDIA" , "MOL CHI"));
-//        Salarie salarie3 = salarieRepository.save(new Salarie("EE986974","NOUHAILA","BOUZITI",new Date(), "INDIA" , "MOL CHI"));
-//        Salarie salarie4 = salarieRepository.save(new Salarie("EE902974","testos","fakhr",new Date(), "INDIA" , "MOL CHI"));
-//
-//
-//        Retraite retraite = retraiteRepository.save(new Retraite(new Date() , new Date() , salarie4));
-//
-//        Absence absence = absenceRepository.save(new Absence(new Date() , new Date() , salarie2));
-//        Absence absence1 = absenceRepository.save(new Absence(new Date() , new Date() , salarie2));
+        Salarie salarie = salarieRepository.save(new Salarie("EE952974","KHALIL","DAOULAT",new Date(), "INDIA" , "MOL CHI"));
+        Salarie salarie2 = salarieRepository.save(new Salarie("EE958974","OUSSAMA","LAHMIDI",new Date(), "INDIA" , "MOL CHI"));
+        Salarie salarie3 = salarieRepository.save(new Salarie("EE986974","NOUHAILA","BOUZITI",new Date(), "INDIA" , "MOL CHI"));
+        Salarie salarie4 = salarieRepository.save(new Salarie("EE902974","testos","fakhr",new Date(), "INDIA" , "MOL CHI"));
+
+
+        Retraite retraite = retraiteRepository.save(new Retraite(new Date() , new Date() , salarie4));
+
+        Absence absence = absenceRepository.save(new Absence(new Date() , new Date() , salarie2));
+        Absence absence1 = absenceRepository.save(new Absence(new Date() , new Date() , salarie2));
 
     }
 }

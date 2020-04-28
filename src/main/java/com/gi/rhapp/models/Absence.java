@@ -39,4 +39,10 @@ public class Absence  {
     @ManyToOne
     @JsonIgnoreProperties({"conges","absences","avantages"})
     private Salarie salarie;
+
+    public Absence(Date date, Date date1, Salarie salarie) {
+        this.dateDebut=date;
+        this.dateFin=date1;
+        this.salarie=salarie;
+    }
 }

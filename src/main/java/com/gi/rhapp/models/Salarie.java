@@ -89,4 +89,11 @@ public class Salarie {
     @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"salarie"})
     private Collection<AvantageNat> avantages;
+
+    public Salarie(String cin, String prenom, String nom, Date date, String lieuNaissance, String fonction) {
+        this.cin=cin;
+        this.dateNaissance=date;
+        this.lieuNaissance=lieuNaissance;
+        this.fonction=fonction;
+    }
 }
