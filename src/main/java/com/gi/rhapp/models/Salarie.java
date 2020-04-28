@@ -11,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -87,5 +88,5 @@ public class Salarie {
 
     @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"salarie"})
-    private List<AvantageNat> avantages;
+    private Collection<AvantageNat> avantages;
 }

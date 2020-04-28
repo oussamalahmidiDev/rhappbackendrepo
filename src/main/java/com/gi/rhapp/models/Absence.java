@@ -1,5 +1,6 @@
 package com.gi.rhapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,5 +37,6 @@ public class Absence  {
     private String type;
 
     @ManyToOne
+    @JsonIgnoreProperties({"conges","absences","avantages"})
     private Salarie salarie;
 }

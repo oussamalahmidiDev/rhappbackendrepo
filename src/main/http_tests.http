@@ -1,1 +1,46 @@
+
+###
 # PUT YOUR API TESTS HERE
+
+GET http://localhost:8080/
+Accept: application/json
+
+###
+
+GET http://localhost:8080/salarie/api/profil
+
+###
+
+GET http://localhost:8080/salarie/api/conges
+
+###
+
+GET http://localhost:8080/salarie/api/absences
+
+###
+
+POST http://localhost:8080/salarie/api/conges/create
+Content-Type: application/json
+
+{
+    "dateFin": "2020-04-04",
+    "dateDebut": "2020-05-04",
+    "motif": "Conge d'ete",
+    "duree": 10,
+    "type": {
+        "id": 1
+    }
+}
+
+###
+
+POST http://localhost:8080/salarie/api/absences/create
+Content-Type: application/json
+
+{
+    "dateFin": "2020-04-04",
+    "dateDebut": "2020-05-04",
+    "type": "deces"
+}
+
+###

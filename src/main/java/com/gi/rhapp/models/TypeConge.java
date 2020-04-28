@@ -23,6 +23,5 @@ public class TypeConge  {
     private String typeConge;
 
     @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties({"type"})
     private List<Conge> conges;
 }

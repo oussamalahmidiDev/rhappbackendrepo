@@ -1,5 +1,6 @@
 package com.gi.rhapp.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gi.rhapp.enumerations.EtatConge;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,11 @@ public class Conge  {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Date dateDebut, DateFin, DateRetour;
+    private Date dateDebut;
+
+    private Date DateFin;
+
+    private Date DateRetour;
 
     private int duree;
 
@@ -40,9 +45,11 @@ public class Conge  {
     private Date dateModification;
 
     @ManyToOne
+    @JsonIgnoreProperties({"conges"})
     private TypeConge type;
 
     @ManyToOne
+    @JsonIgnoreProperties({"conges","absences","avantages"})
     private Salarie salarie;
 
 
