@@ -3,6 +3,7 @@ package com.gi.rhapp.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gi.rhapp.enumerations.Role;
+import com.gi.rhapp.utilities.VerificationTokenGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,8 +39,15 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private String nom;
+    private String prenom;
+
     @JsonIgnore
     private String password;
+
+    private Boolean emailConfirmed;
+
+    private String verificationToken;
 
     @CreationTimestamp
     private Date dateCreation;
@@ -61,6 +69,12 @@ public class User implements UserDetails {
         roles.add(new SimpleGrantedAuthority("ROLE_" + role)); // ROLE_  : just a prefix , Spring build a prefix for every role its just a syntx ,for exemple if your role is USER then your authority(role) is ROLE_USER
 
         return roles;
+    }
+
+    @PrePersist
+    public void intialValues() {
+        verificationToken = VerificationTokenGenerator.generateVerificationToken();
+        emailConfirmed = false;
     }
 
     @Override

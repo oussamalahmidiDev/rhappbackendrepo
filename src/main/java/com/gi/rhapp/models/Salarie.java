@@ -34,7 +34,7 @@ public class Salarie {
     @Column(unique = true)
     private String cin ;
 
-    private String nom , prenom , telephone, adresse;
+    private String telephone, adresse;
     private String image , cv;
 
     private Date dateNaissance ;
