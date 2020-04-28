@@ -1,6 +1,7 @@
 package com.gi.rhapp.services;
 
 import com.gi.rhapp.models.Salarie;
+import com.gi.rhapp.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -45,42 +46,42 @@ public class MailService {
     @Value("${spring.mail.password}")
     private String PASSWORD;
 
-    public void sendCompteDetails (Salarie salarie) {
-        String url = getConfirmationURL(salarie) + "&action=compte_details&ccn=" + salarie.getNumSomme();
+//    public void sendCompteDetails (Salarie salarie) {
+//        String url = getConfirmationURL(salarie) + "&action=compte_details&ccn=" + salarie.getNumSomme();
+//        try {
+//            MimeMessage message = getMimeMessage(
+//                    salarie.getUser().getEmail(),
+//                    "Details de votre compte AKINOBANK",
+//                    "Bienvenue "  + salarie.getPrenom() + " sur AKINOBANK"
+//            );
+//            MimeMessageHelper messageHelper = new MimeMessageHelper(message);
+//
+//            Context context = new Context();
+//            context.setVariable("receiver", salarie);
+//            context.setVariable("url", url);
+//            String content = templateEngine.process("mails/salarie_info", context);
+//            messageHelper.setText(content, true);
+//            // Send message
+//            Transport.send(message);
+//        } catch (MessagingException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+
+    public void sendVerificationMail (User user) {
+        String url = getConfirmationURL(user) + "&action=confirm";
         try {
             MimeMessage message = getMimeMessage(
-                    salarie.getUser().getEmail(),
-                    "Details de votre compte AKINOBANK",
-                    "Bienvenue "  + salarie.getPrenom() + " sur AKINOBANK"
-            );
-            MimeMessageHelper messageHelper = new MimeMessageHelper(message);
-
-            Context context = new Context();
-            context.setVariable("receiver", salarie);
-            context.setVariable("url", url);
-            String content = templateEngine.process("mails/salarie_info", context);
-            messageHelper.setText(content, true);
-            // Send message
-            Transport.send(message);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void sendVerificationMail (Salarie salarie) {
-        String url = getConfirmationURL(salarie) + "&action=confirm";
-        try {
-            MimeMessage message = getMimeMessage(
-                    "khalilomogiwara@gmail.com",
+                    user.getEmail(),
                     "Verification d'email",
-                    "Bienvenue "  + salarie.getPrenom() + " sur AKINOBANK"
+                    "Bienvenue "  + user.getPrenom() + " sur RH"
             );
             MimeMessageHelper messageHelper = new MimeMessageHelper(message);
 
             Context context = new Context();
             context.setVariable("url", url);
-            context.setVariable("receiver", salarie);
+            context.setVariable("receiver", user);
             String content = templateEngine.process("mails/salarie_info", context);
             messageHelper.setText(content, true);
             // Send message
@@ -133,10 +134,10 @@ public class MailService {
         return session;
     }
 
-    private String getConfirmationURL(Salarie salarie) {
+    private String getConfirmationURL(User user) {
         String rootURL = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
         // generation du lien de confirmation et envoie par mail
-        return rootURL + "/confirm?token=" + salarie.getNumSomme();
+        return rootURL + "/confirm?token=" + user.getVerificationToken();
     }
 
 }

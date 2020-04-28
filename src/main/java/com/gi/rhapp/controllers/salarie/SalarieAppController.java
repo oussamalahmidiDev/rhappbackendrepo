@@ -7,6 +7,7 @@ import com.gi.rhapp.repositories.AbsenceRepository;
 import com.gi.rhapp.repositories.CongeRepository;
 import com.gi.rhapp.repositories.SalarieRepository;
 import com.gi.rhapp.repositories.UserRepository;
+import com.gi.rhapp.services.MailService;
 import net.bytebuddy.asm.Advice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,9 @@ public class SalarieAppController {
 
     @Autowired
     private CongeRepository congeRepository;
+
+    @Autowired
+    private MailService mailService;
 
     Logger log = LoggerFactory.getLogger(SalarieAppController.class);
 
@@ -72,6 +76,13 @@ public class SalarieAppController {
 
         conge.setSalarie(getProfile());
         return congeRepository.save(conge);
+    }
+
+//   to test email service
+    @GetMapping("/confirm")
+    public ResponseEntity<String> testConfirmation() {
+        mailService.sendVerificationMail(getProfile().getUser());
+        return ResponseEntity.ok("");
     }
 
 
