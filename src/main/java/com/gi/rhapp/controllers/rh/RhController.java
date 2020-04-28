@@ -1,10 +1,13 @@
 package com.gi.rhapp.controllers.rh;
 
 
+import com.gi.rhapp.controllers.salarie.SalarieAppController;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.MailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Example;
@@ -38,6 +41,9 @@ public class RhController {
     @Autowired
     private MailService mailService;
 
+    Logger log = LoggerFactory.getLogger(SalarieAppController.class);
+
+
 
 //    *********************************************** API get all Salaries *********************************************************************
 
@@ -52,9 +58,7 @@ public class RhController {
 
     @GetMapping(value = "/salaries/{id}")
     public Salarie getOneSalarie(@PathVariable(name = "id")Long id){
-        Salarie salarie = salarieRepository.findById(id).get();
 //        mailService.sendVerificationMail(salarie); just for test
-
             return salarieRepository.findById(id).orElseThrow( ()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable."));
 
     }
@@ -86,7 +90,7 @@ public class RhController {
     @GetMapping(value = "/salaries/{id}/absences")
     public List<Absence> getAbsences(@PathVariable(value = "id") Long id) {
         try{
-            return salarieRepository.findById(id).get().getAbsences();
+            return getOneSalarie(id).getAbsences();
 
         }catch (NoSuchElementException e){
             throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable.");
@@ -101,7 +105,7 @@ public class RhController {
     @GetMapping(value = "/salaries/{id}/avantages")
     public Collection<AvantageNat> getAvantages(@PathVariable(value = "id") Long id){
         try{
-            return salarieRepository.findById(id).get().getAvantages();
+            return getOneSalarie(id).getAvantages();
 
         }catch (NoSuchElementException e){
             throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable.");
@@ -124,7 +128,7 @@ public class RhController {
     @GetMapping(value = "/retraites/{id}")
     public Retraite getOneRetraite(@PathVariable(value = "id")Long id){
         try{
-            return salarieRepository.findById(id).get().getRetraite();
+            return getOneSalarie(id).getRetraite();
 
         }catch (NoSuchElementException e){
             throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable.");
@@ -149,7 +153,7 @@ public class RhController {
     @PutMapping(value = "/retraites/{id}/modifier")
     public Retraite addRetraite(@PathVariable(value = "id")Long id , @RequestBody Retraite retraite){
         try{
-            Retraite newRetraite = salarieRepository.findById(id).get().getRetraite();
+            Retraite newRetraite = getOneSalarie(id).getRetraite();
             retraite.setDateModification(new Date());
             if(retraite.getEtat() !=null) newRetraite.setEtat(retraite.getEtat());
             if(retraite.getDateRetraite()!=null) newRetraite.setDateRetraite(retraite.getDateRetraite());
