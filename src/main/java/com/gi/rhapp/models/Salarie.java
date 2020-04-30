@@ -34,6 +34,8 @@ public class Salarie {
     @Column(unique = true)
     private String cin ;
 
+    private Long salaire;
+
     private String telephone, adresse;
     private String image , cv;
 
@@ -69,7 +71,7 @@ public class Salarie {
     @JsonIgnoreProperties({"salarie"})
     private List<Absence> absences;
 
-    @OneToOne(mappedBy = "salarie")
+    @OneToOne(mappedBy = "salarie", fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"salarie"})
     private Poste poste;
 
@@ -82,7 +84,7 @@ public class Salarie {
     @JsonIgnoreProperties({"salarie"})
     private List<Conge> conges;
 
-    @OneToOne(mappedBy = "salarie")
+    @OneToOne(mappedBy = "salarie", fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"salarie"})
     private Retraite retraite;
 

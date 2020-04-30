@@ -1,9 +1,8 @@
 package com.gi.rhapp;
 
-import com.gi.rhapp.models.Absence;
-import com.gi.rhapp.models.Retraite;
-import com.gi.rhapp.models.Salarie;
+import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -16,6 +15,7 @@ import java.util.Date;
 
 @SpringBootApplication
 @RestController
+@Builder
 public class RhappApplication implements CommandLineRunner {
 
     @Autowired
@@ -47,16 +47,29 @@ public class RhappApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        Salarie salarie = salarieRepository.save(new Salarie("EE952974","KHALIL","DAOULAT",new Date(), "INDIA" , "MOL CHI"));
-        Salarie salarie2 = salarieRepository.save(new Salarie("EE958974","OUSSAMA","LAHMIDI",new Date(), "INDIA" , "MOL CHI"));
-        Salarie salarie3 = salarieRepository.save(new Salarie("EE986974","NOUHAILA","BOUZITI",new Date(), "INDIA" , "MOL CHI"));
-        Salarie salarie4 = salarieRepository.save(new Salarie("EE902974","testos","fakhr",new Date(), "INDIA" , "MOL CHI"));
+//        Salarie salarie = salarieRepository.save(new Salarie("EE952974","KHALIL","DAOULAT",new Date(), "INDIA" , "MOL CHI"));
+//        Salarie salarie2 = salarieRepository.save(new Salarie("EE958974","OUSSAMA","LAHMIDI",new Date(), "INDIA" , "MOL CHI"));
+//        Salarie salarie3 = salarieRepository.save(new Salarie("EE986974","NOUHAILA","BOUZITI",new Date(), "INDIA" , "MOL CHI"));
+//        Salarie salarie4 = salarieRepository.save(new Salarie("EE902974","testos","fakhr",new Date(), "INDIA" , "MOL CHI"));
+//
+//
+//        Retraite retraite = retraiteRepository.save(new Retraite(new Date() , new Date() , salarie4));
+//
+//        Absence absence = absenceRepository.save(new Absence(new Date() , new Date() , salarie2));
+//        Absence absence1 = absenceRepository.save(new Absence(new Date() , new Date() , salarie2));
 
+        userRepository.save(User.builder()
+                .nom("KHALIL")
+                .prenom("DAOULAT")
+                .email("daoulat.khalil@gmail.com")
+                .salarie(Salarie.builder()
+                        .fonction("Software Engineer")
+                        .service(Service.builder().nom("dev service").build())
+                        .direction(Direction.builder().nom("Soft Direction").build())
+                        .salaire(120000L)
+                        .build())
 
-        Retraite retraite = retraiteRepository.save(new Retraite(new Date() , new Date() , salarie4));
-
-        Absence absence = absenceRepository.save(new Absence(new Date() , new Date() , salarie2));
-        Absence absence1 = absenceRepository.save(new Absence(new Date() , new Date() , salarie2));
+                .build());
 
     }
 }
