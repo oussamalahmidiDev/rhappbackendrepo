@@ -84,19 +84,8 @@ public class RhRetraitesController {
     @Transactional
     public ResponseEntity<?> addRetraite(@PathVariable(value = "id")Long id , @RequestBody Retraite retraite){
         try{
-            Retraite retraiteTomodify = retraiteRepository.findById(id).get();
             retraite.setId(id);
-//            retraite.setDateModification(new Date());
-//            if(retraite.getEtat() !=null) newRetraite.setEtat(retraite.getEtat());
-//            if(retraite.getDateRetraite()!=null) newRetraite.setDateRetraite(retraite.getDateRetraite());
-//            if(retraite.getDateCreation()!=null) newRetraite.setDateCreation(retraite.getDateCreation());
-//            if(retraite.getDateValidation()!=null) newRetraite.setDateValidation(retraite.getDateValidation());
-//            if(retraite.getType()!=null) newRetraite.setType(retraite.getType());
-//            if(retraite.getRemarques()!=null) newRetraite.setRemarques(retraite.getRemarques());
-//            copyNonNullProperties(retraite,oldRetraite);
-            BeanUtils.copyProperties(retraite,retraiteTomodify);
-
-            return ResponseEntity.ok("");
+            return ResponseEntity.ok(retraiteRepository.save(retraite));
 
         }catch (NoSuchElementException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Le retraite avec id = " + id + " est introuvable.");

@@ -20,6 +20,13 @@ public class RhappApplication implements CommandLineRunner {
 
     @Autowired
     private SalarieRepository salarieRepository;
+    @Autowired
+    private ServiceRepository serviceRepository;
+    @Autowired
+    private DirectionRepository directionRepository;
+
+    @Autowired
+    private PosteRepository posteRepository;
 
     @Autowired
     private AbsenceRepository absenceRepository;
@@ -47,29 +54,71 @@ public class RhappApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-//        Salarie salarie = salarieRepository.save(new Salarie("EE952974","KHALIL","DAOULAT",new Date(), "INDIA" , "MOL CHI"));
-//        Salarie salarie2 = salarieRepository.save(new Salarie("EE958974","OUSSAMA","LAHMIDI",new Date(), "INDIA" , "MOL CHI"));
-//        Salarie salarie3 = salarieRepository.save(new Salarie("EE986974","NOUHAILA","BOUZITI",new Date(), "INDIA" , "MOL CHI"));
-//        Salarie salarie4 = salarieRepository.save(new Salarie("EE902974","testos","fakhr",new Date(), "INDIA" , "MOL CHI"));
-//
-//
-//        Retraite retraite = retraiteRepository.save(new Retraite(new Date() , new Date() , salarie4));
-//
-//        Absence absence = absenceRepository.save(new Absence(new Date() , new Date() , salarie2));
-//        Absence absence1 = absenceRepository.save(new Absence(new Date() , new Date() , salarie2));
+        Service service = serviceRepository.save(Service.builder().nom("Dev service").build());
+        Direction direction = directionRepository.save(Direction.builder().nom("Soft Direction").build());
 
-        userRepository.save(User.builder()
-                .nom("KHALIL")
-                .prenom("DAOULAT")
+
+
+        User khalil = userRepository.save(User.builder()
+                .nom("DAOULAT")
+                .prenom("KHALIL")
                 .email("daoulat.khalil@gmail.com")
-                .salarie(Salarie.builder()
-                        .fonction("Software Engineer")
-                        .service(Service.builder().nom("dev service").build())
-                        .direction(Direction.builder().nom("Soft Direction").build())
-                        .salaire(120000L)
-                        .build())
-
                 .build());
+
+        User oussama = userRepository.save(User.builder()
+                .nom("LAHMIDI")
+                .prenom("OUSSAMA")
+                .email("oussama@gmail.com")
+                .build());
+
+        User nouhaila = userRepository.save(User.builder()
+                .nom("BOUZITI")
+                .prenom("NOUHAILA")
+                .email("nouhaila@gmail.com")
+                .build());
+
+        User nachrha = userRepository.save(User.builder()
+                .nom("TESTOS")
+                .prenom("HAMID")
+                .email("hamid@gmail.com")
+                .build());
+
+        Salarie salarie1 = salarieRepository.save(Salarie.builder()
+                .fonction("Engineer")
+                .service(service)
+                .direction(direction)
+                .user(oussama)
+                .build());
+
+        Salarie salarie2 = salarieRepository.save(Salarie.builder()
+                .fonction("RH")
+                .service(service)
+                .direction(direction)
+                .user(khalil)
+                .build());
+
+        Salarie salarie3 = salarieRepository.save(Salarie.builder()
+                .fonction("Engineer")
+                .service(service)
+                .direction(direction)
+                .user(nouhaila)
+                .build());
+
+        Salarie salarie4 = salarieRepository.save(Salarie.builder()
+                .fonction("BERGAG")
+                .service(service)
+                .direction(direction)
+                .user(nachrha)
+                .build());
+
+        absenceRepository.save(Absence.builder().salarie(salarie1).dateDebut(new Date()).dateFin(new Date()).build());
+        retraiteRepository.save(Retraite.builder().salarie(salarie4).dateRetraite(new Date()).build());
+        avantageNatRepository.save(AvantageNat.builder().salarie(salarie2).commission("commission").build());
+        Poste software_engineer1 = posteRepository.save(Poste.builder().salarie(salarie1).nom("Software Engineer").build());
+        Poste software_engineer2 = posteRepository.save(Poste.builder().salarie(salarie3).nom("Software Engineer").build());
+        Poste software_engineer3 = posteRepository.save(Poste.builder().salarie(salarie4).nom("Software Engineer").build());
+        Poste rh = posteRepository.save(Poste.builder().salarie(salarie2).nom("Resource human").build());
+
 
     }
 }
