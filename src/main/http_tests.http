@@ -1,8 +1,19 @@
+POST http://localhost:8080/admin/api/users/create
+Content-Type: application/json
+
+{
+  "nom": "Lahmidi",
+    "prenom": "OUSS",
+    "email": "o@g.c",
+    "role": "RH"
+}
+
+###
 
 ###
 # PUT YOUR API TESTS HERE
 
-GET http://localhost:8080/
+GET http://localhost:8080/admin/api/users
 Accept: application/json
 
 ###

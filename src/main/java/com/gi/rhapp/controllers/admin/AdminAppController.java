@@ -31,11 +31,40 @@ public class AdminAppController {
     @Autowired
     private CongeRepository congeRepository;
 
+    @Autowired
+    private ActivityRepository activityRepository;
+
     Logger log = LoggerFactory.getLogger(AdminAppController.class);
 
     @GetMapping("/users")
     public List<User> getUsers() {
         return userRepository.findAll();
+    }
+
+    @GetMapping("/activities")
+    public List<Activity> getActivities() {
+        return activityRepository.findAllByOrderByTimestampDesc();
+    }
+
+    @PostMapping("/users/create")
+    public User createUser(@RequestBody User user) {
+        activityRepository.save(new Activity("Enregistrement d'un nouveau utilisateur de nom " + user.getPrenom(), "Admin - Gestion d'utilisateurs"));
+        return userRepository.save(user);
+    }
+
+    @PutMapping("/users/{id}/modifier")
+    public User updateUser(@PathVariable("id") Long id, @RequestBody User user) {
+        User userFromDB = getUser(id);
+        user.setId(id);
+        activityRepository.save(new Activity("Modification des informations de " + user.getPrenom(), "Admin - Gestion d'utilisateurs"));
+        return userRepository.save(user);
+    }
+
+    @DeleteMapping("/users/{id}/delete")
+    public ResponseEntity<String> deleteUser(@PathVariable("id") Long id) {
+        userRepository.deleteById(id);
+        activityRepository.save(new Activity("Suppression d'un utilisateur de id = " + id, "Admin - Gestion d'utilisateurs"));
+        return new ResponseEntity<>("Utilisateur a été supprimé avec succès", HttpStatus.OK);
     }
 
     @GetMapping("/users/{id}")
