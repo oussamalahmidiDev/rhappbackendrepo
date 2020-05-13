@@ -76,7 +76,8 @@ public class User implements UserDetails {
     public void intialValues() {
         verificationToken = VerificationTokenGenerator.generateVerificationToken();
         emailConfirmed = false;
-        photo="https://i.picsum.photos/id/903/200/300.jpg"; // just for test
+//        photo="https://i.picsum.photos/id/903/200/300.jpg"; // just for test
+        photo="default.jpeg"; // just for test
     }
 
     @Override

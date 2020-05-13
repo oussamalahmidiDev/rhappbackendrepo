@@ -9,27 +9,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.synchronoss.cloud.nio.multipart.Multipart;
+import org.apache.commons.io.IOUtils;
+
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/salarie/api")
@@ -61,11 +70,17 @@ public class SalarieAppController {
     @Autowired
     private Upload upload;
 
+    @Autowired
+    private ResourceLoader resourceLoader;
+
+
+
     Logger log = LoggerFactory.getLogger(SalarieAppController.class);
 
     @Value("spring.servlet.multipart.location")
-    private static String UPLOAD_DIR = "../rhappsalarierepo/src/assets/img/profile";
-    private static String FRONT_DIR = "assets/img/profile";
+    private static String UPLOAD_DIR = "./src/main/resources/uploads/img";
+    private static String DB_PATH = "uploads/img";
+
     private static String UPLOAD_CV_DIR = "./src/main/resources/uploads/cv";
     private static String UPLOAD_diplome_DIR = "./src/main/resources/uploads/diplomes";
 
@@ -168,14 +183,10 @@ public class SalarieAppController {
         String extension = file.getContentType().split("/")[1];
         if(extension.equals("png") || extension.equals("jpeg") ){
         try{
-
             String fileName = Long.toString(date.getTime())+"."+file.getContentType().split("/")[1];
             String path = UPLOAD_DIR + File.separator +fileName;
-//            System.out.println(path);
-//            System.out.println(file.getContentType().split("/")[1]);
-            String frontPath = FRONT_DIR+File.separator +fileName;
             User user = getProfile().getUser();
-            user.setPhoto(frontPath);
+            user.setPhoto(fileName);
             userRepository.save(user);
             upload.saveFile(file.getInputStream(),path);
             return fileName;
@@ -188,6 +199,21 @@ public class SalarieAppController {
         return null;
 
     }
+
+    @PostMapping(value = "/profil/download/image")
+    public ResponseEntity<?> getImage(HttpServletResponse response ,@RequestParam("pictureName") String name ) throws IOException {
+        try {
+            Path fileLocation = Paths.get(UPLOAD_DIR + File.separator + name).toAbsolutePath().normalize();
+            Resource resource = new UrlResource(fileLocation.toUri());
+            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+            StreamUtils.copy(resource.getInputStream(), response.getOutputStream());
+            return new ResponseEntity(HttpStatus.OK);
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Image introuvable");
+        }
+    }
+
+
 
     @PostMapping("/profil/upload/cv")
     public String uploadCv(@RequestParam("file") MultipartFile file){

@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "compiler.automake.allow.when.app.running",
+      "type": "java.lang.String",
+      "description": "Description for compiler.automake.allow.when.app.running."
+  }
+] }
