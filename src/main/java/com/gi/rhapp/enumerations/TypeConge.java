@@ -6,5 +6,4 @@ public enum TypeConge {
     CONGE_PACS,
     CONGE_DECES,
     CONGE_NAISSANCE
-
 }

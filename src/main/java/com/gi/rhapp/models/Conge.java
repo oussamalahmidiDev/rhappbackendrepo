@@ -49,7 +49,6 @@ public class Conge  {
 
     @ManyToOne
     @JsonIgnoreProperties({"conges"})
-//    @JsonView(Conge.class)
     private TypeConge type;
 
     @ManyToOne

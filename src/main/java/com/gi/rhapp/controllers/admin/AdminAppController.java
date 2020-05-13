@@ -48,6 +48,9 @@ public class AdminAppController {
 
     @PostMapping("/users/create")
     public User createUser(@RequestBody User user) {
+        if (userRepository.findByEmail(user.getEmail()) != null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cet email existe déjà");
+
         activityRepository.save(new Activity("Enregistrement d'un nouveau utilisateur de nom " + user.getPrenom(), "Admin - Gestion d'utilisateurs"));
         return userRepository.save(user);
     }
@@ -56,8 +59,13 @@ public class AdminAppController {
     public User updateUser(@PathVariable("id") Long id, @RequestBody User user) {
         User userFromDB = getUser(id);
         user.setId(id);
+        if (!userRepository.findByEmail(user.getEmail()).getId().equals(id))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cet email existe déjà");
+        userFromDB.setNom(user.getNom());
+        userFromDB.setPrenom(user.getPrenom());
+        userFromDB.setEmail(user.getEmail());
         activityRepository.save(new Activity("Modification des informations de " + user.getPrenom(), "Admin - Gestion d'utilisateurs"));
-        return userRepository.save(user);
+        return userRepository.save(userFromDB);
     }
 
     @DeleteMapping("/users/{id}/delete")

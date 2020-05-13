@@ -56,10 +56,27 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8080/rh/api/salaries/9/absences
+GET http://localhost:8080/rh/api/postes/postes
 
 ###
 
 GET http://localhost:8080/salarie/api/confirm
+
+###
+
+POST http://localhost:8080/rh/api/postes/create
+Content-Type: application/json
+
+{
+    "nom": "Gestion RH",
+    "division": "DIV V",
+    "service": {
+        "id": "21"
+    },
+    "direction": {
+        "nom": "dirrr"
+    },
+    "compentences": ["COM","ETUD"]
+}
 
 ###
