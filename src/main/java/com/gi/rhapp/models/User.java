@@ -41,6 +41,8 @@ public class User implements UserDetails {
 
     private String nom;
     private String prenom;
+    private String photo;
+    private String telephone;
 
     @JsonIgnore
     private String password;
@@ -55,10 +57,9 @@ public class User implements UserDetails {
     @UpdateTimestamp
     private Date dateModification;
 
-    @OneToOne(mappedBy = "user", cascade = {CascadeType.ALL})
+    @OneToOne(mappedBy = "user" ,cascade={CascadeType.ALL,CascadeType.REMOVE})
     @JsonIgnoreProperties({"user"})
     private Salarie salarie;
-
 
     // USER DETAILS IMPLEMENTATION
 
@@ -75,6 +76,7 @@ public class User implements UserDetails {
     public void intialValues() {
         verificationToken = VerificationTokenGenerator.generateVerificationToken();
         emailConfirmed = false;
+        photo="https://i.picsum.photos/id/903/200/300.jpg"; // just for test
     }
 
     @Override
@@ -106,4 +108,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

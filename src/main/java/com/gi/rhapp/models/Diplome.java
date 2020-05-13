@@ -1,6 +1,8 @@
 package com.gi.rhapp.models;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,33 +13,30 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.util.Date;
 
+@Entity
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Builder
-public class Absence  {
-
+public class Diplome {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
+    private Date dateDiplome;
+    private Date expDiplome;
 
-    private Date dateDebut, dateFin;
-
-    private String justificatif;
+    private String path;
 
     @CreationTimestamp
     private Date dateCreation;
-
     @UpdateTimestamp
-    private Date dateModification;
-
-//    a verifier
-    private String type;
+    private Date dateUpdate;
 
     @ManyToOne
-    @JsonIgnoreProperties({"conges","absences","avantages"})
+    @JsonIgnoreProperties({"diplomeObt"})
     private Salarie salarie;
+
 
 }

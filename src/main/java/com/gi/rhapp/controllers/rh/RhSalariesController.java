@@ -1,10 +1,6 @@
 package com.gi.rhapp.controllers.rh;
 
-
-import com.gi.rhapp.models.Absence;
-import com.gi.rhapp.models.AvantageNat;
-import com.gi.rhapp.models.Retraite;
-import com.gi.rhapp.models.Salarie;
+import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.MailService;
 import org.springframework.beans.BeanUtils;
@@ -49,7 +45,6 @@ public class RhSalariesController {
 
     @GetMapping() //works
     public List<Salarie>  getSalaries(){
-
         return salarieRepository.findAll();
     }
 
@@ -69,6 +64,16 @@ public class RhSalariesController {
     public List<Salarie> searchSalaries(@RequestBody(required = false) Salarie salarie){
             return salarieRepository.findAll(Example.of(salarie));
     }
+
+    @PostMapping(value = "/create") //works
+    public User createSalarie(@RequestBody User user){
+        mailService.sendVerificationMail(user);
+        return userRepository.save(user);
+
+    }
+
+
+
 
     //    **************************************************************************************************************************************************
     //    *********************************************** API get "Absences" of salarie by id ******************************************************************

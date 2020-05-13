@@ -32,7 +32,7 @@ public class Direction  {
 
     @OneToMany(mappedBy = "direction")
     @JsonIgnoreProperties({"direction"})
-    private List<Salarie> salarie;
+    private List<Salarie> salaries;
 
 
     @OneToMany(mappedBy = "direction")

@@ -13,8 +13,11 @@ import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.annotation.security.RolesAllowed;
 import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
@@ -58,13 +61,8 @@ public class RhRetraitesController {
 
     @GetMapping(value = "/{id}") // works
     public Retraite getOneRetraite(@PathVariable(value = "id")Long id){
-        try{
-            return retraiteRepository.findById(id).get();
+            return retraiteRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Le retraite avec id = " + id + " est introuvable."));
 
-        }catch (NoSuchElementException e){
-            throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Le retraite avec id = " + id + " est introuvable.");
-
-        }
     }
 
     //    **************************************************************************************************************************************************

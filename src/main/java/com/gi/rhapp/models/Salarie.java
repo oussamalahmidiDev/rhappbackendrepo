@@ -34,10 +34,10 @@ public class Salarie {
     @Column(unique = true)
     private String cin ;
 
-    private Long salaire;
+//    private double salaire;
 
-    private String telephone, adresse;
-    private String image , cv;
+    private String  adresse;
+    private String cv;
 
     private Date dateNaissance ;
     private String lieuNaissance ;
@@ -51,9 +51,15 @@ public class Salarie {
     @UpdateTimestamp
     private Date dateUpdate;
 
-    private String diplomeObt;
+    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"salarie"})
+    private Collection<Diplome> diplomeObt;
 
     private String fonction;
+
+    private String etatFamiliale;
+
+    private int nmbEnf;
 
     private String cinUrg , nomUrg  , prenomUrg , adresseUrg;
 
@@ -62,16 +68,18 @@ public class Salarie {
     private Long solde;
 
     @ManyToOne
+    @JsonIgnoreProperties({"salaries"})
     private Direction direction;
 
     @ManyToOne
+    @JsonIgnoreProperties({"salaries"})
     private Service service;
 
-    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY )
     @JsonIgnoreProperties({"salarie"})
     private List<Absence> absences;
 
-    @OneToOne(mappedBy = "salarie", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "salarie", fetch = FetchType.LAZY , cascade=CascadeType.ALL)
     @JsonIgnoreProperties({"salarie"})
     private Poste poste;
 
@@ -84,7 +92,7 @@ public class Salarie {
     @JsonIgnoreProperties({"salarie"})
     private List<Conge> conges;
 
-    @OneToOne(mappedBy = "salarie", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "salarie", fetch = FetchType.LAZY ,  cascade=CascadeType.ALL)
     @JsonIgnoreProperties({"salarie"})
     private Retraite retraite;
 
@@ -92,10 +100,4 @@ public class Salarie {
     @JsonIgnoreProperties({"salarie"})
     private Collection<AvantageNat> avantages;
 
-    public Salarie(String cin, String prenom, String nom, Date date, String lieuNaissance, String fonction) {
-        this.cin=cin;
-        this.dateNaissance=date;
-        this.lieuNaissance=lieuNaissance;
-        this.fonction=fonction;
-    }
 }

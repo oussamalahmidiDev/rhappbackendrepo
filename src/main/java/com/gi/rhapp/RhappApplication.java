@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Date;
 
@@ -26,10 +28,16 @@ public class RhappApplication implements CommandLineRunner {
     private DirectionRepository directionRepository;
 
     @Autowired
+    private CongeRepository congeRepository;
+
+    @Autowired
     private PosteRepository posteRepository;
 
     @Autowired
     private AbsenceRepository absenceRepository;
+
+    @Autowired
+    private DiplomeRepository diplomeRepository;
 
     @Autowired
     private RetraiteRepository retraiteRepository;
@@ -40,7 +48,12 @@ public class RhappApplication implements CommandLineRunner {
     @Autowired
     private AvantageNatRepository avantageNatRepository;
 
+    @Autowired
+    private TypeCongeRepository typeCongeRepository;
+
+
     public static void main(String[] args) {
+
         SpringApplication.run(RhappApplication.class, args);
     }
 
@@ -58,10 +71,10 @@ public class RhappApplication implements CommandLineRunner {
         Direction direction = directionRepository.save(Direction.builder().nom("Soft Direction").build());
 
 
-
         User khalil = userRepository.save(User.builder()
                 .nom("DAOULAT")
                 .prenom("KHALIL")
+                .telephone("066666666")
                 .email("daoulat.khalil@gmail.com")
                 .build());
 
@@ -84,17 +97,22 @@ public class RhappApplication implements CommandLineRunner {
                 .build());
 
         Salarie salarie1 = salarieRepository.save(Salarie.builder()
+                .dateNaissance(new Date())
+                .lieuNaissance("Marrakech")
                 .fonction("Engineer")
+                .solde(25L)
+                .etatFamiliale("celibataire")
+                .numSomme(8540479L)
                 .service(service)
                 .direction(direction)
-                .user(oussama)
+                .user(khalil)
                 .build());
 
         Salarie salarie2 = salarieRepository.save(Salarie.builder()
                 .fonction("RH")
                 .service(service)
                 .direction(direction)
-                .user(khalil)
+                .user(oussama)
                 .build());
 
         Salarie salarie3 = salarieRepository.save(Salarie.builder()
@@ -112,11 +130,23 @@ public class RhappApplication implements CommandLineRunner {
                 .build());
 
         absenceRepository.save(Absence.builder().salarie(salarie1).dateDebut(new Date()).dateFin(new Date()).build());
-        retraiteRepository.save(Retraite.builder().salarie(salarie4).dateRetraite(new Date()).build());
-        avantageNatRepository.save(AvantageNat.builder().salarie(salarie2).commission("commission").build());
+        retraiteRepository.save(Retraite.builder().salarie(salarie1).dateRetraite(new Date()).dateValidation(new Date()).remarques("test").build());
+        avantageNatRepository.save(AvantageNat.builder().salarie(salarie1).commission("commission").build());
+        TypeConge type1 = typeCongeRepository.save(TypeConge.builder().typeConge(com.gi.rhapp.enumerations.TypeConge.CONGE_ANNUEL).build());
+
+        congeRepository.save(Conge.builder()
+                .motif("Repos")
+                .type(type1)
+                .salarie(salarie1)
+                .dateCreation(new Date())
+                .dateDebut(new Date())
+                .DateFin(new Date())
+                .build());
+
         Poste software_engineer1 = posteRepository.save(Poste.builder().salarie(salarie1).nom("Software Engineer").build());
         Poste software_engineer2 = posteRepository.save(Poste.builder().salarie(salarie3).nom("Software Engineer").build());
         Poste software_engineer3 = posteRepository.save(Poste.builder().salarie(salarie4).nom("Software Engineer").build());
+        Diplome diplome1 = diplomeRepository.save(Diplome.builder().salarie(salarie1).name("Engineer").dateDiplome(new Date()).build());
         Poste rh = posteRepository.save(Poste.builder().salarie(salarie2).nom("Resource human").build());
 
 
