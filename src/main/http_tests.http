@@ -76,7 +76,7 @@ Content-Type: application/json
     "direction": {
         "nom": "dirrr"
     },
-    "compentences": ["COM","ETUD"]
+    "competences": ["COM","ETUD"]
 }
 
 ###
