@@ -48,6 +48,7 @@ public class Storage {
     public static ResponseEntity deleteFile(Long id ,String path , String DIR){
         try{
             Path fileToDelete = Paths.get(DIR + File.separator + path).toAbsolutePath().normalize();
+            System.out.println(fileToDelete);
             Resource resource = new UrlResource(fileToDelete.toUri());
             resource.getFile().delete();
             return new ResponseEntity(HttpStatus.OK);

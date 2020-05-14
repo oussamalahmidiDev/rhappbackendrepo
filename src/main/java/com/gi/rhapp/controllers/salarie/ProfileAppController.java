@@ -78,6 +78,8 @@ public class ProfileAppController {
 
     private  String UPLOAD_CV_DIR = "./src/main/resources/uploads/cv";
     private  String UPLOAD_DIPLOME_DIR = "./src/main/resources/uploads/diplomes";
+    private  String UPLOAD_IMAGE_DIR = "./src/main/resources/uploads/img";
+
 
 
     @GetMapping()
@@ -109,7 +111,12 @@ public class ProfileAppController {
 
     @PostMapping(value = "/download/image")
     public ResponseEntity<?> getImage(HttpServletResponse response , @RequestParam("pictureName") String name ) throws IOException {
-        return download.loadImage(response,name);
+        return download.loadImage(response,name,UPLOAD_IMAGE_DIR);
+    }
+
+    @PostMapping(value = "/download/cv")
+    public ResponseEntity<?> getCV(HttpServletResponse response , @RequestParam("cvName") String name ) throws IOException {
+        return download.loadImage(response,name,UPLOAD_CV_DIR);
     }
 
 
@@ -152,7 +159,23 @@ public class ProfileAppController {
             salarieRepository.save(salarie);
             return new ResponseEntity(HttpStatus.OK);
         }catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Id invalide");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Cv invalide");
+        }
+
+    }
+
+    @DeleteMapping("/upload/image/delete")
+    public ResponseEntity deleteImage(){
+        try{
+            String path = getProfile().getUser().getPhoto();
+            Long id = getProfile().getId();
+            Storage.deleteFile(id,path,UPLOAD_IMAGE_DIR);
+            User user = getProfile().getUser();
+            user.setPhoto(null);
+            userRepository.save(user);
+            return new ResponseEntity(HttpStatus.OK);
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Image invalide");
         }
 
     }
