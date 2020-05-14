@@ -64,15 +64,16 @@ public class Salarie {
     private String cinUrg , nomUrg  , prenomUrg , adresseUrg;
 
     @Email
+    @Column(nullable = true)
     private String emailUrg ;
     private Long solde;
 
     @ManyToOne
-    @JsonIgnoreProperties({"salaries"})
+    @JsonIgnoreProperties({"salaries", "postes"})
     private Direction direction;
 
     @ManyToOne
-    @JsonIgnoreProperties({"salaries"})
+    @JsonIgnoreProperties({"salaries", "postes"})
     private Service service;
 
     @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY )

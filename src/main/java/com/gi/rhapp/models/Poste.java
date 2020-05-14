@@ -40,11 +40,14 @@ public class Poste  {
     private String division;
 
     @OneToOne
+    @JsonIgnoreProperties({ "poste" })
     private Salarie salarie;
 
     @ManyToOne
+    @JsonIgnoreProperties({ "salaries", "postes" })
     private Service service;
 
     @ManyToOne
+    @JsonIgnoreProperties({ "salaries", "postes" })
     private Direction direction;
 }
