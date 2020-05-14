@@ -36,7 +36,7 @@ public class Upload {
     private Logger logger = LoggerFactory.getLogger(Upload.class);
 
     // default upload folder
-    private final Path fileStorageLocation;
+    private final Path fileStorageLocation ;
 
     // default allowed extensions (images)
     private final String[] ALLOWED_IMAGES_EXTENSIONS = {

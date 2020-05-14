@@ -60,7 +60,7 @@ public class Storage {
 
     private String location;
 
-    public String getLocation() {
+    public String getLocation () {
         return location;
     }
 

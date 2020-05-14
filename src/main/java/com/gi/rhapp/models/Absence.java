@@ -33,7 +33,7 @@ public class Absence  {
     private String justificatifLink;
 
     @JsonProperty("justificatif_link")
-    public String getJustificatifLink() {
+    public String getJustificatifLink(){
         if (justificatif != null)
             return  ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/rh/api/")

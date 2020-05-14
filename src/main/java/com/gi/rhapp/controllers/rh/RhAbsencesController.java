@@ -62,6 +62,7 @@ public class RhAbsencesController {
 
 
 
+
     //    **************************************************************************************************************************************************
     //    *********************************************** API get all absences ******************************************************************
 
@@ -84,7 +85,6 @@ public class RhAbsencesController {
 
 
         Resource resource = downloadService.downloadJustificatif(absence.getJustificatif());
-
         // setting content-type header
         String contentType = null;
         try {

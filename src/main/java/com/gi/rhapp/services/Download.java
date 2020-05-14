@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -35,6 +36,21 @@ public class Download {
     private static String UPLOAD_IMAGE_DIR = "./src/main/resources/uploads/img";
     private static String UPLOAD_CV_DIR = "./src/main/resources/uploads/cv";
 
+    public Resource downloadJustificatif (String filename) {
+        try {
+            // recuperer le path de fichier demandé
+            Path filePath = Paths.get(this.fileStorageLocation.toString() + "/justificatifs").resolve(filename).normalize();
+//            Path filePath = this.fileStorageLocation.resolve(fil).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists())
+                return resource;
+            else
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + filename);
+        } catch (MalformedURLException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + filename);
+        }
+    }
     public ResponseEntity loadImage(HttpServletResponse response ,String name ,String DIR) throws IOException {
         try {
             Path fileLocation = Paths.get(DIR + File.separator + name).toAbsolutePath().normalize();
