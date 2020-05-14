@@ -44,7 +44,7 @@ public class Upload {
     private DiplomeRepository diplomeRepository;
 
     @Value("spring.servlet.multipart.location")
-    private static String UPLOAD_DIR = "./src/main/resources/uploads/img";
+    private static String UPLOAD_IMAGE_DIR = "./src/main/resources/uploads/img";
     private static String DB_PATH = "uploads/img";
 
     private static String UPLOAD_CV_DIR = "./src/main/resources/uploads/cv";
@@ -116,7 +116,7 @@ public class Upload {
         if(extension.equals("png") || extension.equals("jpeg") ){
             try{
                 String fileName = Long.toString(date.getTime())+"."+file.getContentType().split("/")[1];
-                String path = UPLOAD_DIR + File.separator +fileName;
+                String path = UPLOAD_IMAGE_DIR + File.separator +fileName;
                 User user = profile.getUser();
                 user.setPhoto(fileName);
                 userRepository.save(user);

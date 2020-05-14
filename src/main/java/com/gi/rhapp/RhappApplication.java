@@ -103,6 +103,7 @@ public class RhappApplication implements CommandLineRunner {
                 .solde(25L)
                 .etatFamiliale("celibataire")
                 .numSomme(8540479L)
+                .cin("EE8541256")
                 .service(service)
                 .direction(direction)
                 .user(khalil)
