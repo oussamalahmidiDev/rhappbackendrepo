@@ -61,6 +61,7 @@ public class User implements UserDetails {
     @JsonIgnoreProperties({"user"})
     private Salarie salarie;
 
+
     // USER DETAILS IMPLEMENTATION
 
     @Override
@@ -77,7 +78,7 @@ public class User implements UserDetails {
         verificationToken = VerificationTokenGenerator.generateVerificationToken();
         emailConfirmed = false;
 //        photo="https://i.picsum.photos/id/903/200/300.jpg"; // just for test
-        photo="default.jpeg"; // just for test
+        photo="default.png";
     }
 
     @Override
