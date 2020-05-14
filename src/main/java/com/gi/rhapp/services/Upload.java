@@ -87,12 +87,14 @@ public class Upload {
 
     public ResponseEntity uploadCv(MultipartFile file,Salarie salarie){
         String extension = file.getContentType().split("/")[1];
+        Date date= new Date();
         if(extension.equals("pdf") ){
 
             try{
-                String fileName = file.getOriginalFilename();
+//                String fileName = Long.toString(date.getTime())+"."+file.getContentType().split("/")[1];
+                String fileName = salarie.getUser().getNom()+salarie.getUser().getPrenom()+"_CV"+"."+file.getContentType().split("/")[1];
                 String path = UPLOAD_CV_DIR + File.separator +fileName;
-                salarie.setCv(path);
+                salarie.setCv(fileName);
                 salarieRepository.save(salarie) ;
                 Storage.saveFile(file.getInputStream(),path);
                 return new ResponseEntity(HttpStatus.OK);

@@ -147,7 +147,9 @@ public class ProfileAppController {
             String path = getProfile().getCv();
             Long id = getProfile().getId();
             Storage.deleteFile(id,path,UPLOAD_CV_DIR);
-            getProfile().setCv(null);
+            Salarie salarie = getProfile();
+            salarie.setCv(null);
+            salarieRepository.save(salarie);
             return new ResponseEntity(HttpStatus.OK);
         }catch (Exception e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Id invalide");
