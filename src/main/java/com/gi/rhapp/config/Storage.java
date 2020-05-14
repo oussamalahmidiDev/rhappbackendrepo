@@ -1,6 +1,7 @@
 package com.gi.rhapp.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@ConfigurationProperties(prefix = "spring.servlet.multipart")
 public class Storage {
 
     @Value("spring.servlet.multipart.location")
@@ -53,6 +55,16 @@ public class Storage {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Id invalide");
         }
 
+    }
+
+    private String location;
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
 
