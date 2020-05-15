@@ -52,6 +52,22 @@ public class Download {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + filename);
         }
     }
+
+    public Resource downloadImage (String filename) {
+        try {
+            // recuperer le path de fichier demandé
+            Path filePath = Paths.get(this.fileStorageLocation.toString() + "/avatars").resolve(filename).normalize();
+//            Path filePath = this.fileStorageLocation.resolve(fil).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists())
+                return resource;
+            else
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + filename);
+        } catch (MalformedURLException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + filename);
+        }
+    }
     public ResponseEntity loadImage(HttpServletResponse response ,String name ,String DIR) throws IOException {
         try {
             Path fileLocation = Paths.get(DIR + File.separator + name).toAbsolutePath().normalize();

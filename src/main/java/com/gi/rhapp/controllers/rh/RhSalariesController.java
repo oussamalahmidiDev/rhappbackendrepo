@@ -3,18 +3,14 @@ package com.gi.rhapp.controllers.rh;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.MailService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/rh/api/salaries")
@@ -66,9 +62,28 @@ public class RhSalariesController {
     }
 
     @PostMapping(value = "/create") //works
-    public User createSalarie(@RequestBody User user){
+    public Salarie createSalarie(@RequestBody SalarieRequest request) {
+        if (userRepository.findByEmail(request.getEmail()) != null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cet email existe déjà");
+
+        User user = User.builder()
+            .email(request.getEmail())
+            .nom(request.getNom())
+            .prenom(request.getPrenom())
+            .build();
+
+        user = userRepository.save(user);
         mailService.sendVerificationMail(user);
-        return userRepository.save(user);
+
+        Salarie newSalarie = Salarie.builder()
+            .numSomme(request.getNumSomme())
+            .direction(request.getDirection())
+            .service(request.getService())
+            .solde(request.getSolde())
+            .user(user)
+            .build();
+
+        return salarieRepository.save(newSalarie);
 
     }
 

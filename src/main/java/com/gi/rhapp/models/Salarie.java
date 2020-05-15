@@ -29,7 +29,7 @@ public class Salarie {
     private Long id ;
 
     @Column(unique = true)
-    private Long numSomme;
+    private String numSomme;
 
     @Column(unique = true)
     private String cin ;

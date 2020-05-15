@@ -14,6 +14,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -44,6 +45,26 @@ public class User implements UserDetails {
     private String prenom;
     private String photo;
     private String telephone;
+
+    @Transient
+    private String avatarLink;
+
+    @JsonProperty("avatar_link")
+    public String getAvatarLink() {
+        if (photo == null || photo == "")
+            return null;
+        String BASE_API_URL = null;
+        switch (role.toString()) {
+            case "ADMIN" : BASE_API_URL = "admin"; break;
+            case "RH" : BASE_API_URL = "rh"; break;
+            case "SALARIE" : BASE_API_URL = "salarie"; break;
+        }
+        return ServletUriComponentsBuilder.fromCurrentContextPath()
+            .path("/" + BASE_API_URL + "/api/")
+            .path("profile/avatar/")
+            .path(photo)
+            .toUriString();
+    }
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

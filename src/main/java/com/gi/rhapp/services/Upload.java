@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -123,6 +126,52 @@ public class Upload {
         }
     }
 
+    public String storeImage (MultipartFile file) {
+        logger.info("Uploaded file : {}, file size = {}, file type {}", FilenameUtils.getFilename(file), file.getSize(), FilenameUtils.getExtension(file));
+
+        // check file extension
+        if (!isExtensionAllowed(FilenameUtils.getExtension(file), ALLOWED_IMAGES_EXTENSIONS))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ce fichier de type insupporté.");
+
+        // normaliser le nom de fichier avec un nom standard (justificatfif + timestamp)
+        String fileName = StringUtils.cleanPath(System.currentTimeMillis() + "." + FilenameUtils.getExtension(file));
+
+        logger.info("New file name : {}, file size = {}", fileName, file.getSize());
+
+
+        try {
+            //verifier le nom de fichier
+            if (fileName.contains(".."))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le nom de fichier est invalide : " + fileName);
+
+            // chemin de dossier de justificatifs
+            Path target = Files.createDirectories(
+                Paths.get(fileStorageLocation.toString() + "/avatars"))
+                .resolve(fileName);
+
+            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+            return fileName;
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Impossible de stocker le fichier " + fileName);
+        }
+    }
+
+    public void deleteImage (String fileName) {
+        try {
+            Path filePath = Paths.get(this.fileStorageLocation.toString() + "/avatars").resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists())
+                resource.getFile().delete();
+            else
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + fileName);
+
+        } catch (MalformedURLException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
     public ResponseEntity uploadDiplome(MultipartFile file ,
@@ -183,6 +232,7 @@ public class Upload {
 
 
     }
+
 
 
     public ResponseEntity uploadImage(MultipartFile file , Salarie profile){
