@@ -30,7 +30,7 @@ public class Conge  {
 
     private Date dateDebut;
 
-    private Date DateFin;
+    private Date dateFin;
 
     private Date DateRetour;
 
@@ -57,7 +57,10 @@ public class Conge  {
 
     @PrePersist
     void initialStat(){
-        etat=EtatConge.PENDING_RESPONSE;
+        if (type.getTypeConge().equals("MALADIE"))
+            etat = EtatConge.ACCEPTED;
+        else
+            etat = EtatConge.PENDING_RESPONSE;
     }
 
 

@@ -19,9 +19,9 @@ public class TypeConge  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Enumerated(EnumType.STRING)
-    private com.gi.rhapp.enumerations.TypeConge typeConge ;
+
+//    @Enumerated(EnumType.STRING)
+    private String typeConge ;
 
 
 //    @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
