@@ -2,6 +2,7 @@ package com.gi.rhapp.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.utilities.VerificationTokenGenerator;
 import lombok.AllArgsConstructor;
@@ -44,8 +45,11 @@ public class User implements UserDetails {
     private String photo;
     private String telephone;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String newPassword;
 
     private Boolean emailConfirmed;
 

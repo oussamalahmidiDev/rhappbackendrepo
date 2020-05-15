@@ -33,8 +33,9 @@ public class Download {
             .toAbsolutePath().normalize();
     }
 
-    private static String UPLOAD_IMAGE_DIR = "./src/main/resources/uploads/img";
-    private static String UPLOAD_CV_DIR = "./src/main/resources/uploads/cv";
+    private  String UPLOAD_IMAGE_DIR = "./src/main/resources/uploads/img";
+    private  String UPLOAD_CV_DIR = "./src/main/resources/uploads/cv";
+    private  String UPLOAD_DIPLOME_DIR = "./src/main/resources/uploads/diplomes";
 
     public Resource downloadJustificatif (String filename) {
         try {
@@ -55,7 +56,9 @@ public class Download {
         try {
             Path fileLocation = Paths.get(DIR + File.separator + name).toAbsolutePath().normalize();
             Resource resource = new UrlResource(fileLocation.toUri());
-            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+            System.out.println(resource);
+            if(DIR.equals(UPLOAD_IMAGE_DIR)){response.setContentType(MediaType.IMAGE_JPEG_VALUE);}
+            else {response.setContentType(MediaType.APPLICATION_PDF_VALUE);}
             StreamUtils.copy(resource.getInputStream(), response.getOutputStream());
             return new ResponseEntity(HttpStatus.OK);
         }catch (Exception e){

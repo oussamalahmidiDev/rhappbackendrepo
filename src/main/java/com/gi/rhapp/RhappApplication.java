@@ -74,6 +74,7 @@ public class RhappApplication implements CommandLineRunner {
         User khalil = userRepository.save(User.builder()
                 .nom("DAOULAT")
                 .prenom("KHALIL")
+                .password("khalil")
                 .telephone("066666666")
                 .email("daoulat.khalil@gmail.com")
                 .build());
@@ -104,6 +105,12 @@ public class RhappApplication implements CommandLineRunner {
                 .etatFamiliale("celibataire")
                 .numSomme(8540479L)
                 .cin("EE8541256")
+                .nomUrg("nomUrg")
+                .prenomUrg("prenomUrg")
+                .emailUrg("emailUrg@urg.com")
+                .telephoneUrg("0625458745")
+                .cinUrg("EE7845966")
+                .adresseUrg("adressUrg")
                 .service(service)
                 .direction(direction)
                 .user(khalil)
@@ -133,7 +140,7 @@ public class RhappApplication implements CommandLineRunner {
         absenceRepository.save(Absence.builder().salarie(salarie1).dateDebut(new Date()).dateFin(new Date()).build());
         retraiteRepository.save(Retraite.builder().salarie(salarie1).dateRetraite(new Date()).dateValidation(new Date()).remarques("test").build());
         avantageNatRepository.save(AvantageNat.builder().salarie(salarie1).commission("commission").build());
-        TypeConge type1 = typeCongeRepository.save(TypeConge.builder().typeConge(com.gi.rhapp.enumerations.TypeConge.CONGE_ANNUEL).build());
+        TypeConge type1 = typeCongeRepository.save(TypeConge.builder().typeConge("NORMALE").build());
 
         congeRepository.save(Conge.builder()
                 .motif("Repos")
@@ -141,7 +148,7 @@ public class RhappApplication implements CommandLineRunner {
                 .salarie(salarie1)
                 .dateCreation(new Date())
                 .dateDebut(new Date())
-                .DateFin(new Date())
+                .dateFin(new Date())
                 .build());
 
         Poste software_engineer1 = posteRepository.save(Poste.builder().salarie(salarie1).nom("Software Engineer").build());

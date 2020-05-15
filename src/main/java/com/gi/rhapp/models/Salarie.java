@@ -61,11 +61,11 @@ public class Salarie {
 
     private int nmbEnf;
 
-    private String cinUrg , nomUrg  , prenomUrg , adresseUrg;
+    private String cinUrg , nomUrg  , prenomUrg , adresseUrg , telephoneUrg;
 
     @Email
     @Column(nullable = true)
-    private String emailUrg ;
+            private String emailUrg ;
     private Long solde;
 
     @ManyToOne

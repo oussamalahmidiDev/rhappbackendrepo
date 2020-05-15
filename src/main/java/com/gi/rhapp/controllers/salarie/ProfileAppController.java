@@ -94,6 +94,20 @@ public class ProfileAppController {
         user.setSalarie(getProfile());
         return userRepository.save(user);
     }
+
+    @PutMapping("/modifier/user/password")
+    public ResponseEntity modifierPasswordUser(@RequestBody User user) {
+        User currentUser = getProfile().getUser();
+        if(currentUser.getPassword().equals(user.getPassword())){
+            user.setSalarie(getProfile());
+            user.setPassword(user.getNewPassword());
+            userRepository.save(user);
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Votre ancien mot de passe est incorrect");
+        }
+    }
     @PutMapping("/modifier/contacts")
     public Salarie modifierProfilContact(@RequestBody Salarie salarie) {
         salarie.setUser(getProfile().getUser());
@@ -117,6 +131,10 @@ public class ProfileAppController {
     @PostMapping(value = "/download/cv")
     public ResponseEntity<?> getCV(HttpServletResponse response , @RequestParam("cvName") String name ) throws IOException {
         return download.loadImage(response,name,UPLOAD_CV_DIR);
+    }
+    @PostMapping(value = "/download/diplome")
+    public ResponseEntity<?> getDiplome(HttpServletResponse response , @RequestParam("diplomeName") String name ) throws IOException {
+        return download.loadImage(response,name,UPLOAD_DIPLOME_DIR);
     }
 
 
