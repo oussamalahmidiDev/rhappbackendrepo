@@ -51,14 +51,39 @@ public class RhSalariesController {
     public Salarie getOneSalarie(@PathVariable(name = "id")Long id){
 //        mailService.sendVerificationMail(salarie); just for test
             return salarieRepository.findById(id).orElseThrow( ()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable."));
-
     }
 //    *******************************************************************************************************************************************************
     //    *********************************************** API get Salaries by theirs infos ******************************************************************
 
+    @GetMapping(value = "/{id}/conges")
+    public List<Conge> getSalarieConges(@PathVariable(name = "id") Long id) {
+        return this.getOneSalarie(id).getConges();
+    }
+
+    @GetMapping("/{id}/absences")
+    public List<Absence> getSalarieAbsences(@PathVariable(name = "id") Long id) {
+        return this.getOneSalarie(id).getAbsences();
+    }
+
+    @GetMapping(value = "/{id}/avantages") //works
+    public Collection<AvantageNat> getAvantages(@PathVariable(value = "id") Long id){
+        return getOneSalarie(id).getAvantages();
+    }
+
+
     @GetMapping(value = "/search") //works
-    public List<Salarie> searchSalaries(@RequestBody(required = false) Salarie salarie){
-            return salarieRepository.findAll(Example.of(salarie));
+    public List<Salarie> searchSalaries(@RequestParam String query){
+//            return salarieRepository.findAll(Example.of(salarie));
+
+//        Alternative method :
+        return salarieRepository.findAllByUserNomContainingIgnoreCaseOrUserPrenomContainingIgnoreCaseOrUserEmailContainingIgnoreCaseOrNumSommeContainingIgnoreCaseOrServiceNomContainingIgnoreCaseOrDirectionNomContainingIgnoreCase(
+            query,
+            query,
+            query,
+            query,
+            query,
+            query
+        );
     }
 
     @PostMapping(value = "/create") //works
@@ -86,28 +111,6 @@ public class RhSalariesController {
         return salarieRepository.save(newSalarie);
 
     }
-
-
-
-
-    //    **************************************************************************************************************************************************
-    //    *********************************************** API get "Absences" of salarie by id ******************************************************************
-
-
-    @GetMapping(value = "/{id}/absences") // works
-    public List<Absence> getAbsences(@PathVariable(value = "id") Long id) {
-            return getOneSalarie(id).getAbsences();
-
-    }
-
-    //    **************************************************************************************************************************************************
-    //    *********************************************** API get "avantagesNat" of salarie by id ******************************************************************
-
-    @GetMapping(value = "/{id}/avantages") //works
-    public Collection<AvantageNat> getAvantages(@PathVariable(value = "id") Long id){
-            return getOneSalarie(id).getAvantages();
-    }
-
 
 }
 

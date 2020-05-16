@@ -1,10 +1,7 @@
 package com.gi.rhapp.controllers.rh;
 
 import com.gi.rhapp.enumerations.EtatConge;
-import com.gi.rhapp.models.Conge;
-import com.gi.rhapp.models.CongeMaladieRequest;
-import com.gi.rhapp.models.Salarie;
-import com.gi.rhapp.models.TypeConge;
+import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +43,20 @@ public class RhCongesController {
     @GetMapping()
     public List<Conge> getConges(){
         return congeRepository.findAll();
+    }
+
+    @PostMapping("/{id}/repondre")
+    public Conge repondreConge(@PathVariable("id") Long id, @RequestBody CongeReponseRequest request) {
+        Conge conge = congeRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+        if (!request.getEtat().equals("ACCEPTED") && !request.getEtat().equals("REJECTED"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+        conge.setEtat(EtatConge.valueOf(request.getEtat()));
+        conge.setReponse(request.getReponse());
+
+        return congeRepository.save(conge);
     }
 
     @PostMapping("create_maladie")

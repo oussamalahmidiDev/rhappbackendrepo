@@ -80,3 +80,8 @@ Content-Type: application/json
 }
 
 ###
+
+GET http://localhost:8080/rh/api/salaries/search?query=khalil
+
+
+###

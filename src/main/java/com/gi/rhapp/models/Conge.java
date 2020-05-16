@@ -38,6 +38,8 @@ public class Conge  {
 
     private String motif;
 
+    private String reponse;
+
     @Enumerated(EnumType.STRING)
     private EtatConge etat;
 

@@ -8,5 +8,13 @@ import java.util.List;
 
 public interface SalarieRepository extends JpaRepository<Salarie , Long> {
 
+    List<Salarie> findAllByUserNomContainingIgnoreCaseOrUserPrenomContainingIgnoreCaseOrUserEmailContainingIgnoreCaseOrNumSommeContainingIgnoreCaseOrServiceNomContainingIgnoreCaseOrDirectionNomContainingIgnoreCase(
+        String nom,
+        String prenom,
+        String email,
+        String numSomme,
+        String service,
+        String direction
+    );
 //    Salarie findByNomOr
 }
