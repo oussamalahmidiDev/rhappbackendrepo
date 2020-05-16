@@ -1,5 +1,6 @@
 package com.gi.rhapp.models;
 
+import com.gi.rhapp.enumerations.EtatRetraite;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,13 @@ public class AvantageNat  {
     private Long id;
 
     private String commission, specification;
+
+    private boolean retire;
+
+    @PrePersist
+    public void intialValues() {
+        retire = false;
+    }
 
     @ManyToOne
     private TypeAvantage type;

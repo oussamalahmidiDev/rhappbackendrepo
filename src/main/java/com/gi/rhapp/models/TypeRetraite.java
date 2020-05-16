@@ -1,5 +1,6 @@
 package com.gi.rhapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
@@ -20,6 +21,6 @@ public class TypeRetraite  {
     private String typeRetraite;
 
     @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties({"type"})
+    @JsonIgnore
     private List<Retraite> retraites;
 }

@@ -1,5 +1,6 @@
 package com.gi.rhapp.controllers.rh;
 
+import com.gi.rhapp.enumerations.EtatRetraite;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.MailService;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -34,6 +36,12 @@ public class RhSalariesController {
 
     @Autowired
     private MailService mailService;
+
+    @Autowired
+    private TypeRetraiteRepository typeRetraiteRepository;
+
+    @Autowired
+    private TypeAvantageRepository typeAvantageRepository;
 
 
 
@@ -68,6 +76,67 @@ public class RhSalariesController {
     @GetMapping(value = "/{id}/avantages") //works
     public Collection<AvantageNat> getAvantages(@PathVariable(value = "id") Long id){
         return getOneSalarie(id).getAvantages();
+    }
+
+    @PostMapping(value = "/{id}/retraite/create") //works
+    public Retraite createRetraite (@PathVariable(value = "id") Long id, @RequestBody Retraite retraite){
+        Salarie salarie = getOneSalarie(id);
+        TypeRetraite type = retraite.getType();
+        if (type.getId() == null)
+            retraite.setType(typeRetraiteRepository.save(type));
+
+        retraite.setSalarie(salarie);
+        return retraiteRepository.save(retraite);
+    }
+
+    @PostMapping("/{id}/avantages/create")
+    public AvantageNat createAvantage(@PathVariable(value = "id") Long id, @RequestBody AvantageNat avantageNat) {
+        Salarie salarie = getOneSalarie(id);
+        TypeAvantage type = avantageNat.getType();
+        if (type.getId() == null)
+            avantageNat.setType(typeAvantageRepository.save(type));
+
+        avantageNat.setSalarie(salarie);
+        return avantageNatRepository.save(avantageNat);
+    }
+
+    @PostMapping("/{id}/avantages/retirer")
+    public Salarie retirerAvantages(@PathVariable(value = "id") Long id, @RequestBody List<AvantageNat> avantages) {
+//        System.out.println("AVANTAGE", );
+        Salarie salarie = getOneSalarie(id);
+        Retraite retraite = salarie.getRetraite();
+        if (retraite == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+
+        for (AvantageNat element: avantages) {
+            element = avantageNatRepository.findById(element.getId()).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST)
+            );
+            System.out.println("AVANTAGE : " + element.getSpecification());
+            if (element.getSalarie() == salarie) {
+                element.setRetire(true);
+                element.setSalarie(salarie);
+                avantageNatRepository.save(element);
+            }
+        }
+
+        retraite.setEtat(EtatRetraite.PENDING_VALID);
+        retraiteRepository.save(retraite);
+
+        return salarie;
+    }
+
+    @PostMapping(value = "/{id}/retraite/valider") //works
+    public Retraite createRetraite (@PathVariable(value = "id") Long id){
+        Retraite retraite = getOneSalarie(id).getRetraite();
+        if (retraite == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+        retraite.setEtat(EtatRetraite.VALID);
+        retraite.setDateValidation(new Date());
+
+        return retraiteRepository.save(retraite);
     }
 
 

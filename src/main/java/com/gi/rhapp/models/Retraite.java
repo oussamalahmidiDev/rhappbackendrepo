@@ -1,6 +1,7 @@
 package com.gi.rhapp.models;
 
 import com.gi.rhapp.enumerations.EtatRetraite;
+import com.gi.rhapp.utilities.VerificationTokenGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +30,9 @@ public class Retraite  {
 
     private String remarques;
 
+    @Column(unique = true, nullable = false)
+    private String reference;
+
     @Enumerated(EnumType.STRING)
     private EtatRetraite etat;
 
@@ -43,5 +47,10 @@ public class Retraite  {
 
     @OneToOne
     private Salarie salarie;
+
+    @PrePersist
+    public void intialValues() {
+        etat = EtatRetraite.PENDING_RT_AVTG;
+    }
 
 }

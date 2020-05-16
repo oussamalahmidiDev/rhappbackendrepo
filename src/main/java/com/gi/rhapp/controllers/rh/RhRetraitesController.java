@@ -1,10 +1,7 @@
 package com.gi.rhapp.controllers.rh;
 
 
-import com.gi.rhapp.models.Absence;
-import com.gi.rhapp.models.AvantageNat;
-import com.gi.rhapp.models.Retraite;
-import com.gi.rhapp.models.Salarie;
+import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.MailService;
 import org.springframework.beans.BeanUtils;
@@ -38,6 +35,9 @@ public class RhRetraitesController {
     private RetraiteRepository retraiteRepository;
 
     @Autowired
+    private TypeRetraiteRepository typeRetraiteRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -52,8 +52,7 @@ public class RhRetraitesController {
 
     @GetMapping() //works
     public List<Retraite> getRetraites(){
-            return  retraiteRepository.findAll();
-
+        return retraiteRepository.findAll();
     }
 
     //    **************************************************************************************************************************************************
@@ -68,11 +67,9 @@ public class RhRetraitesController {
     //    **************************************************************************************************************************************************
     //    *********************************************** API add "retraite"  ******************************************************************
 
-    @PostMapping(value = "/ajouter") //works
-    public Retraite addRetraite(@RequestBody Retraite retraite){
-
-       return retraiteRepository.save(retraite);
-
+    @GetMapping(value = "/types") //works
+    public List<TypeRetraite> getRetraiteTypes(){
+        return typeRetraiteRepository.findAll();
     }
 
     //    **************************************************************************************************************************************************

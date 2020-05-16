@@ -1,5 +1,6 @@
 package com.gi.rhapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
@@ -16,10 +17,10 @@ public class TypeAvantage  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String typeAvanatge;
+    private String typeAvantage;
 
 
     @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties({"type"})
+    @JsonIgnore
     private List<AvantageNat> avantages;
 }

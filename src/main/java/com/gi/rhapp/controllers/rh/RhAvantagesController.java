@@ -1,10 +1,7 @@
 package com.gi.rhapp.controllers.rh;
 
 
-import com.gi.rhapp.models.Absence;
-import com.gi.rhapp.models.AvantageNat;
-import com.gi.rhapp.models.Retraite;
-import com.gi.rhapp.models.Salarie;
+import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.MailService;
 import org.springframework.beans.BeanUtils;
@@ -21,7 +18,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/rh/api/Avantages")
+@RequestMapping("/rh/api/avantages")
 @CrossOrigin("*")
 public class RhAvantagesController {
 
@@ -43,14 +40,21 @@ public class RhAvantagesController {
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private TypeAvantageRepository typeAvantageRepository;
+
 
 
 //    *********************************************** API get all Avantages *********************************************************************
 
     @GetMapping() //works
     public List<AvantageNat>  getAvantages(){
-
         return avantageNatRepository.findAll();
+    }
+
+    @GetMapping("/types")
+    public List<TypeAvantage> getAvantageTypes () {
+        return typeAvantageRepository.findAll();
     }
 
 }
