@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gi.rhapp.enumerations.Role;
+import com.gi.rhapp.utilities.AuthUtils;
 import com.gi.rhapp.utilities.VerificationTokenGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,22 +50,6 @@ public class User implements UserDetails {
     @Transient
     private String avatarLink;
 
-    @JsonProperty("avatar_link")
-    public String getAvatarLink() {
-        if (photo == null || photo == "")
-            return null;
-        String BASE_API_URL = null;
-        switch (role.toString()) {
-            case "ADMIN" : BASE_API_URL = "admin"; break;
-            case "RH" : BASE_API_URL = "rh"; break;
-            case "SALARIE" : BASE_API_URL = "salarie"; break;
-        }
-        return ServletUriComponentsBuilder.fromCurrentContextPath()
-            .path("/" + BASE_API_URL + "/api/")
-            .path("profile/avatar/")
-            .path(photo)
-            .toUriString();
-    }
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

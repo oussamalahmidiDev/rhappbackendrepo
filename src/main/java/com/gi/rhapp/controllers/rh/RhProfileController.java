@@ -9,6 +9,7 @@ import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.Download;
 import com.gi.rhapp.services.MailService;
 import com.gi.rhapp.services.Upload;
+import com.gi.rhapp.utilities.JwtUtil;
 import org.aspectj.weaver.loadtime.Agent;
 import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.Logger;
@@ -79,6 +80,9 @@ public class RhProfileController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtUtil jwtTokenUtil;
+
 
 
 //    *********************************************** API get rh profile *********************************************************************
@@ -90,12 +94,25 @@ public class RhProfileController {
     }
 
     @PostMapping("/modifier")
-    public User modifierProfile(@RequestBody User user) {
+    public RhProfileModificationResponse modifierProfile(@RequestBody User user) {
         User currentUser = getProfile();
         currentUser.setNom(user.getNom());
         currentUser.setPrenom(user.getPrenom());
         currentUser.setTelephone(user.getTelephone());
-        return userRepository.save(currentUser);
+
+        String token = null;
+
+        if (user.getEmail() != null && !user.getEmail().equals(currentUser.getEmail())) {
+            currentUser.setEmail(user.getEmail());
+            userRepository.save(currentUser);
+            token = jwtTokenUtil.generateToken(currentUser);
+        }
+        userRepository.save(currentUser);
+
+        return RhProfileModificationResponse
+            .builder()
+            .token(token)
+            .user(currentUser).build();
     }
 
     @PostMapping("/change_password")
