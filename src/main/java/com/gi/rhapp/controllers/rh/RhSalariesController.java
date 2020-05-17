@@ -81,6 +81,7 @@ public class RhSalariesController {
     @PostMapping(value = "/{id}/retraite/create") //works
     public Retraite createRetraite (@PathVariable(value = "id") Long id, @RequestBody Retraite retraite){
         Salarie salarie = getOneSalarie(id);
+        retraite.setSalarie(salarie);
         TypeRetraite type = retraite.getType();
         if (type.getId() == null)
             retraite.setType(typeRetraiteRepository.save(type));
@@ -102,7 +103,6 @@ public class RhSalariesController {
 
     @PostMapping("/{id}/avantages/retirer")
     public Salarie retirerAvantages(@PathVariable(value = "id") Long id, @RequestBody List<AvantageNat> avantages) {
-//        System.out.println("AVANTAGE", );
         Salarie salarie = getOneSalarie(id);
         Retraite retraite = salarie.getRetraite();
         if (retraite == null)
@@ -116,7 +116,6 @@ public class RhSalariesController {
             System.out.println("AVANTAGE : " + element.getSpecification());
             if (element.getSalarie() == salarie) {
                 element.setRetire(true);
-                element.setSalarie(salarie);
                 avantageNatRepository.save(element);
             }
         }

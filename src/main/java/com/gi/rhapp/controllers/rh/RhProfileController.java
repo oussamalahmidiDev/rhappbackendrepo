@@ -5,6 +5,7 @@ import com.gi.rhapp.controllers.salarie.SalarieAppController;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
+import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.Download;
 import com.gi.rhapp.services.MailService;
 import com.gi.rhapp.services.Upload;
@@ -23,6 +24,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -34,11 +41,12 @@ import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.*;
 
 @RestController
 @RequestMapping("/rh/api/profile")
-@CrossOrigin("*")
+//@CrossOrigin(origins = "*", methods = RequestMethod.OPTIONS, )
 public class RhProfileController {
 
     @Autowired
@@ -65,16 +73,20 @@ public class RhProfileController {
     @Autowired
     private Download downloadService;
 
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
 
 //    *********************************************** API get rh profile *********************************************************************
 
     @GetMapping("") //works
+//    @PreAuthorize("hasRole('ROLE_RH')")
     public User  getProfile(){
-        Long id = 71L;
-        return userRepository.findById(id).orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur avec id = " + id + " est introuvable" )
-        );
+          return authService.getCurrentUser();
     }
 
     @PostMapping("/modifier")
@@ -89,13 +101,13 @@ public class RhProfileController {
     @PostMapping("/change_password")
     public ResponseEntity<String> changerPassword(@RequestBody PasswordChangeRequest request) {
         User currentUser = getProfile();
-        if (!currentUser.getPassword().equals(request.getOldPassword()))
+        if (!passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword()))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "L'ancien mot de passe est incorrect");
 
         if (!request.getNewPassword().equals(request.getNewPasswordConf()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La confirmation de mot de passe est erronée");
 
-        currentUser.setPassword(request.getNewPassword());
+        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(currentUser);
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -156,6 +168,11 @@ public class RhProfileController {
         userRepository.save(user);
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
+//    @GetMapping("me")
+    public UserDetails me (Authentication auth) {
+        return (UserDetails) auth.getPrincipal();
     }
 
 }

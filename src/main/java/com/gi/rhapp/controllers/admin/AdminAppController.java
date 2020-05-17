@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -34,6 +35,9 @@ public class AdminAppController {
     @Autowired
     private ActivityRepository activityRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     Logger log = LoggerFactory.getLogger(AdminAppController.class);
 
     @GetMapping("/users")
@@ -51,6 +55,7 @@ public class AdminAppController {
         if (userRepository.findByEmail(user.getEmail()) != null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cet email existe déjà");
 
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         activityRepository.save(new Activity("Enregistrement d'un nouveau utilisateur de nom " + user.getPrenom(), "Admin - Gestion d'utilisateurs"));
         return userRepository.save(user);
     }
