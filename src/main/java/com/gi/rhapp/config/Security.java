@@ -42,7 +42,7 @@ public class Security extends WebSecurityConfigurerAdapter {
 //      Disable CSRF
         httpSecurity.cors().disable().csrf().disable()
 //      Allow certain routes
-            .authorizeRequests().antMatchers("/api/auth").permitAll().
+            .authorizeRequests().antMatchers("/api/auth", "/api/forgot_password", "/confirm").permitAll().
             and().authorizeRequests().antMatchers("/api/auth").permitAll().
             and().authorizeRequests().antMatchers("/admin/**").hasRole(Role.ADMIN.name()).
             and().authorizeRequests().antMatchers("/rh/**").hasAnyRole(Role.RH.name()).

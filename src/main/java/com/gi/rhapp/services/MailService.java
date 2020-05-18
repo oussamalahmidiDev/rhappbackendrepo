@@ -69,6 +69,27 @@ public class MailService {
 //
 //    }
 
+    public void sendPasswordRecoveryMail (User user) {
+        String url = getConfirmationURL(user) + "&action=forgot_password";
+        try {
+            MimeMessage message = getMimeMessage(
+                user.getEmail(),
+                "Récuperation du mot de passe",
+                "Bienvenue "  + user.getPrenom()
+            );
+            MimeMessageHelper messageHelper = new MimeMessageHelper(message);
+
+            Context context = new Context();
+            context.setVariable("url", url);
+            context.setVariable("receiver", user);
+            String content = templateEngine.process("mails/forgot_password", context);
+            messageHelper.setText(content, true);
+            // Send message
+            Transport.send(message);
+        } catch (MessagingException ex) {
+            ex.printStackTrace();
+        }
+    }
     public void sendVerificationMail (User user) {
         String url = getConfirmationURL(user) + "&action=confirm";
         try {
