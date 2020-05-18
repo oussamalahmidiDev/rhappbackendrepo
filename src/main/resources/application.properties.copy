@@ -56,6 +56,9 @@ spring.mail.properties.mail.smtp.ssl.enable = true
 spring.mail.defaultEncoding = UTF-8
 mail.from = support@rehapp.com
 
+web.app.uri = http://localhost:4200
+
+
 
 # Activate GZIP compression to reduce http payload size
 server.compression.enabled = true
