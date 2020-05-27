@@ -1,11 +1,10 @@
 package com.gi.rhapp.controllers.rh;
 
 
-import com.gi.rhapp.models.Absence;
-import com.gi.rhapp.models.AvantageNat;
-import com.gi.rhapp.models.Retraite;
-import com.gi.rhapp.models.Salarie;
+import com.gi.rhapp.enumerations.Role;
+import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
+import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.Download;
 import com.gi.rhapp.services.MailService;
 import com.gi.rhapp.services.Upload;
@@ -58,6 +57,14 @@ public class RhAbsencesController {
 
     @Autowired
     private Download downloadService;
+
+    @Autowired
+    private ActivityRepository activityRepository;
+
+    @Autowired
+    private AuthService authService;
+
+    private String service = "Gestion des RH - Gestion des absences";
 
 
 
@@ -132,6 +139,25 @@ public class RhAbsencesController {
 
         return absenceRepository.save(absence);
 
+    }
+
+
+    @DeleteMapping("/{id}/supprimer")
+    public ResponseEntity<?> deleteAbsence(@PathVariable Long id) {
+        Absence absence = absenceRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource introuvable")
+        );
+        absenceRepository.deleteById(id);
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Suppression de l'absence de " + absence.getSalarie().getUser().getFullname())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
+        return ResponseEntity.ok("");
     }
 
 }

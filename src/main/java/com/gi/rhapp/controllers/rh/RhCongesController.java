@@ -1,15 +1,20 @@
 package com.gi.rhapp.controllers.rh;
 
 import com.gi.rhapp.enumerations.EtatConge;
+import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
+import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/rh/api/conges")
@@ -39,6 +44,14 @@ public class RhCongesController {
 
     @Autowired
     private TypeCongeRepository typeCongeRepository;
+
+    @Autowired
+    private ActivityRepository activityRepository;
+
+    @Autowired
+    private AuthService authService;
+
+    private String service = "Gestion des RH - Gestion des demandes de congés";
 
     @GetMapping()
     public List<Conge> getConges(){
@@ -81,5 +94,26 @@ public class RhCongesController {
             .build();
 
         return congeRepository.save(conge);
+    }
+
+    @DeleteMapping("/{id}/supprimer")
+    public ResponseEntity<?> deleteConge(@PathVariable Long id) {
+        Conge conge = congeRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+        if (!conge.getEtat().equals(EtatConge.ARCHIVED)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Impossible de supprimer cette demande de congé à l'instant");
+        }
+        congeRepository.deleteById(id);
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Suppression de la demande de congé de : " + conge.getSalarie().getUser().getFullname())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
+        return ResponseEntity.ok("");
     }
 }

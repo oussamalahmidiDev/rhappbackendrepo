@@ -1,5 +1,6 @@
 package com.gi.rhapp.controllers.rh;
 
+import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.Activity;
 import com.gi.rhapp.models.User;
 import com.gi.rhapp.repositories.ActivityRepository;
@@ -37,7 +38,7 @@ public class RhUsersController {
     @GetMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<User> getUsers() {
-        return repository.findAllByOrderByIdDesc();
+        return repository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE);
     }
 
     @PostMapping("/create")
@@ -50,7 +51,7 @@ public class RhUsersController {
 //        user.setPassword(passwordEncoder.encode(user.getPassword()));
         activityRepository.save(
             Activity.builder()
-            .evenement("Enregistrement d'un nouveau utilisateur de nom " + user.getPrenom())
+            .evenement("Enregistrement d'un nouveau utilisateur : " + user.getFullname())
             .service(service)
             .user(authService.getCurrentUser())
             .build()
@@ -69,7 +70,7 @@ public class RhUsersController {
         userFromDB.setEmail(user.getEmail());
         activityRepository.save(
             Activity.builder()
-                .evenement("Modification des informations de " + user.getPrenom())
+                .evenement("Modification des informations de " + user.getFullname())
                 .service(service)
                 .user(authService.getCurrentUser())
                 .build()
@@ -83,7 +84,7 @@ public class RhUsersController {
         repository.deleteById(id);
         activityRepository.save(
             Activity.builder()
-                .evenement("Suppression de " + user.getPrenom())
+                .evenement("Suppression de " + user.getFullname())
                 .service(service)
                 .user(authService.getCurrentUser())
                 .build()

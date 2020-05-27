@@ -4,6 +4,7 @@ public enum EtatConge {
     ACCEPTED,
     REJECTED,
     PENDING_RESPONSE,
+    ARCHIVED
 
 //    PENDING_RETOUR
 }

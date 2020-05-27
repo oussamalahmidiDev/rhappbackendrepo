@@ -98,6 +98,8 @@ public class User implements UserDetails {
         return email;
     }
 
+    public String getFullname() { return nom + " " + prenom; }
+
     public void setEmail(String email) {
         this.email = email.trim().toLowerCase();
     }

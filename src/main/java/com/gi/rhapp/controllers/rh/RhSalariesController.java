@@ -4,6 +4,7 @@ import com.gi.rhapp.enumerations.EtatRetraite;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
+import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.Download;
 import com.gi.rhapp.services.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,15 @@ public class RhSalariesController {
 
     @Autowired
     private Download downloadService;
+
+    @Autowired
+    private ActivityRepository activityRepository;
+
+    @Autowired
+    private AuthService authService;
+
+    private String service = "Gestion des RH - Gestion des salariés";
+
 
 
 
@@ -165,6 +175,15 @@ public class RhSalariesController {
         retraite.setEtat(EtatRetraite.PENDING_VALID);
         retraiteRepository.save(retraite);
 
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Retraite des avantages en nature de : " + retraite.getSalarie().getUser().getFullname())
+                .service(this.service + " : Retraite des avantages")
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
+
         return salarie;
     }
 
@@ -177,7 +196,18 @@ public class RhSalariesController {
         retraite.setEtat(EtatRetraite.VALID);
         retraite.setDateValidation(new Date());
 
-        return retraiteRepository.save(retraite);
+        retraite = retraiteRepository.save(retraite);
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Validation de la retraite de : " + retraite.getSalarie().getUser().getFullname())
+                .service(this.service + " : Retraites")
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
+
+        return retraite;
     }
 
 
@@ -218,10 +248,36 @@ public class RhSalariesController {
             .user(user)
             .build();
 
+        newSalarie = salarieRepository.save(newSalarie);
+
         mailService.sendVerificationMail(user);
 
-        return salarieRepository.save(newSalarie);
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Enregistrement d'un nouveau salarié : " + newSalarie.getUser().getFullname())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
 
+        return newSalarie;
+    }
+
+    @DeleteMapping("/{id}/supprimer")
+    public ResponseEntity<?> deleteAbsence(@PathVariable Long id) {
+        Salarie salarie = getOneSalarie(id);
+        userRepository.delete(salarie.getUser());
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Suppression du salarié : " + salarie.getUser().getFullname())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
+        return ResponseEntity.ok("");
     }
 
 }

@@ -4,6 +4,8 @@ import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.AuthService;
+import lombok.extern.log4j.Log4j2;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/rh/api/postes")
 @CrossOrigin("*")
+@Log4j2
 public class RhPostesController {
 
     @Autowired
@@ -53,7 +56,7 @@ public class RhPostesController {
                     .evenement("Création d'un nouveau service : " + service.getNom())
                     .service(this.service)
                     .user(authService.getCurrentUser())
-                    .scope(Role.RH)
+                    .scope(Role.ADMIN)
                     .build()
             );
         }
@@ -66,7 +69,7 @@ public class RhPostesController {
                     .evenement("Création d'une nouvelle direction : " + direction.getNom())
                     .service(this.service)
                     .user(authService.getCurrentUser())
-                    .scope(Role.RH)
+                    .scope(Role.ADMIN)
                     .build()
             );
         }
@@ -76,7 +79,7 @@ public class RhPostesController {
                 .evenement("Création d'une nouveau poste " + poste.getNom() + " dans le service de " + service.getNom())
                 .service(this.service)
                 .user(authService.getCurrentUser())
-                .scope(Role.RH)
+                .scope(Role.ADMIN)
                 .build()
         );
         return poste;
@@ -103,10 +106,10 @@ public class RhPostesController {
         poste = posteRepository.save(poste);
         activityRepository.save(
             Activity.builder()
-                .evenement("Affectation de " + selectedSalarie.getUser().getPrenom() + " au poste de " + poste.getNom())
+                .evenement("Affectation de " + selectedSalarie.getUser().getFullname() + " au poste de " + poste.getNom())
                 .service(this.service)
                 .user(authService.getCurrentUser())
-                .scope(Role.RH)
+                .scope(Role.ADMIN)
                 .build()
         );
 
@@ -125,12 +128,39 @@ public class RhPostesController {
         poste = posteRepository.save(poste);
         activityRepository.save(
             Activity.builder()
-                .evenement("Deaffectation de " + salarie.getUser().getPrenom() + " du poste de " + poste.getNom())
+                .evenement("Deaffectation de " + salarie.getUser().getFullname() + " du poste de " + poste.getNom())
                 .service(this.service)
                 .user(authService.getCurrentUser())
-                .scope(Role.RH)
+                .scope(Role.ADMIN)
                 .build()
         );
         return poste;
+    }
+
+    @DeleteMapping("/{id}/supprimer")
+    public ResponseEntity<?> deletePoste(@PathVariable Long id) {
+        Poste poste = posteRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Poste introuvable")
+        );
+
+//        poste.setSalarie(null);
+//        posteRepository.saveAndFlush(poste);
+//        posteRepository.
+        posteRepository.deleteById(id);
+//        posteRepository.
+//        posteRepository.flush();
+
+//        if (posteRepository.findById(id).isPresent())
+//            return deletePoste(id);
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Suppression de poste de " + poste.getNom())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
+        return ResponseEntity.ok("");
     }
 }

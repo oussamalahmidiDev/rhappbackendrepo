@@ -47,7 +47,7 @@ public class AdminAppController {
 
     @GetMapping("/activities")
     public List<Activity> getActivities() {
-        return activityRepository.findAllByOrderByTimestampDesc();
+        return activityRepository.findAll();
     }
 
     @PostMapping("/users/create")
