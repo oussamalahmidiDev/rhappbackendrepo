@@ -42,6 +42,12 @@ public class RhSalariesController {
     private UserRepository userRepository;
 
     @Autowired
+    private ServiceRepository serviceRepository;
+
+    @Autowired
+    private DirectionRepository directionRepository;
+
+    @Autowired
     private AvantageNatRepository avantageNatRepository;
 
     @Autowired
@@ -240,10 +246,36 @@ public class RhSalariesController {
 
         user = userRepository.save(user);
 
+        Service service = request.getService();
+        if (service.getId() == null) {
+            service = serviceRepository.save(service);
+            activityRepository.save(
+                Activity.builder()
+                    .evenement("Création d'un nouveau service : " + service.getNom())
+                    .service(this.service)
+                    .user(authService.getCurrentUser())
+                    .scope(Role.ADMIN)
+                    .build()
+            );
+        }
+
+        Direction direction = request.getDirection();
+        if (direction.getId() == null) {
+            direction = directionRepository.save(direction);
+            activityRepository.save(
+                Activity.builder()
+                    .evenement("Création d'une nouvelle direction : " + direction.getNom())
+                    .service(this.service)
+                    .user(authService.getCurrentUser())
+                    .scope(Role.ADMIN)
+                    .build()
+            );
+        }
+
         Salarie newSalarie = Salarie.builder()
             .numSomme(request.getNumSomme())
-            .direction(request.getDirection())
-            .service(request.getService())
+            .direction(direction)
+            .service(service)
             .solde(request.getSolde())
             .user(user)
             .build();
@@ -262,6 +294,46 @@ public class RhSalariesController {
         );
 
         return newSalarie;
+    }
+
+    @PutMapping("/{id}/modifier")
+    public Salarie modifierSalarie(@PathVariable Long id, @RequestBody SalarieRequest request) {
+        Salarie salarie = getOneSalarie(id);
+        salarie.getUser().setNom(request.getNom());
+        salarie.getUser().setPrenom(request.getPrenom());
+        salarie.getUser().setEmail(request.getEmail());
+
+        Service service = request.getService();
+        if (service.getId() == null) {
+            service = serviceRepository.save(service);
+            activityRepository.save(
+                Activity.builder()
+                    .evenement("Création d'un nouveau service : " + service.getNom())
+                    .service(this.service)
+                    .user(authService.getCurrentUser())
+                    .scope(Role.ADMIN)
+                    .build()
+            );
+        }
+
+        Direction direction = request.getDirection();
+        if (direction.getId() == null) {
+            direction = directionRepository.save(direction);
+            activityRepository.save(
+                Activity.builder()
+                    .evenement("Création d'une nouvelle direction : " + direction.getNom())
+                    .service(this.service)
+                    .user(authService.getCurrentUser())
+                    .scope(Role.ADMIN)
+                    .build()
+            );
+        }
+
+        salarie.setDirection(direction);
+        salarie.setService(service);
+        salarie.setSolde(request.getSolde());
+
+        return salarieRepository.save(salarie);
     }
 
     @DeleteMapping("/{id}/supprimer")

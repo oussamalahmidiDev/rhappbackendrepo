@@ -95,13 +95,27 @@ public class RhCongesController {
 
         return congeRepository.save(conge);
     }
+    @PutMapping("/{id}/modifier")
+    public Conge modifierConge(@PathVariable Long id, @RequestBody  CongeMaladieRequest request) {
+        Conge conge = congeRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+        if (!conge.getType().getTypeConge().equals("MALADIE"))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        conge.setDateDebut(request.getDateDebut());
+        conge.setDateFin(request.getDateFin());
+        conge.setMotif(request.getMotif());
+
+        return congeRepository.save(conge);
+    }
 
     @DeleteMapping("/{id}/supprimer")
     public ResponseEntity<?> deleteConge(@PathVariable Long id) {
         Conge conge = congeRepository.findById(id).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
         );
-        if (!conge.getEtat().equals(EtatConge.ARCHIVED)) {
+        if (!conge.getEtat().equals(EtatConge.ARCHIVED) || !conge.getType().getTypeConge().equals("MALADIE")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Impossible de supprimer cette demande de congé à l'instant");
         }
         congeRepository.deleteById(id);

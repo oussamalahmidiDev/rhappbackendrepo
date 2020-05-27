@@ -137,6 +137,54 @@ public class RhPostesController {
         return poste;
     }
 
+    @PutMapping("/{id}/modifier")
+    public Poste modifierPoste(@PathVariable Long id, @RequestBody Poste poste) {
+        Poste posteFromDB = posteRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Poste introuvable")
+        );
+
+        Service service = poste.getService();
+        if (service.getId() == null) {
+            service = serviceRepository.save(service);
+            activityRepository.save(
+                Activity.builder()
+                    .evenement("Création d'un nouveau service : " + service.getNom())
+                    .service(this.service)
+                    .user(authService.getCurrentUser())
+                    .scope(Role.ADMIN)
+                    .build()
+            );
+        }
+
+        Direction direction = poste.getDirection();
+        if (direction.getId() == null) {
+            direction = directionRepository.save(direction);
+            activityRepository.save(
+                Activity.builder()
+                    .evenement("Création d'une nouvelle direction : " + direction.getNom())
+                    .service(this.service)
+                    .user(authService.getCurrentUser())
+                    .scope(Role.ADMIN)
+                    .build()
+            );
+        }
+        posteFromDB.setNom(poste.getNom());
+        posteFromDB.setCompetences(poste.getCompetences());
+        posteFromDB.setDirection(direction);
+        posteFromDB.setService(service);
+        posteFromDB.setDivision(poste.getDivision());
+        posteRepository.save(posteFromDB);
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Modification des informations du poste de " + poste.getNom())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
+        return posteFromDB;
+    }
+
     @DeleteMapping("/{id}/supprimer")
     public ResponseEntity<?> deletePoste(@PathVariable Long id) {
         Poste poste = posteRepository.findById(id).orElseThrow(
