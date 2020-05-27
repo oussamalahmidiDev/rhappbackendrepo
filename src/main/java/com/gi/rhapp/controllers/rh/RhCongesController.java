@@ -42,7 +42,7 @@ public class RhCongesController {
 
     @GetMapping()
     public List<Conge> getConges(){
-        return congeRepository.findAll();
+        return congeRepository.findAllByOrderByDateCreationDesc();
     }
 
     @PostMapping("/{id}/repondre")

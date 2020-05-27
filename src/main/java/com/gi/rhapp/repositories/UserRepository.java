@@ -9,7 +9,10 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User , Long> {
 
-    List<User> findAllByRole(Role role);
+    List<User> findAllByRoleOrderByDateCreationDesc(Role role);
+
+    List<User> findAllByOrderByIdDesc();
+
 
     User findByIdAndRole(Long id , Role role);
 

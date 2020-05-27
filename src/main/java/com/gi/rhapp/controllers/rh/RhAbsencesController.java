@@ -68,7 +68,7 @@ public class RhAbsencesController {
 
     @GetMapping() //works
     public List<Absence> getAbsences(){
-            return absenceRepository.findAll();
+            return absenceRepository.findAllByOrderByDateCreationDesc();
     }
 
     @GetMapping("/{id}/justificatif/{filename}")

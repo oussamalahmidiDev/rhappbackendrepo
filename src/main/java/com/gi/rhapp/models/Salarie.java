@@ -51,7 +51,7 @@ public class Salarie {
     @UpdateTimestamp
     private Date dateUpdate;
 
-    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY, cascade=CascadeType.ALL)
     @JsonIgnoreProperties({"salarie"})
     private Collection<Diplome> diplomeObt;
 
@@ -65,7 +65,7 @@ public class Salarie {
 
     @Email
     @Column(nullable = true)
-            private String emailUrg ;
+    private String emailUrg ;
     private Long solde;
 
     @ManyToOne
@@ -76,7 +76,7 @@ public class Salarie {
     @JsonIgnoreProperties({"salaries", "postes"})
     private Service service;
 
-    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY )
+    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY,  cascade=CascadeType.ALL )
     @JsonIgnoreProperties({"salarie"})
     private List<Absence> absences;
 
@@ -89,7 +89,7 @@ public class Salarie {
     @JsonUnwrapped
     private User user;
 
-    @OneToMany(mappedBy = "salarie")
+    @OneToMany(mappedBy = "salarie",  cascade=CascadeType.ALL)
     @JsonIgnoreProperties({"salarie"})
     private List<Conge> conges;
 
@@ -97,7 +97,7 @@ public class Salarie {
     @JsonIgnoreProperties(value = {"salarie"}, allowSetters = true)
     private Retraite retraite;
 
-    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY , cascade=CascadeType.ALL)
     @JsonIgnoreProperties({"salarie"})
     private Collection<AvantageNat> avantages;
 

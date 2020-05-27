@@ -61,7 +61,7 @@ public class RhSalariesController {
 
     @GetMapping() //works
     public List<Salarie>  getSalaries(){
-        return salarieRepository.findAll();
+        return salarieRepository.findAllByOrderByDateCreationDesc();
     }
 
 //    **************************************************************************************************************************************************
@@ -202,7 +202,7 @@ public class RhSalariesController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cet email existe déjà");
 
         User user = User.builder()
-            .email(request.getEmail())
+            .email(request.getEmail().trim().toLowerCase())
             .nom(request.getNom())
             .prenom(request.getPrenom())
             .role(Role.SALARIE)

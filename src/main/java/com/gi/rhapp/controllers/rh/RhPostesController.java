@@ -1,10 +1,9 @@
 package com.gi.rhapp.controllers.rh;
 
+import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
-import com.gi.rhapp.repositories.DirectionRepository;
-import com.gi.rhapp.repositories.PosteRepository;
-import com.gi.rhapp.repositories.SalarieRepository;
-import com.gi.rhapp.repositories.ServiceRepository;
+import com.gi.rhapp.repositories.*;
+import com.gi.rhapp.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,22 +30,56 @@ public class RhPostesController {
     @Autowired
     private DirectionRepository directionRepository;
 
+    @Autowired
+    private ActivityRepository activityRepository;
+
+    @Autowired
+    private AuthService authService;
+
+    private String service = "Gestion des RH - Gestion de postes";
+
     @GetMapping()
     public List<Poste> getPostes() {
-        return posteRepository.findAll();
+        return posteRepository.findAllByOrderByDateCreationDesc();
     }
 
     @PostMapping("/create")
     public Poste createPoste(@RequestBody Poste poste) {
         Service service = poste.getService();
-        if (service.getId() == null)
+        if (service.getId() == null) {
             service = serviceRepository.save(service);
+            activityRepository.save(
+                Activity.builder()
+                    .evenement("Création d'un nouveau service : " + service.getNom())
+                    .service(this.service)
+                    .user(authService.getCurrentUser())
+                    .scope(Role.RH)
+                    .build()
+            );
+        }
 
         Direction direction = poste.getDirection();
-        if (direction.getId() == null)
+        if (direction.getId() == null) {
             direction = directionRepository.save(direction);
-
-        return posteRepository.save(poste);
+            activityRepository.save(
+                Activity.builder()
+                    .evenement("Création d'une nouvelle direction : " + direction.getNom())
+                    .service(this.service)
+                    .user(authService.getCurrentUser())
+                    .scope(Role.RH)
+                    .build()
+            );
+        }
+        poste = posteRepository.save(poste);
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Création d'une nouveau poste " + poste.getNom() + " dans le service de " + service.getNom())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.RH)
+                .build()
+        );
+        return poste;
     }
 
     @PostMapping("/{id}/affecter")
@@ -67,7 +100,18 @@ public class RhPostesController {
 
         poste.setSalarie(selectedSalarie);
 
-        return posteRepository.save(poste);
+        poste = posteRepository.save(poste);
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Affectation de " + selectedSalarie.getUser().getPrenom() + " au poste de " + poste.getNom())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.RH)
+                .build()
+        );
+
+
+        return poste;
     }
 
     @PutMapping("/{id}/salarie/supprimer")
@@ -75,8 +119,18 @@ public class RhPostesController {
         Poste poste = posteRepository.findById(id).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Poste introuvable")
         );
-        poste.getSalarie().setFonction(null);
+        Salarie salarie = poste.getSalarie();
+        salarie.setFonction(null);
         poste.setSalarie(null);
-        return posteRepository.save(poste);
+        poste = posteRepository.save(poste);
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Deaffectation de " + salarie.getUser().getPrenom() + " du poste de " + poste.getNom())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.RH)
+                .build()
+        );
+        return poste;
     }
 }

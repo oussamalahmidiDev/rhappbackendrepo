@@ -44,8 +44,8 @@ public class Security extends WebSecurityConfigurerAdapter {
 //      Allow certain routes
             .authorizeRequests().antMatchers("/api/auth", "/api/forgot_password", "/confirm", "/set_password").permitAll().
             and().authorizeRequests().antMatchers("/api/auth").permitAll().
-            and().authorizeRequests().antMatchers("/admin/**").hasRole(Role.ADMIN.name()).
-            and().authorizeRequests().antMatchers("/rh/**").hasAnyRole(Role.RH.name()).
+            and().authorizeRequests().antMatchers("/rh/**").hasAnyRole(Role.ADMIN.name(), Role.RH.name()).
+//            and().authorizeRequests().antMatchers("/rh/users").hasRole(Role.ADMIN.name()).
             and().authorizeRequests().antMatchers("/salarie/**").hasRole(Role.SALARIE.name()).
 
 // all other requests need to be authenticated

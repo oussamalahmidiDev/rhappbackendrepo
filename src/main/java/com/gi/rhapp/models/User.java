@@ -69,6 +69,10 @@ public class User implements UserDetails {
     @JsonIgnoreProperties({"user"})
     private Salarie salarie;
 
+    @OneToMany(mappedBy = "user", cascade={CascadeType.ALL,CascadeType.REMOVE})
+    @JsonIgnoreProperties({"user"})
+    private List<Activity> activities;
+
 
     // USER DETAILS IMPLEMENTATION
 
@@ -85,12 +89,17 @@ public class User implements UserDetails {
     public void intialValues() {
         verificationToken = VerificationTokenGenerator.generateVerificationToken();
         emailConfirmed = false;
+//        email = email.trim().toLowerCase();
     }
 
     @Override
     @JsonIgnore
     public String getUsername() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email.trim().toLowerCase();
     }
 
     @Override
