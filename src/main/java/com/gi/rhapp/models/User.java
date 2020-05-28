@@ -14,6 +14,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -48,8 +49,24 @@ public class User implements UserDetails {
     @Transient
     private String avatarLink;
 
+    @JsonProperty("avatar_link")
+    public String getAvatarLink() {
+        if (photo == null || photo == "")
+            return null;
+        String BASE_API_URL = null;
+        switch (role.toString()) {
+            case "ADMIN" : BASE_API_URL = "admin"; break;
+            case "RH" : BASE_API_URL = "rh"; break;
+            case "SALARIE" : BASE_API_URL = "salarie"; break;
+        }
+        return ServletUriComponentsBuilder.fromCurrentContextPath()
+            .path("/" + BASE_API_URL + "/api/")
+            .path("profile/avatar/")
+            .path(photo)
+            .toUriString();
+    }
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY )
     private String password;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -66,12 +83,10 @@ public class User implements UserDetails {
     private Date dateModification;
 
     @OneToOne(mappedBy = "user" ,cascade={CascadeType.ALL,CascadeType.REMOVE})
-    @JsonIgnoreProperties({"user"})
+    @JsonIgnoreProperties(value = {"user"}, allowSetters = true)
     private Salarie salarie;
 
-    @OneToMany(mappedBy = "user", cascade={CascadeType.ALL,CascadeType.REMOVE})
-    @JsonIgnoreProperties({"user"})
-    private List<Activity> activities;
+    public String getFullname() { return nom + " " + prenom; }
 
 
     // USER DETAILS IMPLEMENTATION
@@ -89,19 +104,14 @@ public class User implements UserDetails {
     public void intialValues() {
         verificationToken = VerificationTokenGenerator.generateVerificationToken();
         emailConfirmed = false;
-//        email = email.trim().toLowerCase();
+//        photo="https://i.picsum.photos/id/903/200/300.jpg"; // just for test
+//        photo="default.png";
     }
 
     @Override
     @JsonIgnore
     public String getUsername() {
         return email;
-    }
-
-    public String getFullname() { return nom + " " + prenom; }
-
-    public void setEmail(String email) {
-        this.email = email.trim().toLowerCase();
     }
 
     @Override

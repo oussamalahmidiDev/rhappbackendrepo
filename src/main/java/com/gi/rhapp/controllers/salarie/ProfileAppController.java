@@ -4,9 +4,12 @@ import com.gi.rhapp.config.Storage;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
+import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.Download;
 import com.gi.rhapp.services.MailService;
 import com.gi.rhapp.services.Upload;
+import com.gi.rhapp.utilities.JwtUtil;
+import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +34,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/salarie/api/profil")
@@ -68,9 +71,16 @@ public class ProfileAppController {
     private Download download;
 
     @Autowired
+    private PasswordEncoder encoder;
+
+    @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    private JwtUtil jwtUtil;
 
+    @Autowired
+    private AuthService authService;
 
     Logger log = LoggerFactory.getLogger(ProfileAppController.class);
 
@@ -83,23 +93,36 @@ public class ProfileAppController {
 
     @GetMapping()
     public Salarie getProfile() {
-        return salarieRepository.findById(1L).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Id invalide")
-        );
+        long id =authService.getCurrentUser().getSalarie().getId();
+        try{
+            return authService.getCurrentUser().getSalarie();
+        }catch (NoSuchElementException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable.");
+        }
+
     }
+
 
     @PutMapping("/modifier/user")
     public User modifierProfilUser(@RequestBody User user) {
-        user.setSalarie(getProfile());
-        return userRepository.save(user);
+        User originUser = getProfile().getUser();
+        originUser.setEmail(user.getEmail());
+        originUser.setNom(user.getNom());
+        originUser.setPrenom(user.getPrenom());
+        originUser.setTelephone(user.getTelephone());
+        return userRepository.save(originUser);
     }
 
     @PutMapping("/modifier/user/password")
     public ResponseEntity modifierPasswordUser(@RequestBody User user) {
+        System.out.println(user);
+//        user.setPassword(encoder.encode("khalil"));
+//        System.out.println(user.getPassword());
         User currentUser = getProfile().getUser();
-        if(currentUser.getPassword().equals(user.getPassword())){
+        Boolean isMatch = encoder.matches(user.getPassword(),currentUser.getPassword());
+        if(isMatch){
             user.setSalarie(getProfile());
-            user.setPassword(user.getNewPassword());
+            user.setPassword(encoder.encode(user.getNewPassword()));
             userRepository.save(user);
             return new ResponseEntity(HttpStatus.OK);
         }
@@ -109,11 +132,20 @@ public class ProfileAppController {
     }
     @PutMapping("/modifier/contacts")
     public Salarie modifierProfilContact(@RequestBody Salarie salarie) {
-        salarie.setUser(getProfile().getUser());
-        salarie.setPoste(getProfile().getPoste());
-        salarie.setRetraite(getProfile().getRetraite());
-
-        return salarieRepository.save(salarie);
+        System.out.println(salarie);
+        Salarie originSalarie = getProfile();
+        originSalarie.setDateNaissance(salarie.getDateNaissance());
+        originSalarie.setLieuNaissance(salarie.getLieuNaissance());
+        originSalarie.setAdresse(salarie.getAdresse());
+        originSalarie.setEtatFamiliale(salarie.getEtatFamiliale());
+        originSalarie.setNmbEnf(salarie.getNmbEnf());
+//        salarie.setUser(getProfile().getUser());
+//        salarie.setPoste(getProfile().getPoste());
+//        salarie.setRetraite(getProfile().getRetraite());
+        User user = getProfile().getUser();
+//        user.setSalarie(originSalarie);
+        System.out.println(salarie);
+        return salarieRepository.save(originSalarie);
     }
 
 
@@ -136,8 +168,6 @@ public class ProfileAppController {
         return download.loadImage(response,name,UPLOAD_DIPLOME_DIR);
     }
 
-
-
     @PostMapping("/upload/cv")
     public ResponseEntity uploadCv(@RequestParam("file") MultipartFile file){
         return upload.uploadCv(file,getProfile());
@@ -146,7 +176,7 @@ public class ProfileAppController {
     @PostMapping("/upload/diplome")
     public ResponseEntity uploadDiplome(@RequestParam("file") MultipartFile file ,
                                      @RequestParam("name") String  name ,
-                                     @RequestParam("dateDiplome") String dateDiplome ,
+                                     @RequestParam("dateDiplome") Date dateDiplome ,
                                      @RequestParam("expDiplome") String expDiplome  ) throws ParseException {
         return upload.uploadDiplome(file,name,dateDiplome,expDiplome,getProfile());
 

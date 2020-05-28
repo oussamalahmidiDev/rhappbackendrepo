@@ -176,7 +176,7 @@ public class Upload {
 
     public ResponseEntity uploadDiplome(MultipartFile file ,
                                      String  name ,
-                                      String dateDiplome ,
+                                      Date dateDiplome ,
                                       String expDiplome , Salarie salarie ) throws ParseException {
         Date date = new Date();
         System.out.println(file.getOriginalFilename());
@@ -184,20 +184,23 @@ public class Upload {
 
         try{
             String fileName = Long.toString(date.getTime())+"."+file.getContentType().split("/")[1];
+            System.out.println(fileName);
             String path = UPLOAD_DIPLOME_DIR + File.separator +fileName;
             if(!expDiplome.equals("")){
+                System.out.println(expDiplome);
                 diplomeRepository.save(Diplome.builder()
                         .salarie(salarie)
                         .name(name)
-                        .dateDiplome(new SimpleDateFormat("yyyy-mm-dd").parse(dateDiplome))
-                        .expDiplome(new SimpleDateFormat("yyyy-mm-dd").parse(expDiplome))
+                        .expDiplome(new SimpleDateFormat("yyyy-MM-dd").parse(expDiplome))
+                        .dateDiplome(dateDiplome)
                         .path(fileName)
                         .build());}
             else{
+                System.out.println("here");
                 diplomeRepository.save(Diplome.builder()
                         .salarie(salarie)
                         .name(name)
-                        .dateDiplome(new SimpleDateFormat("yyyy-mm-dd").parse(dateDiplome))
+                        .dateDiplome(dateDiplome)
                         .path(fileName)
                         .build());
             }

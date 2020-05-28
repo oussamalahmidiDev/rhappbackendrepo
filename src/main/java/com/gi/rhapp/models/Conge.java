@@ -40,6 +40,8 @@ public class Conge  {
 
     private String reponse;
 
+    private int joursDisponible;
+
     @Enumerated(EnumType.STRING)
     private EtatConge etat;
 
@@ -60,9 +62,12 @@ public class Conge  {
     @PrePersist
     void initialStat(){
         if (type.getTypeConge().equals("MALADIE"))
+        {
             etat = EtatConge.ACCEPTED;
-        else
+        }
+        else {
             etat = EtatConge.PENDING_RESPONSE;
+        }
     }
 
 

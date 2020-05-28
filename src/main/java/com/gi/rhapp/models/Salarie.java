@@ -34,6 +34,9 @@ public class Salarie {
     @Column(unique = true)
     private String cin ;
 
+    private int joursDisponible ;
+
+
 //    private double salaire;
 
     private String  adresse;
@@ -52,7 +55,7 @@ public class Salarie {
     private Date dateUpdate;
 
     @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY, cascade=CascadeType.ALL)
-    @JsonIgnoreProperties({"salarie"})
+    @JsonIgnoreProperties(value = {"salarie"})
     private Collection<Diplome> diplomeObt;
 
     private String fonction;
@@ -100,5 +103,10 @@ public class Salarie {
     @OneToMany(mappedBy = "salarie", fetch = FetchType.LAZY , cascade=CascadeType.ALL)
     @JsonIgnoreProperties({"salarie"})
     private Collection<AvantageNat> avantages;
+
+    @PrePersist
+    void initialStat(){
+        joursDisponible =18;
+    }
 
 }
