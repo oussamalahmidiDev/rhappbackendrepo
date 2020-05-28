@@ -1,9 +1,7 @@
 package com.gi.rhapp.controllers.salarie;
 
-import com.gi.rhapp.models.Conge;
-import com.gi.rhapp.models.CongeSalarieRequest;
-import com.gi.rhapp.models.Salarie;
-import com.gi.rhapp.models.TypeConge;
+import com.gi.rhapp.enumerations.Role;
+import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.MailService;
 import com.gi.rhapp.services.Upload;
@@ -26,6 +24,8 @@ public class CongeAppController {
 
     Logger log = LoggerFactory.getLogger(CongeAppController.class);
 
+    String service = "Panneau de salarié - Demandes de congés";
+
     @Autowired
     private CongeRepository congeRepository;
 
@@ -37,6 +37,9 @@ public class CongeAppController {
 
     @Autowired
     private ProfileAppController profileAppController;
+
+    @Autowired
+    private ActivityRepository activityRepository;
 
     public Salarie getProfile(){
         return profileAppController.getProfile();
@@ -70,6 +73,16 @@ public class CongeAppController {
                 .dateFin(conge.getDateFin())
                 .motif(conge.getMotif())
                 .build());
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a ajouté une demande de congé")
+                .service(service)
+                .user(getProfile().getUser())
+                .scope(Role.RH)
+                .build()
+        );
+
         return conge;
     }
 
@@ -91,6 +104,14 @@ public class CongeAppController {
                     .motif(newConge.getMotif())
                     .build());
 
+            activityRepository.save(
+                Activity.builder()
+                    .evenement("Le salarié " + getProfile().getUser().getFullname() + " a modifié sa demande de congé")
+                    .service(service)
+                    .user(getProfile().getUser())
+                    .scope(Role.RH)
+                    .build()
+            );
             return newConge;
 
         }catch (Exception e){
@@ -102,6 +123,14 @@ public class CongeAppController {
     @DeleteMapping("/{id}/supprimer")
     public void  deleteConge(@PathVariable(value = "id")Long id){
         congeRepository.deleteById(id);
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a supprimé sa demande de congé")
+                .service(service)
+                .user(getProfile().getUser())
+                .scope(Role.RH)
+                .build()
+        );
 //        return ResponseEntity.ok("l'Absence est supprimer avec succès");
     }
 }

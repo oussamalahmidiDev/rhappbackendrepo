@@ -1,6 +1,9 @@
 package com.gi.rhapp.controllers;
 
+import com.gi.rhapp.enumerations.Role;
+import com.gi.rhapp.models.Activity;
 import com.gi.rhapp.models.User;
+import com.gi.rhapp.repositories.ActivityRepository;
 import com.gi.rhapp.repositories.UserRepository;
 import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.MailService;
@@ -49,6 +52,9 @@ public class GenericController {
     @Autowired
     private JwtUtil jwtTokenUtil;
 
+    @Autowired
+    private ActivityRepository activityRepository;
+
     @PostMapping("/api/auth")
     @ResponseBody
     public ResponseEntity<?> authenticate (@RequestBody User credentials)  {
@@ -62,8 +68,19 @@ public class GenericController {
 
         final String token = jwtTokenUtil.generateToken(userDetails);
 
+        User user = userRepository.findByEmail(credentials.getEmail());
+
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("L'utilisateur " + user.getFullname() + " s'est connecté sur la plateforme")
+                .service("Service d'authentification")
+                .user(user)
+                .scope(user.getRole().equals(Role.SALARIE)? Role.RH : Role.ADMIN)
+                .build()
+        );
 
         return ResponseEntity.ok(response);
     }

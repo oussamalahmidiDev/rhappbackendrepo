@@ -82,6 +82,11 @@ public class ProfileAppController {
     @Autowired
     private AuthService authService;
 
+    String service = "Panneau de salarié - Gestion de profile";
+
+    @Autowired
+    private ActivityRepository activityRepository;
+
     Logger log = LoggerFactory.getLogger(ProfileAppController.class);
 
 
@@ -110,6 +115,15 @@ public class ProfileAppController {
         originUser.setNom(user.getNom());
         originUser.setPrenom(user.getPrenom());
         originUser.setTelephone(user.getTelephone());
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a modifié ses informations de compte")
+                .service(service)
+                .user(getProfile().getUser())
+                .scope(Role.RH)
+                .build()
+        );
         return userRepository.save(originUser);
     }
 
@@ -145,6 +159,16 @@ public class ProfileAppController {
         User user = getProfile().getUser();
 //        user.setSalarie(originSalarie);
         System.out.println(salarie);
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a modifié ses informations de contact")
+                .service(service)
+                .user(getProfile().getUser())
+                .scope(Role.RH)
+                .build()
+        );
+
         return salarieRepository.save(originSalarie);
     }
 
@@ -170,6 +194,14 @@ public class ProfileAppController {
 
     @PostMapping("/upload/cv")
     public ResponseEntity uploadCv(@RequestParam("file") MultipartFile file){
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a ajouté son CV")
+                .service(service)
+                .user(getProfile().getUser())
+                .scope(Role.RH)
+                .build()
+        );
         return upload.uploadCv(file,getProfile());
     }
 
@@ -178,6 +210,15 @@ public class ProfileAppController {
                                      @RequestParam("name") String  name ,
                                      @RequestParam("dateDiplome") Date dateDiplome ,
                                      @RequestParam("expDiplome") String expDiplome  ) throws ParseException {
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a ajouté un diplôme")
+                .service(service)
+                .user(getProfile().getUser())
+                .scope(Role.RH)
+                .build()
+        );
         return upload.uploadDiplome(file,name,dateDiplome,expDiplome,getProfile());
 
     }

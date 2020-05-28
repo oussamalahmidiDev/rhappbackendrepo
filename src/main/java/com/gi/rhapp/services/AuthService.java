@@ -28,7 +28,7 @@ public class AuthService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
 
-        System.out.println(user.getEmail());
+//        System.out.println(user.getEmail());
 
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), user.getAuthorities());
     }

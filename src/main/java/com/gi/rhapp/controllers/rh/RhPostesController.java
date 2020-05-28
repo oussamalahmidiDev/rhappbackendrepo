@@ -4,6 +4,7 @@ import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.AuthService;
+import com.gi.rhapp.services.NotificationService;
 import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +15,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rh/api/postes")
 @CrossOrigin("*")
 @Log4j2
 public class RhPostesController {
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private PosteRepository posteRepository;
@@ -35,6 +40,12 @@ public class RhPostesController {
 
     @Autowired
     private ActivityRepository activityRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+//    @Autowired
+    private NotificationService notificationService;
 
     @Autowired
     private AuthService authService;
@@ -82,6 +93,15 @@ public class RhPostesController {
                 .scope(Role.ADMIN)
                 .build()
         );
+//        Notification notification = Notification.builder()
+//            .content(String.format("L'agent %s a crée un nouveau poste %s dans le service de %s", authService.getCurrentUser().getFullname(), poste.getNom(), poste.getService().getNom()))
+//            .from(authService.getCurrentUser())
+//            .to(userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).stream().filter(user -> user.getId() != authService.getCurrentUser().getId()).collect(Collectors.toList()))
+//            .build();
+
+//        notificationService.publish(notificationRepository.save(notification));
+
+
         return poste;
     }
 
