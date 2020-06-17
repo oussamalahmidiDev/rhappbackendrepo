@@ -8,7 +8,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Type;
@@ -51,6 +56,9 @@ public class RhappApplication implements CommandLineRunner {
     @Autowired
     private TypeCongeRepository typeCongeRepository;
 
+    @Autowired
+    private SimpMessagingTemplate template;
+
 
     public static void main(String[] args) {
 
@@ -59,6 +67,7 @@ public class RhappApplication implements CommandLineRunner {
 
     @GetMapping("/")
     public String helloWorld() {
+        template.convertAndSendToUser("lahmidioussama14@gmail.com", "/topic/notifications", "Hello fromWS");
         return "Hello From RH APP from HEROKU v2";
     }
 

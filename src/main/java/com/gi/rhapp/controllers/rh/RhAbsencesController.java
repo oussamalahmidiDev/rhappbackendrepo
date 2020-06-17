@@ -141,6 +141,8 @@ public class RhAbsencesController {
 
     }
 
+//    public
+
 
     @DeleteMapping("/{id}/supprimer")
     public ResponseEntity<?> deleteAbsence(@PathVariable Long id) {

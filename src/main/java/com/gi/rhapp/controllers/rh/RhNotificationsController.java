@@ -32,7 +32,7 @@ public class RhNotificationsController {
 
     @GetMapping()
     public List<Notification> getAllNotifications() {
-        return authService.getCurrentUser().getNotifications();
+        return notificationRepository.findAllByTo(authService.getCurrentUser());
     }
 
     // api to subscribe to notifications event stream via SSE

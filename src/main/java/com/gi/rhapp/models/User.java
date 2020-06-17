@@ -73,10 +73,10 @@ public class User implements UserDetails {
     @JsonIgnoreProperties({"user"})
     private List<Activity> activities;
 
-    @OneToMany(mappedBy = "from")
-    @JsonIgnoreProperties({"from", "to"})
-    @JsonIgnore
-    private List<Notification> notifications;
+//    @OneToMany(mappedBy = "from")
+//    @JsonIgnoreProperties({"from", "to"})
+//    @JsonIgnore
+//    private List<Notification> notifications;
 
 
     // USER DETAILS IMPLEMENTATION

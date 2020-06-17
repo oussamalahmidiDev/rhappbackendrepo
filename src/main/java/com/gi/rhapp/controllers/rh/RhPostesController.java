@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -133,6 +134,24 @@ public class RhPostesController {
                 .build()
         );
 
+        List<User> receiver = new ArrayList<>();
+        receiver.add(selectedSalarie.getUser());
+
+        List<User> otherAgents = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE);
+
+        Notification notificationToAgents = Notification.builder()
+            .content(String.format("Le salarié \"%s\" été affecté au poste de \"%s\" (service de %s)", selectedSalarie.getUser().getFullname(), poste.getNom(), poste.getService().getNom()))
+            .to(otherAgents)
+            .build();
+
+        notificationRepository.save(notificationToAgents);
+
+        Notification notificationToSalarie = Notification.builder()
+            .content(String.format("Vous avez été affecté au poste de \"%s\" (service de %s)", poste.getNom(), poste.getService().getNom()))
+            .to(receiver)
+            .build();
+
+        notificationRepository.save(notificationToSalarie);
 
         return poste;
     }
@@ -154,6 +173,25 @@ public class RhPostesController {
                 .scope(Role.ADMIN)
                 .build()
         );
+
+        List<User> receiver = new ArrayList<>();
+        receiver.add(salarie.getUser());
+
+        List<User> otherAgents = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE);
+
+        Notification notificationToAgents = Notification.builder()
+            .content(String.format("Le salarié \"%s\" été déaffecté du poste de \"%s\" (service de %s)", salarie.getUser().getFullname(), poste.getNom(), poste.getService().getNom()))
+            .to(otherAgents)
+            .build();
+
+        notificationRepository.save(notificationToAgents);
+
+        Notification notificationToSalarie = Notification.builder()
+            .content(String.format("Vous avez été déaffecté du poste de \"%s\" (service de %s)", poste.getNom(), poste.getService().getNom()))
+            .to(receiver)
+            .build();
+
+        notificationRepository.save(notificationToSalarie);
         return poste;
     }
 

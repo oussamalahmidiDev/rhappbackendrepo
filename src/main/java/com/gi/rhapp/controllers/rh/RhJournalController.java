@@ -35,4 +35,11 @@ public class RhJournalController {
         return repository.findAllByScope(Role.RH, pageable);
     }
 
+    @GetMapping("/personnal")
+    public Page<Activity> getPersonnalActivities(@RequestParam("limit") int limit) {
+//        int page = limit <= 50 ? 0 : limit - 50;
+        Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "timestamp"));
+        return repository.findAllByUser(authService.getCurrentUser(), pageable);
+    }
+
 }

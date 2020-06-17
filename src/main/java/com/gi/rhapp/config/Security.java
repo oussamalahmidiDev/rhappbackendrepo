@@ -42,18 +42,18 @@ public class Security extends WebSecurityConfigurerAdapter {
 //      Disable CSRF
         httpSecurity.cors().disable().csrf().disable()
 //      Allow certain routes
-            .authorizeRequests().antMatchers("/ws","/api/auth", "/api/forgot_password", "/confirm", "/set_password").permitAll().
+            .authorizeRequests().antMatchers("/ws/**", "/", "/api/auth", "/api/forgot_password", "/confirm", "/set_password").permitAll().
             and().authorizeRequests().antMatchers("/api/auth").permitAll().
             and().authorizeRequests().antMatchers("/rh/**").hasAnyRole(Role.ADMIN.name(), Role.RH.name()).
 //            and().authorizeRequests().antMatchers("/rh/users").hasRole(Role.ADMIN.name()).
-            and().authorizeRequests().antMatchers("/salarie/**").hasRole(Role.SALARIE.name()).
+    and().authorizeRequests().antMatchers("/salarie/**").hasRole(Role.SALARIE.name()).
 
 // all other requests need to be authenticated
-            anyRequest().authenticated().and().
+    anyRequest().authenticated().and().
 
 // make sure we use stateless session; session won't be used to
 // store user's state.
-            exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+    exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 // Add a filter to validate the tokens with every request

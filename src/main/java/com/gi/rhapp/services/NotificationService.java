@@ -42,18 +42,18 @@ public class NotificationService {
 //        if (notification.getFrom().equals(authService.getCurrentUser()))
 //            return;
 
-        notification.getTo().stream()
-            .forEach(user -> {
-                log.info("RECEIVER ID {},  CURRENT USER : {}, FROM : {}",currentUser().getId(), currentUser.getId(), notification.getFrom().getId());
-                if (!user.getId().equals(notification.getFrom().getId())) {
-                    log.info("RECEIVER ID {} WILL RECEIVE",user.getId());
-                    listeners.forEach(c -> {
-                        if (user.getId().equals(currentUser().getId()))
-                            c.accept(notification);
-                    });
-
-                }
-            });
+//        notification.getTo().stream()
+//            .forEach(user -> {
+//                log.info("RECEIVER ID {},  CURRENT USER : {}, FROM : {}",currentUser().getId(), currentUser.getId(), notification.getFrom().getId());
+//                if (!user.getId().equals(notification.getFrom().getId())) {
+//                    log.info("RECEIVER ID {} WILL RECEIVE",user.getId());
+//                    listeners.forEach(c -> {
+//                        if (user.getId().equals(currentUser().getId()))
+//                            c.accept(notification);
+//                    });
+//
+//                }
+//            });
 
 //        if (!notification.getTo().contains(authService.getCurrentUser()))
 //            listeners.forEach(c -> c.accept(notification));

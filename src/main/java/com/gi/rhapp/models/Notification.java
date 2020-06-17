@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -28,8 +31,8 @@ public class Notification {
     @CreationTimestamp
     private Date timestamp;
 
-    @ManyToOne
-    private User from;
+//    @ManyToOne
+//    private User from;
 
     @ManyToMany
     @JsonIgnore
@@ -40,6 +43,20 @@ public class Notification {
     @PrePersist
     public void intialValues() {
         isSeen = false;
+    }
+
+}
+
+// Notification listener to send notification after persisting entity in the DB.
+@Component
+class NotificationListener {
+
+    @Autowired
+    private SimpMessagingTemplate template;
+
+    @PostPersist
+    void send (Notification notification) {
+        notification.getTo().forEach(receiver -> template.convertAndSendToUser(receiver.getEmail(), "/topic/notifications", notification));
     }
 
 }
