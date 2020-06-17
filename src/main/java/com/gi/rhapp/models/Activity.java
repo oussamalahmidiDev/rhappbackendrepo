@@ -13,8 +13,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +25,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Builder
+//@EntityListeners(ActivitiesListener.class)
 public class Activity {
 
     @Id
@@ -59,26 +62,33 @@ public class Activity {
         this.scope = scope;
     }
 }
-
-@Component
-@Log4j2
-class ActivitiesListener {
-
-    @Autowired
-    private SimpMessagingTemplate template;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @PostPersist
-    void send (Activity activity) {
-        template.convertAndSendToUser(activity.getUser().getEmail(), "/topic/activities", activity);
-
-        userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).forEach(agent -> {
-            log.info("Sending activity to : {}", agent.getEmail());
-            template.convertAndSendToUser(agent.getEmail(), "/topic/activities", activity);
-        });
-
-    }
-
-}
+//
+//@Log4j2
+//@Component
+//class ActivitiesListener {
+//
+//    @Autowired
+//    private SimpMessagingTemplate template;
+//
+//    private UserRepository userRepository;
+//
+//    @Autowired
+//    ActivitiesListener(UserRepository userRepository) {
+//        this.userRepository = userRepository;
+//    }
+//
+//    @PostPersist
+//    void send (Activity activity) {
+//        log.info("Activity user : {}", activity.getUser().getEmail());
+////        template.convertAndSendToUser(activity.getUser().getEmail(), "/topic/activities", activity);
+//
+//        List<User> agents = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE);
+//
+//        agents.forEach(agent -> {
+//            log.info("Sending activity to : {}", agent.getEmail());
+//            template.convertAndSendToUser(agent.getEmail(), "/topic/activities", activity);
+//        });
+//
+//    }
+//
+//}

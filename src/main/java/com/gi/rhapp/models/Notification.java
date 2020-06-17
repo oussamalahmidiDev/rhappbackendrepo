@@ -20,6 +20,7 @@ import java.util.List;
 @Builder
 @Data
 @NoArgsConstructor
+@EntityListeners(NotificationListener.class)
 public class Notification {
 
     @Id

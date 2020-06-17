@@ -3,6 +3,7 @@ package com.gi.rhapp.controllers.rh;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
+import com.gi.rhapp.services.ActivitiesService;
 import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.NotificationService;
 import lombok.extern.log4j.Log4j2;
@@ -40,7 +41,7 @@ public class RhPostesController {
     private DirectionRepository directionRepository;
 
     @Autowired
-    private ActivityRepository activityRepository;
+    private ActivitiesService activitiesService;
 
     @Autowired
     private NotificationRepository notificationRepository;
@@ -63,7 +64,7 @@ public class RhPostesController {
         Service service = poste.getService();
         if (service.getId() == null) {
             service = serviceRepository.save(service);
-            activityRepository.save(
+            activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'un nouveau service : " + service.getNom())
                     .service(this.service)
@@ -76,7 +77,7 @@ public class RhPostesController {
         Direction direction = poste.getDirection();
         if (direction.getId() == null) {
             direction = directionRepository.save(direction);
-            activityRepository.save(
+            activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'une nouvelle direction : " + direction.getNom())
                     .service(this.service)
@@ -86,7 +87,7 @@ public class RhPostesController {
             );
         }
         poste = posteRepository.save(poste);
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Création d'une nouveau poste " + poste.getNom() + " dans le service de " + service.getNom())
                 .service(this.service)
@@ -125,7 +126,7 @@ public class RhPostesController {
         poste.setSalarie(selectedSalarie);
 
         poste = posteRepository.save(poste);
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Affectation de " + selectedSalarie.getUser().getFullname() + " au poste de " + poste.getNom())
                 .service(this.service)
@@ -165,7 +166,7 @@ public class RhPostesController {
         salarie.setFonction(null);
         poste.setSalarie(null);
         poste = posteRepository.save(poste);
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Deaffectation de " + salarie.getUser().getFullname() + " du poste de " + poste.getNom())
                 .service(this.service)
@@ -204,7 +205,7 @@ public class RhPostesController {
         Service service = poste.getService();
         if (service.getId() == null) {
             service = serviceRepository.save(service);
-            activityRepository.save(
+            activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'un nouveau service : " + service.getNom())
                     .service(this.service)
@@ -217,7 +218,7 @@ public class RhPostesController {
         Direction direction = poste.getDirection();
         if (direction.getId() == null) {
             direction = directionRepository.save(direction);
-            activityRepository.save(
+            activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'une nouvelle direction : " + direction.getNom())
                     .service(this.service)
@@ -232,7 +233,7 @@ public class RhPostesController {
         posteFromDB.setService(service);
         posteFromDB.setDivision(poste.getDivision());
         posteRepository.save(posteFromDB);
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Modification des informations du poste de " + poste.getNom())
                 .service(this.service)
@@ -259,7 +260,7 @@ public class RhPostesController {
 //        if (posteRepository.findById(id).isPresent())
 //            return deletePoste(id);
 
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Suppression de poste de " + poste.getNom())
                 .service(this.service)
