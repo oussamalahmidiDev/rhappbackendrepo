@@ -28,6 +28,11 @@ public class Salarie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id ;
 
+    @Column(columnDefinition = "boolean default false")
+    private Boolean deleted;
+
+    private String raisonSuppression;
+
     @Column(unique = true)
     private String numSomme;
 
@@ -43,6 +48,8 @@ public class Salarie {
     private String cv;
 
     private Date dateNaissance ;
+    private Date dateRecrutement;
+
     private String lieuNaissance ;
 
 
@@ -107,6 +114,7 @@ public class Salarie {
     @PrePersist
     void initialStat(){
         joursDisponible =18;
+        deleted = false;
     }
 
 }

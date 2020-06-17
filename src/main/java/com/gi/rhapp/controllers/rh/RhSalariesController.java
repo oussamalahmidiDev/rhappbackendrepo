@@ -4,6 +4,7 @@ import com.gi.rhapp.enumerations.EtatRetraite;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
+import com.gi.rhapp.services.ActivitiesService;
 import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.Download;
 import com.gi.rhapp.services.MailService;
@@ -63,7 +64,7 @@ public class RhSalariesController {
     private Download downloadService;
 
     @Autowired
-    private ActivityRepository activityRepository;
+    private ActivitiesService activitiesService;
 
     @Autowired
     private AuthService authService;
@@ -181,7 +182,7 @@ public class RhSalariesController {
         retraite.setEtat(EtatRetraite.PENDING_VALID);
         retraiteRepository.save(retraite);
 
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Retraite des avantages en nature de : " + retraite.getSalarie().getUser().getFullname())
                 .service(this.service + " : Retraite des avantages")
@@ -204,7 +205,7 @@ public class RhSalariesController {
 
         retraite = retraiteRepository.save(retraite);
 
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Validation de la retraite de : " + retraite.getSalarie().getUser().getFullname())
                 .service(this.service + " : Retraites")
@@ -249,7 +250,7 @@ public class RhSalariesController {
         Service service = request.getService();
         if (service.getId() == null) {
             service = serviceRepository.save(service);
-            activityRepository.save(
+            activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'un nouveau service : " + service.getNom())
                     .service(this.service)
@@ -262,7 +263,7 @@ public class RhSalariesController {
         Direction direction = request.getDirection();
         if (direction.getId() == null) {
             direction = directionRepository.save(direction);
-            activityRepository.save(
+            activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'une nouvelle direction : " + direction.getNom())
                     .service(this.service)
@@ -276,6 +277,8 @@ public class RhSalariesController {
             .numSomme(request.getNumSomme())
             .direction(direction)
             .service(service)
+            .dateRecrutement(request.getDateRecrutement())
+            .dateNaissance(request.getDateNaissance())
             .solde(request.getSolde())
             .user(user)
             .build();
@@ -284,7 +287,7 @@ public class RhSalariesController {
 
         mailService.sendVerificationMail(user);
 
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Enregistrement d'un nouveau salarié : " + newSalarie.getUser().getFullname())
                 .service(this.service)
@@ -306,7 +309,7 @@ public class RhSalariesController {
         Service service = request.getService();
         if (service.getId() == null) {
             service = serviceRepository.save(service);
-            activityRepository.save(
+            activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'un nouveau service : " + service.getNom())
                     .service(this.service)
@@ -319,7 +322,7 @@ public class RhSalariesController {
         Direction direction = request.getDirection();
         if (direction.getId() == null) {
             direction = directionRepository.save(direction);
-            activityRepository.save(
+            activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'une nouvelle direction : " + direction.getNom())
                     .service(this.service)
@@ -332,24 +335,29 @@ public class RhSalariesController {
         salarie.setDirection(direction);
         salarie.setService(service);
         salarie.setSolde(request.getSolde());
-
+        salarie.setDateNaissance(request.getDateNaissance());
+        salarie.setDateRecrutement(request.getDateRecrutement());
         return salarieRepository.save(salarie);
     }
 
     @DeleteMapping("/{id}/supprimer")
-    public ResponseEntity<?> deleteAbsence(@PathVariable Long id) {
+    public ResponseEntity<?> deleteAbsence(@PathVariable Long id, @RequestBody Salarie request) {
         Salarie salarie = getOneSalarie(id);
-        userRepository.delete(salarie.getUser());
+        salarie.setRaisonSuppression(request.getRaisonSuppression());
 
-        activityRepository.save(
+        salarie.setDeleted(true);
+        userRepository.save(salarie.getUser());
+//        userRepository.delete(salarie.getUser());
+
+        activitiesService.saveAndSend(
             Activity.builder()
-                .evenement("Suppression du salarié : " + salarie.getUser().getFullname())
+                .evenement("Suppression du salarié : " + salarie.getUser().getFullname() + " pour la raison : " + request.getRaisonSuppression())
                 .service(this.service)
                 .user(authService.getCurrentUser())
                 .scope(Role.ADMIN)
                 .build()
         );
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(salarie);
     }
 
 }

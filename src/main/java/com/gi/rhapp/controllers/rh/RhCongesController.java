@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,11 +52,26 @@ public class RhCongesController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private ParametresRepository parametresRepository;
+
     private String service = "Gestion des RH - Gestion des demandes de congés";
 
     @GetMapping()
     public List<Conge> getConges(){
         return congeRepository.findAllByOrderByDateCreationDesc();
+    }
+
+    @GetMapping("/parametres")
+    public Parametres getParametres() {
+        return parametresRepository.findById(1L).get();
+    }
+
+    @PostMapping("/parametres")
+    public Parametres setParametres(@RequestBody Parametres parametres) {
+        Parametres currentParametres = parametresRepository.getOne(1L);
+        currentParametres.setNombreMinJoursConge(parametres.getNombreMinJoursConge());
+        return parametresRepository.save(currentParametres);
     }
 
     @PostMapping("/{id}/repondre")

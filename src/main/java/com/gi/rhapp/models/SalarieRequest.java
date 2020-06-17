@@ -2,6 +2,8 @@ package com.gi.rhapp.models;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class SalarieRequest {
 
@@ -14,4 +16,7 @@ public class SalarieRequest {
     private String email;
 
     private Long solde;
+
+    private Date dateNaissance;
+    private Date dateRecrutement;
 }
