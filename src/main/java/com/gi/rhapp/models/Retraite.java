@@ -11,6 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -26,7 +27,7 @@ public class Retraite  {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Date dateRetraite, dateValidation;
+    private LocalDate dateRetraite, dateValidation;
 
     private String remarques;
 
@@ -50,7 +51,7 @@ public class Retraite  {
 
     @PrePersist
     public void intialValues() {
-        etat = EtatRetraite.PENDING_RT_AVTG;
+        etat = EtatRetraite.SCHEDULED;
     }
 
 }

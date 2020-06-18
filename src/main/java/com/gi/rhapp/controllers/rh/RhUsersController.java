@@ -5,6 +5,7 @@ import com.gi.rhapp.models.Activity;
 import com.gi.rhapp.models.User;
 import com.gi.rhapp.repositories.ActivityRepository;
 import com.gi.rhapp.repositories.UserRepository;
+import com.gi.rhapp.services.ActivitiesService;
 import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class RhUsersController {
     private UserRepository repository;
 
     @Autowired
-    private ActivityRepository activityRepository;
+    private ActivitiesService activitiesService;
 
     @Autowired
     private MailService mailService;
@@ -46,10 +47,10 @@ public class RhUsersController {
         if (repository.findByEmail(user.getEmail()) != null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cet email existe déjà");
 
-        user = repository.save(user);
+        repository.save(user);
         mailService.sendVerificationMail(user);
 //        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
             .evenement("Enregistrement d'un nouveau utilisateur : " + user.getFullname())
             .service(service)
@@ -68,7 +69,7 @@ public class RhUsersController {
         userFromDB.setNom(user.getNom());
         userFromDB.setPrenom(user.getPrenom());
         userFromDB.setEmail(user.getEmail());
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Modification des informations de " + user.getFullname())
                 .service(service)
@@ -82,7 +83,7 @@ public class RhUsersController {
     public ResponseEntity<String> deleteUser(@PathVariable("id") Long id) {
         User user = getUser(id);
         repository.deleteById(id);
-        activityRepository.save(
+        activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Suppression de " + user.getFullname())
                 .service(service)

@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.persistence.criteria.Path;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -72,12 +73,10 @@ public class RhSalariesController {
     private String service = "Gestion des RH - Gestion des salariés";
 
 
-
-
 //    *********************************************** API get all Salaries *********************************************************************
 
     @GetMapping() //works
-    public List<Salarie>  getSalaries(){
+    public List<Salarie> getSalaries() {
         return salarieRepository.findAllByOrderByDateCreationDesc();
     }
 
@@ -85,9 +84,13 @@ public class RhSalariesController {
     //    *********************************************** API get Salarie by id ******************************************************************
 
     @GetMapping(value = "/{id}") //wroks
-    public Salarie getOneSalarie(@PathVariable(name = "id")Long id){
+    public Salarie getOneSalarie(@PathVariable(name = "id") Long id) {
 //        mailService.sendVerificationMail(salarie); just for test
-            return salarieRepository.findById(id).orElseThrow( ()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable."));
+        return salarieRepository.findAllByOrderByDateCreationDesc().stream()
+            .filter(salarie -> salarie.getId().equals(id))
+            .findFirst()
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable."));
+//        return salarieRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable."));
     }
 
     @GetMapping("{id}/avatar/{filename}")
@@ -133,12 +136,12 @@ public class RhSalariesController {
     }
 
     @GetMapping(value = "/{id}/avantages") //works
-    public Collection<AvantageNat> getAvantages(@PathVariable(value = "id") Long id){
+    public Collection<AvantageNat> getAvantages(@PathVariable(value = "id") Long id) {
         return getOneSalarie(id).getAvantages();
     }
 
     @PostMapping(value = "/{id}/retraite/create") //works
-    public Retraite createRetraite (@PathVariable(value = "id") Long id, @RequestBody Retraite retraite){
+    public Retraite createRetraite(@PathVariable(value = "id") Long id, @RequestBody Retraite retraite) {
         Salarie salarie = getOneSalarie(id);
         retraite.setSalarie(salarie);
         TypeRetraite type = retraite.getType();
@@ -168,7 +171,7 @@ public class RhSalariesController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 
 
-        for (AvantageNat element: avantages) {
+        for (AvantageNat element : avantages) {
             element = avantageNatRepository.findById(element.getId()).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.BAD_REQUEST)
             );
@@ -195,15 +198,16 @@ public class RhSalariesController {
     }
 
     @PostMapping(value = "/{id}/retraite/valider") //works
-    public Retraite createRetraite (@PathVariable(value = "id") Long id){
+    public Retraite validerRetraite(@PathVariable(value = "id") Long id, @RequestBody Retraite request) {
         Retraite retraite = getOneSalarie(id).getRetraite();
         if (retraite == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 
         retraite.setEtat(EtatRetraite.VALID);
-        retraite.setDateValidation(new Date());
+        retraite.setDateValidation(LocalDate.now());
+        retraite.setRemarques(request.getRemarques());
 
-        retraite = retraiteRepository.save(retraite);
+        retraiteRepository.save(retraite);
 
         activitiesService.saveAndSend(
             Activity.builder()
@@ -219,7 +223,7 @@ public class RhSalariesController {
 
 
     @GetMapping(value = "/search") //works
-    public List<Salarie> searchSalaries(@RequestParam String query){
+    public List<Salarie> searchSalaries(@RequestParam String query) {
 //            return salarieRepository.findAll(Example.of(salarie));
 
 //        Alternative method :

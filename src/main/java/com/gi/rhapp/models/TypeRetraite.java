@@ -23,4 +23,8 @@ public class TypeRetraite  {
     @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Retraite> retraites;
+
+    public TypeRetraite(String typeRetraite) {
+        this.typeRetraite = typeRetraite;
+    }
 }

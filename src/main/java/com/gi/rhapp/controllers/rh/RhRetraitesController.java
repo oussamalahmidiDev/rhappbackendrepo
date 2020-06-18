@@ -51,7 +51,7 @@ public class RhRetraitesController {
     //    *********************************************** API get all "retraites" ******************************************************************
 
     @GetMapping() //works
-    public List<Retraite> getRetraites(){
+    public Iterable<Retraite> getRetraites(){
         return retraiteRepository.findAll();
     }
 
