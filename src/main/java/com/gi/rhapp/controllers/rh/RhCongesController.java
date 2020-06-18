@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.ParameterizedType;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +94,22 @@ public class RhCongesController {
         Salarie salarie = salarieRepository.findById(request.getSalarieId()).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Salarie introuvable")
         );
+
+        if (request.getDateDebut().before(salarie.getDateRecrutement()))
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date de recrutement (" +
+                new SimpleDateFormat("dd-MM-yyyy").format(salarie.getDateRecrutement()) + ")");
+
+        salarie.getAbsences().forEach(absence -> {
+            if (request.getDateDebut().before(absence.getDateFin()) && request.getDateDebut().after(absence.getDateDebut()))
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible d'enregistrer un congé de maladie durant cette période par ce qu'il y a déjà une absence enregsitrée durant cette période " +
+                    "(de " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateFin()) + ")");
+        });
+
+        salarie.getConges().forEach(conge -> {
+            if (!conge.getEtat().equals(EtatConge.REJECTED) && !conge.getEtat().equals(EtatConge.PENDING_RESPONSE) && request.getDateDebut().before(conge.getDateFin()) && request.getDateDebut().after(conge.getDateDebut()))
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible d'enregistrer un congé de maladie durant cette période par ce que le salarié était en congé durant cette période " +
+                    "(de " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateFin()) + ")");
+        });
 
         TypeConge maladie = typeCongeRepository.findFirstByTypeConge("MALADIE");
         if (maladie == null)

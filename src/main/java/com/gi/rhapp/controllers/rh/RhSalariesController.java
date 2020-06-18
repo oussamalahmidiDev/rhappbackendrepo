@@ -236,7 +236,14 @@ public class RhSalariesController {
     @PostMapping(value = "/create") //works
     public Salarie createSalarie(@RequestBody SalarieRequest request) {
         if (userRepository.findByEmail(request.getEmail()) != null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cet email existe déjà");
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Cet email existe déjà");
+
+        if (request.getDateRecrutement().after(new Date()))
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "La date de recrutement doit être une date antérieure");
+
+        if (request.getDateNaissance().after(new Date()))
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "La date de naissance doit être une date antérieure");
+
 
         User user = User.builder()
             .email(request.getEmail().trim().toLowerCase())
@@ -245,11 +252,11 @@ public class RhSalariesController {
             .role(Role.SALARIE)
             .build();
 
-        user = userRepository.save(user);
+        userRepository.save(user);
 
         Service service = request.getService();
         if (service.getId() == null) {
-            service = serviceRepository.save(service);
+            serviceRepository.save(service);
             activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'un nouveau service : " + service.getNom())
@@ -262,7 +269,7 @@ public class RhSalariesController {
 
         Direction direction = request.getDirection();
         if (direction.getId() == null) {
-            direction = directionRepository.save(direction);
+            directionRepository.save(direction);
             activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'une nouvelle direction : " + direction.getNom())
@@ -283,7 +290,7 @@ public class RhSalariesController {
             .user(user)
             .build();
 
-        newSalarie = salarieRepository.save(newSalarie);
+        salarieRepository.save(newSalarie);
 
         mailService.sendVerificationMail(user);
 
@@ -301,6 +308,12 @@ public class RhSalariesController {
 
     @PutMapping("/{id}/modifier")
     public Salarie modifierSalarie(@PathVariable Long id, @RequestBody SalarieRequest request) {
+        if (request.getDateRecrutement().after(new Date()))
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "La date de recrutement doit être une date antérieure");
+
+        if (request.getDateNaissance().after(new Date()))
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "La date de naissance doit être une date antérieure");
+
         Salarie salarie = getOneSalarie(id);
         salarie.getUser().setNom(request.getNom());
         salarie.getUser().setPrenom(request.getPrenom());
@@ -308,7 +321,7 @@ public class RhSalariesController {
 
         Service service = request.getService();
         if (service.getId() == null) {
-            service = serviceRepository.save(service);
+            serviceRepository.save(service);
             activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'un nouveau service : " + service.getNom())
@@ -321,7 +334,7 @@ public class RhSalariesController {
 
         Direction direction = request.getDirection();
         if (direction.getId() == null) {
-            direction = directionRepository.save(direction);
+            directionRepository.save(direction);
             activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'une nouvelle direction : " + direction.getNom())

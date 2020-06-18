@@ -1,6 +1,7 @@
 package com.gi.rhapp.controllers.rh;
 
 
+import com.gi.rhapp.enumerations.EtatConge;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
@@ -128,9 +129,26 @@ public class RhAbsencesController {
 
         Date dernierAbsence = absenceRepository.getMaxDate(salarieId);
 
-        if (dernierAbsence != null)
-            if (dateDebut.before(dernierAbsence))
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date " + new SimpleDateFormat("dd-MM-yyyy").format(dernierAbsence));
+        if (dateDebut.before(salarie.getDateRecrutement()))
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date de recrutement (" +
+                new SimpleDateFormat("dd-MM-yyyy").format(salarie.getDateRecrutement()) + ")");
+
+        salarie.getAbsences().forEach(absence -> {
+            if (dateDebut.before(absence.getDateFin()) && dateDebut.after(absence.getDateDebut()))
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence durant cette période par ce qu'il y a déjà une absence enregsitrée durant cette période " +
+                    "(de " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateFin()) + ")");
+        });
+
+        salarie.getConges().forEach(conge -> {
+            if (!conge.getEtat().equals(EtatConge.REJECTED) && !conge.getEtat().equals(EtatConge.PENDING_RESPONSE) && dateDebut.before(conge.getDateFin()) && dateDebut.after(conge.getDateDebut()))
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence durant cette période par ce que le salarié était en congé durant cette période " +
+                    "(de " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateFin()) + ")");
+        });
+
+
+//        if (dernierAbsence != null)
+//            if (dateDebut.before(dernierAbsence))
+//                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date " + new SimpleDateFormat("dd-MM-yyyy").format(dernierAbsence));
 
         if (dateDebut.after(dateFin))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "La date de début ne peut pas être aprés la date de fin");
@@ -147,8 +165,18 @@ public class RhAbsencesController {
             String filename = uploadService.uploadJustificatif(justificatif);
             absence.setJustificatif(filename);
         }
+        absenceRepository.save(absence);
 
-        return absenceRepository.save(absence);
+        activitiesService.saveAndSend(
+            Activity.builder()
+                .evenement("Enregistrement d'un absence du salarié " + salarie.getUser().getFullname() + " pour la date " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateDebut()))
+                .service("Gestion des RH - Gestion des absences")
+                .user(authService.getCurrentUser())
+                .scope(Role.RH)
+                .build()
+        );
+
+        return absence;
 
     }
 

@@ -1,9 +1,14 @@
 package com.gi.rhapp.models;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.gi.rhapp.enumerations.EtatConge;
+import com.gi.rhapp.utilities.DateUtils;
 import lombok.*;
+import lombok.extern.log4j.Log4j2;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.joda.time.DateTime;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -11,9 +16,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Entity
 @AllArgsConstructor
@@ -22,6 +26,8 @@ import java.util.List;
 @Setter
 @Data
 @Builder
+@Log4j2
+@EntityListeners(SalarieListener.class)
 public class Salarie {
 
     @Id
@@ -117,4 +123,70 @@ public class Salarie {
         deleted = false;
     }
 
+    @Transient
+    @JsonUnwrapped
+    private Map<String, Object> properties;
+
+    @JsonAnySetter
+    public void add(String key, Object value) {
+        properties.put(key, value);
+    }
+
+//    @PostLoad
+//    void onPostLoad() {
+//        log.info("Calcul de jours de travail");
+//
+//    }
+
+//    @
+}
+
+@Log4j2
+class SalarieListener {
+
+    @PostLoad
+    void onPostLoad(Salarie salarie) {
+        log.info("Calcul de jours de travail");
+        try {
+            Date dateNaissance = salarie.getDateNaissance();
+            Date dateRecrutement = salarie.getDateRecrutement();
+
+            log.info("Date naissance : {}", new SimpleDateFormat("dd-MM-yyyy").format(dateNaissance));
+            log.info("Date recr : {}", new SimpleDateFormat("dd-MM-yyyy").format(dateRecrutement));
+            log.info("------");
+            int nombreJoursTravail = DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(dateRecrutement), DateTime.now());
+            log.info("Nombre jours travail : {}", nombreJoursTravail);
+
+            int nombreJoursAbsence = salarie.getAbsences().stream()
+                .mapToInt(absence -> DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(absence.getDateDebut()), new DateTime(absence.getDateFin()))).sum();
+            log.info("nombre de jours d'absence : {}", nombreJoursAbsence);
+
+            int nombreJoursConge = salarie.getConges().stream()
+                .filter(conge -> conge.getEtat().equals(EtatConge.ACCEPTED) || conge.getEtat().equals(EtatConge.ARCHIVED))
+                .mapToInt(conge -> DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(conge.getDateDebut()), new DateTime(conge.getDateFin()))).sum();
+            log.info("nombre de jours de conges : {}", nombreJoursConge);
+
+            log.info("Nombre jours sans jours d'absence ou conge : {}", nombreJoursTravail - (nombreJoursAbsence + nombreJoursConge));
+            int mois = ((nombreJoursTravail - (nombreJoursAbsence + nombreJoursConge)) / 30) + 1;
+
+            log.info("Nombre mois travail : {}", mois);
+
+            if (mois > 6) {
+                log.info("Autorisé au congé");
+            } else {
+                log.info("n'est pas Autorisé au congé");
+            }
+
+            salarie.setProperties(new HashMap<>());
+            salarie.add("jours_travail", nombreJoursTravail - (nombreJoursAbsence + nombreJoursConge));
+            salarie.add("mois_travail", mois);
+            salarie.add("jours_absence", nombreJoursAbsence);
+            salarie.add("jours_conge", nombreJoursConge);
+
+        } catch (NullPointerException e) {
+            log.info("Throws a null pointer exception");
+            return;
+        }
+
+    }
 }
