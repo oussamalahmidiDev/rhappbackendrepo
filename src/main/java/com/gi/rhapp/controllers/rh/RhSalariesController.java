@@ -5,9 +5,11 @@ import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.*;
+import com.sipios.springsearch.anotation.SearchSpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Example;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -224,18 +226,8 @@ public class RhSalariesController {
 
 
     @GetMapping(value = "/search") //works
-    public List<Salarie> searchSalaries(@RequestParam String query) {
-//            return salarieRepository.findAll(Example.of(salarie));
-
-//        Alternative method :
-        return salarieRepository.findAllByUserNomContainingIgnoreCaseOrUserPrenomContainingIgnoreCaseOrUserEmailContainingIgnoreCaseOrNumSommeContainingIgnoreCaseOrServiceNomContainingIgnoreCaseOrDirectionNomContainingIgnoreCase(
-            query,
-            query,
-            query,
-            query,
-            query,
-            query
-        );
+    public List<Salarie> searchSalaries(@SearchSpec Specification<Salarie> specifications) {
+        return salarieRepository.findAll(Specification.where(specifications));
     }
 
     @PostMapping(value = "/create") //works

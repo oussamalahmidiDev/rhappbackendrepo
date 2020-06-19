@@ -1,10 +1,14 @@
 package com.gi.rhapp.controllers.salarie;
 
+import com.gi.rhapp.enumerations.EtatConge;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.MailService;
 import com.gi.rhapp.services.Upload;
+import com.gi.rhapp.utilities.DateUtils;
+import lombok.extern.log4j.Log4j2;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +18,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Date;
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/salarie/api/conges")
 @CrossOrigin("*")
+@Log4j2
 public class CongeAppController {
-
-    Logger log = LoggerFactory.getLogger(CongeAppController.class);
 
     String service = "Panneau de salarié - Demandes de congés";
 

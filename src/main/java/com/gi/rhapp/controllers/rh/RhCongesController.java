@@ -7,7 +7,9 @@ import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.MailService;
 import com.gi.rhapp.services.NotificationService;
+import com.gi.rhapp.utilities.DateUtils;
 import lombok.extern.log4j.Log4j2;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.ParameterizedType;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,6 +170,54 @@ public class RhCongesController {
         conge.setMotif(request.getMotif());
 
         return congeRepository.save(conge);
+    }
+
+    @PutMapping("/{id}/declarer_retour")
+    public Conge declarerRetour(@PathVariable(value = "id") Long id) {
+        Conge conge = congeRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+
+        if (!conge.getEtat().equals(EtatConge.ACCEPTED) )
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Ce congé n'est pas accepté.");
+
+        if (conge.getDateFin().after(new Date()))
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Ce congé n'a pas encore achevé.");
+
+        conge.setEtat(EtatConge.ARCHIVED);
+        conge.setDateRetour(new Date());
+
+        int jours = DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(conge.getDateFin()), new DateTime(conge.getDateRetour()));
+        log.info("Jours entre date de fin et date de retour : {}", jours);
+        if (jours > 0) {
+            Absence absence = Absence.builder()
+                .dateDebut(conge.getDateFin())
+                .dateFin(conge.getDateRetour())
+                .salarie(conge.getSalarie())
+                .type("Retard de déclaration de retour")
+                .build();
+
+            absenceRepository.save(absence);
+
+            Notification notification = Notification.builder()
+                .content("Une absence a été enregistré à cause de retard de déclaration de retour.")
+                .build();
+
+            notificationService.send(notification, conge.getSalarie().getUser());
+        }
+
+        congeRepository.save(conge);
+
+        activityRepository.save(
+            Activity.builder()
+                .evenement("Déclaration de retour de salarié " + conge.getSalarie().getUser().getFullname())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
+
+        return conge;
     }
 
     @DeleteMapping("/{id}/supprimer")
