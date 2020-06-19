@@ -34,7 +34,6 @@ import java.util.*;
 @NoArgsConstructor
 @Getter
 @Setter
-@Data
 @Builder
 @Log4j2
 @EntityListeners(SalarieListener.class)

@@ -2,10 +2,7 @@ package com.gi.rhapp.models;
 
 import com.gi.rhapp.enumerations.EtatRetraite;
 import com.gi.rhapp.utilities.VerificationTokenGenerator;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -14,7 +11,8 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
