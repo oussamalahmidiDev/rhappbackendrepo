@@ -6,6 +6,7 @@ import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.*;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -27,10 +28,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rh/api/absences")
 @CrossOrigin("*")
+@Log4j2
 public class RhAbsencesController {
 
     @Autowired
@@ -61,7 +64,7 @@ public class RhAbsencesController {
     private ActivitiesService activitiesService;
 
     @Autowired
-    private NotificationRepository notificationRepository;
+    private NotificationService notificationService;
 
     @Autowired
     private AuthService authService;
@@ -106,6 +109,8 @@ public class RhAbsencesController {
         if (contentType == null) {
             contentType = "application/octet-stream";
         }
+
+
 
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(contentType))
@@ -176,6 +181,25 @@ public class RhAbsencesController {
                 .build()
         );
 
+        List<User> receivers = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).stream()
+            .filter(user -> !user.equals(authService.getCurrentUser()))
+            .collect(Collectors.toList());
+
+
+        Notification notification = Notification.builder()
+            .content(String.format("%s a enregistré une absence pour le salarié %s" , authService.getCurrentUser().getFullname(), salarie.getUser().getFullname()))
+            .build();
+
+
+        notificationService.send(notification, receivers.toArray(new User[receivers.size()]));
+
+        Notification notificationToSalarie = Notification.builder()
+            .content(String.format("Une nouvelle absence a été enregistrée. Voir la liste de vos absences pour plus de détails."))
+            .build();
+
+        notificationService.send(notificationToSalarie, absence.getSalarie().getUser());
+        log.info("Notification sent to salarie");
+
         return absence;
 
     }
@@ -202,13 +226,26 @@ public class RhAbsencesController {
                 .build()
         );
 
+        List<User> receivers = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).stream()
+            .filter(user -> !user.equals(authService.getCurrentUser()))
+            .collect(Collectors.toList());
+
+
+
         Notification notification = Notification.builder()
-            .content(String.format("La justification de l'absence de \"%s\" est %s" , absence.getSalarie().getUser().getFullname(), avis.equals("accepter")? "acceptée":"refusée"))
-            .to(userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE))
+            .content(String.format("La justification de l'absence de \"%s\" est %s par %s" , absence.getSalarie().getUser().getFullname(), avis.equals("accepter")? "acceptée":"refusée", authService.getCurrentUser().getFullname()))
             .build();
 
-        notificationRepository.save(notification);
 
+        notificationService.send(notification, receivers.toArray(new User[receivers.size()]));
+
+        log.info("Preparing notification for agents");
+        Notification notificationToSalarie = Notification.builder()
+            .content(String.format("La justification de votre absence est %s par %s" , absence.getSalarie().getUser().getFullname(), avis.equals("accepter")? "acceptée":"refusée", authService.getCurrentUser().getFullname()))
+            .build();
+
+        notificationService.send(notificationToSalarie, absence.getSalarie().getUser());
+        log.info("Notification sent to salarie");
 
         return absence;
     }

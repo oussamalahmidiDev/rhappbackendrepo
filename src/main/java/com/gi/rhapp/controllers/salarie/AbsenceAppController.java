@@ -76,13 +76,6 @@ public class AbsenceAppController {
                 .build()
         );
 
-        Notification notification = Notification.builder()
-            .content(String.format("Le salarié \"%s\" a justifié son absence de la date %s", new SimpleDateFormat("dd/MM/yyyy").format(absence.getDateDebut())))
-            .to(userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE))
-            .build();
-
-        notificationRepository.save(notification);
-
         return absence;
     }
 }

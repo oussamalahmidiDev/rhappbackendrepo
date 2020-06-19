@@ -44,10 +44,8 @@ public class RhPostesController {
     private ActivitiesService activitiesService;
 
     @Autowired
-    private NotificationRepository notificationRepository;
-
-//    @Autowired
     private NotificationService notificationService;
+
 
     @Autowired
     private AuthService authService;
@@ -63,7 +61,7 @@ public class RhPostesController {
     public Poste createPoste(@RequestBody Poste poste) {
         Service service = poste.getService();
         if (service.getId() == null) {
-            service = serviceRepository.save(service);
+            serviceRepository.save(service);
             activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'un nouveau service : " + service.getNom())
@@ -86,7 +84,7 @@ public class RhPostesController {
                     .build()
             );
         }
-        poste = posteRepository.save(poste);
+        posteRepository.save(poste);
         activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Création d'une nouveau poste " + poste.getNom() + " dans le service de " + service.getNom())
@@ -95,14 +93,18 @@ public class RhPostesController {
                 .scope(Role.ADMIN)
                 .build()
         );
-//        Notification notification = Notification.builder()
-//            .content(String.format("L'agent %s a crée un nouveau poste %s dans le service de %s", authService.getCurrentUser().getFullname(), poste.getNom(), poste.getService().getNom()))
-//            .from(authService.getCurrentUser())
-//            .to(userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).stream().filter(user -> user.getId() != authService.getCurrentUser().getId()).collect(Collectors.toList()))
-//            .build();
 
-//        notificationService.publish(notificationRepository.save(notification));
+        List<User> receivers = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).stream()
+            .filter(user -> !user.equals(authService.getCurrentUser()))
+            .collect(Collectors.toList());
 
+
+        Notification notification = Notification.builder()
+            .content(String.format("%s a crée un nouveau poste dans le service de %s, direction de %s" , authService.getCurrentUser().getFullname(), poste.getService().getNom(), poste.getDirection().getNom()))
+            .build();
+
+
+        notificationService.send(notification, receivers.toArray(new User[receivers.size()]));
 
         return poste;
     }
@@ -125,7 +127,7 @@ public class RhPostesController {
 
         poste.setSalarie(selectedSalarie);
 
-        poste = posteRepository.save(poste);
+        posteRepository.save(poste);
         activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Affectation de " + selectedSalarie.getUser().getFullname() + " au poste de " + poste.getNom())
@@ -135,25 +137,29 @@ public class RhPostesController {
                 .build()
         );
 
+        log.info("Selecting salarie");
         List<User> receiver = new ArrayList<>();
         receiver.add(selectedSalarie.getUser());
+        log.info("Selecting agents");
+        List<User> otherAgents = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).stream()
+            .filter(user -> !user.equals(authService.getCurrentUser()))
+            .collect(Collectors.toList());
 
-        List<User> otherAgents = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE);
-
+        log.info("Preparing notification for agents");
         Notification notificationToAgents = Notification.builder()
             .content(String.format("Le salarié \"%s\" été affecté au poste de \"%s\" (service de %s)", selectedSalarie.getUser().getFullname(), poste.getNom(), poste.getService().getNom()))
-            .to(otherAgents)
             .build();
 
-        notificationRepository.save(notificationToAgents);
+        notificationService.send(notificationToAgents, otherAgents.toArray(new User[otherAgents.size()]));
+        log.info("Notification sent to agents");
 
+        log.info("Preparing notification for salarie");
         Notification notificationToSalarie = Notification.builder()
             .content(String.format("Vous avez été affecté au poste de \"%s\" (service de %s)", poste.getNom(), poste.getService().getNom()))
-            .to(receiver)
             .build();
 
-        notificationRepository.save(notificationToSalarie);
-
+        notificationService.send(notificationToSalarie, selectedSalarie.getUser());
+        log.info("Notification sent to salarie");
         return poste;
     }
 
@@ -165,7 +171,7 @@ public class RhPostesController {
         Salarie salarie = poste.getSalarie();
         salarie.setFonction(null);
         poste.setSalarie(null);
-        poste = posteRepository.save(poste);
+        posteRepository.save(poste);
         activitiesService.saveAndSend(
             Activity.builder()
                 .evenement("Deaffectation de " + salarie.getUser().getFullname() + " du poste de " + poste.getNom())
@@ -178,21 +184,22 @@ public class RhPostesController {
         List<User> receiver = new ArrayList<>();
         receiver.add(salarie.getUser());
 
-        List<User> otherAgents = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE);
+        List<User> otherAgents = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).stream()
+            .filter(user -> !user.equals(authService.getCurrentUser()))
+            .collect(Collectors.toList());
 
         Notification notificationToAgents = Notification.builder()
             .content(String.format("Le salarié \"%s\" été déaffecté du poste de \"%s\" (service de %s)", salarie.getUser().getFullname(), poste.getNom(), poste.getService().getNom()))
-            .to(otherAgents)
             .build();
 
-        notificationRepository.save(notificationToAgents);
+        notificationService.send(notificationToAgents, (User[]) otherAgents.toArray());
 
         Notification notificationToSalarie = Notification.builder()
             .content(String.format("Vous avez été déaffecté du poste de \"%s\" (service de %s)", poste.getNom(), poste.getService().getNom()))
-            .to(receiver)
             .build();
 
-        notificationRepository.save(notificationToSalarie);
+        notificationService.send(notificationToSalarie, salarie.getUser());
+
         return poste;
     }
 
@@ -204,7 +211,7 @@ public class RhPostesController {
 
         Service service = poste.getService();
         if (service.getId() == null) {
-            service = serviceRepository.save(service);
+            serviceRepository.save(service);
             activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'un nouveau service : " + service.getNom())
@@ -217,7 +224,7 @@ public class RhPostesController {
 
         Direction direction = poste.getDirection();
         if (direction.getId() == null) {
-            direction = directionRepository.save(direction);
+            directionRepository.save(direction);
             activitiesService.saveAndSend(
                 Activity.builder()
                     .evenement("Création d'une nouvelle direction : " + direction.getNom())

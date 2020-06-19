@@ -4,10 +4,7 @@ import com.gi.rhapp.enumerations.EtatRetraite;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
-import com.gi.rhapp.services.ActivitiesService;
-import com.gi.rhapp.services.AuthService;
-import com.gi.rhapp.services.Download;
-import com.gi.rhapp.services.MailService;
+import com.gi.rhapp.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Example;
@@ -25,6 +22,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rh/api/salaries")
@@ -63,6 +61,9 @@ public class RhSalariesController {
 
     @Autowired
     private Download downloadService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Autowired
     private ActivitiesService activitiesService;
@@ -306,6 +307,23 @@ public class RhSalariesController {
                 .scope(Role.ADMIN)
                 .build()
         );
+
+        List<User> receivers = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).stream()
+            .filter(agent -> !agent.equals(authService.getCurrentUser()))
+            .collect(Collectors.toList());
+
+
+        Notification notification = Notification.builder()
+            .content(String.format("%s a enregistré un nouveau salarié %s" , authService.getCurrentUser().getFullname(), newSalarie.getUser().getFullname()))
+            .build();
+
+        notificationService.send(notification, receivers.toArray(new User[receivers.size()]));
+
+        Notification notificationToSalarie = Notification.builder()
+            .content(String.format("Bienvenue sur Rehapp !"))
+            .build();
+
+        notificationService.send(notificationToSalarie, newSalarie.getUser());
 
         return newSalarie;
     }

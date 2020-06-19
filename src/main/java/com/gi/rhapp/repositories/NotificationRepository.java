@@ -7,7 +7,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findAllByTo(User user, Pageable pageable);
-    List<Notification> findAllByTo(User user);
-}
+public interface NotificationRepository extends JpaRepository<Notification, Long> { }

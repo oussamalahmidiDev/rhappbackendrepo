@@ -6,6 +6,8 @@ import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.AuthService;
 import com.gi.rhapp.services.MailService;
+import com.gi.rhapp.services.NotificationService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +19,12 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rh/api/conges")
 @CrossOrigin("*")
+@Log4j2
 public class RhCongesController {
 
     @Autowired
@@ -54,6 +58,9 @@ public class RhCongesController {
     private AuthService authService;
 
     @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
     private ParametresRepository parametresRepository;
 
     private String service = "Gestion des RH - Gestion des demandes de congés";
@@ -85,6 +92,25 @@ public class RhCongesController {
 
         conge.setEtat(EtatConge.valueOf(request.getEtat()));
         conge.setReponse(request.getReponse());
+//
+//        List<User> receivers = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).stream()
+//            .filter(user -> !user.equals(authService.getCurrentUser()))
+//            .collect(Collectors.toList());
+//
+//
+//        Notification notification = Notification.builder()
+//            .content(String.format("%s a enregistré une absence pour le salarié %s" , authService.getCurrentUser().getFullname(), salarie.getUser().getFullname()))
+//            .build();
+//
+//
+//        notificationService.send(notification, receivers.toArray(new User[receivers.size()]));
+
+        Notification notificationToSalarie = Notification.builder()
+            .content(String.format("%s a repondu à votre demande de congé."))
+            .build();
+
+        notificationService.send(notificationToSalarie, conge.getSalarie().getUser());
+        log.info("Notification sent to salarie");
 
         return congeRepository.save(conge);
     }

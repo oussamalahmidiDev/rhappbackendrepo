@@ -48,6 +48,10 @@ public class User implements UserDetails {
     @Transient
     private String avatarLink;
 
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<UserNotification> UserNotification;
+
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
@@ -57,6 +61,7 @@ public class User implements UserDetails {
 
     private Boolean emailConfirmed;
 
+    @JsonIgnore
     private String verificationToken;
 
     @CreationTimestamp
@@ -70,14 +75,8 @@ public class User implements UserDetails {
     private Salarie salarie;
 
     @OneToMany(mappedBy = "user", cascade={CascadeType.ALL,CascadeType.REMOVE})
-    @JsonIgnoreProperties({"user"})
+    @JsonIgnore
     private List<Activity> activities;
-
-//    @OneToMany(mappedBy = "from")
-//    @JsonIgnoreProperties({"from", "to"})
-//    @JsonIgnore
-//    private List<Notification> notifications;
-
 
     // USER DETAILS IMPLEMENTATION
 

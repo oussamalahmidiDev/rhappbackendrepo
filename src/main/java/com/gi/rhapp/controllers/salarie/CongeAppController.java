@@ -89,12 +89,12 @@ public class CongeAppController {
                 .build()
         );
 
-        Notification notification = Notification.builder()
-            .content(String.format("Le salarié \"%s\" a ajouté une demande de congé à partir de %d/%d/%d", conge.getSalarie().getUser().getFullname(), conge.getDateDebut().getDay(), conge.getDateDebut().getMonth(), conge.getDateDebut().getYear()))
-            .to(userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE))
-            .build();
+//        Notification notification = Notification.builder()
+//            .content(String.format("Le salarié \"%s\" a ajouté une demande de congé à partir de %d/%d/%d", conge.getSalarie().getUser().getFullname(), conge.getDateDebut().getDay(), conge.getDateDebut().getMonth(), conge.getDateDebut().getYear()))
+//            .to(userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE))
+//            .build();
 
-        notificationRepository.save(notification);
+//        notificationRepository.save(notification);
 
         return conge;
     }

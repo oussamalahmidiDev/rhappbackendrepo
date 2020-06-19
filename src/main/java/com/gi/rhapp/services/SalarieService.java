@@ -6,14 +6,11 @@ import com.gi.rhapp.enumerations.EtatRetraite;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
-import com.gi.rhapp.utilities.BeanUtils;
 import com.gi.rhapp.utilities.DateUtils;
 import lombok.extern.log4j.Log4j2;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PostLoad;
 import java.text.SimpleDateFormat;
@@ -37,7 +34,7 @@ public class SalarieService {
     private ActivitiesService activitiesService;
 
     @Autowired
-    private NotificationRepository notificationRepository;
+    private NotificationService notificationService;
 
     @Autowired
     private UserRepository userRepository;
@@ -66,21 +63,21 @@ public class SalarieService {
                 retraite.setEtat(EtatRetraite.PENDING_RT_AVTG);
                 retraiteRepository.save(retraite);
 
-                List<User> receiver = new ArrayList();
-                receiver.add(salarie.getUser());
+                List<User> agents = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE);
+//                receiver.add(salarie.getUser());
 
 //                Notifier au salarié
-                notificationRepository.save(Notification.builder()
+                notificationService.send(Notification.builder()
                     .content("Votre retraite est desormais active depuis aujourd'hui. En attendant les agents RH valide votre retraite.")
-                    .to(receiver)
-                    .build()
+                    .build(),
+                    salarie.getUser()
                 );
 
 //                Notifier les agents
-                notificationRepository.save(Notification.builder()
+                notificationService.send(Notification.builder()
                     .content("La retraite de " + salarie.getUser().getFullname() + " est desormais active. Veuillez continuer le processus de la validation.")
-                    .to(userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE))
-                    .build()
+                    .build(),
+                    agents.toArray(new User[agents.size()])
                 );
             }
             int nombreJoursTravail = DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(dateRecrutement), DateTime.now());
@@ -134,16 +131,18 @@ public class SalarieService {
         List<User> receiver = new ArrayList();
         receiver.add(salarie.getUser());
 
-        notificationRepository.save(Notification.builder()
+        notificationService.send(Notification.builder()
             .content("Il reste moins de six mois pour votre retraite. Voir la page des retraites pour plus d'informations")
-            .to(receiver)
-            .build()
+            .build(),
+            salarie.getUser()
         );
 
-        notificationRepository.save(Notification.builder()
+        List<User> agents = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE);
+
+        notificationService.send(Notification.builder()
             .content("Une retraite a été enregistrée automatiquement pour le salarié " + salarie.getUser().getFullname())
-            .to(userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE))
-            .build()
+            .build(),
+            agents.toArray(new User[agents.size()])
         );
 
         activitiesService.saveAndSend(Activity.builder()
