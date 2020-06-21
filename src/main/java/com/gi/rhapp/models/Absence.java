@@ -55,16 +55,16 @@ public class Absence  {
 //    a verifier
     private String type;
 
-    @Column(columnDefinition = "boolean default false")
+//    @Column(columnDefinition = "boolean default null")
     private Boolean accepted;
 
     @ManyToOne
     @JsonIgnoreProperties({"conges","absences","avantages"})
     private Salarie salarie;
 
-    @PrePersist
-    void defaultValues() {
-        accepted = false;
-    }
+//    @PrePersist
+//    void defaultValues() {
+//        accepted = false;
+//    }
 
 }

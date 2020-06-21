@@ -4,6 +4,7 @@ package com.gi.rhapp.controllers.rh;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.services.MailService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -20,6 +21,7 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/rh/api/avantages")
 @CrossOrigin("*")
+@Log4j2
 public class RhAvantagesController {
 
     @Autowired
@@ -55,6 +57,13 @@ public class RhAvantagesController {
     @GetMapping("/types")
     public List<TypeAvantage> getAvantageTypes () {
         return typeAvantageRepository.findAll();
+    }
+
+    @DeleteMapping("/{id}/supprimer")
+    @ResponseStatus(HttpStatus.OK)
+    public void supprimerAvantage(@PathVariable Long id) {
+        avantageNatRepository.deleteById(id);
+        log.info("Avantage retiré");
     }
 
 }

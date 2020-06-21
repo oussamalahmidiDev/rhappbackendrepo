@@ -39,6 +39,9 @@ public class SalarieService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ParametresRepository parametresRepository;
+
     public void addProperties(Salarie salarie) {
         log.info("Calcul de jours de travail");
         try {
@@ -68,15 +71,15 @@ public class SalarieService {
 
 //                Notifier au salarié
                 notificationService.send(Notification.builder()
-                    .content("Votre retraite est desormais active depuis aujourd'hui. En attendant les agents RH valide votre retraite.")
-                    .build(),
+                        .content("Votre retraite est desormais active depuis aujourd'hui. En attendant les agents RH valide votre retraite.")
+                        .build(),
                     salarie.getUser()
                 );
 
 //                Notifier les agents
                 notificationService.send(Notification.builder()
-                    .content("La retraite de " + salarie.getUser().getFullname() + " est desormais active. Veuillez continuer le processus de la validation.")
-                    .build(),
+                        .content("La retraite de " + salarie.getUser().getFullname() + " est desormais active. Veuillez continuer le processus de la validation.")
+                        .build(),
                     agents.toArray(new User[agents.size()])
                 );
             }
@@ -84,30 +87,39 @@ public class SalarieService {
             log.info("Nombre jours travail : {}", nombreJoursTravail);
 
             int nombreJoursAbsence = salarie.getAbsences().stream()
+                .filter(absence -> !absence.getType().equals("Décès"))
                 .mapToInt(absence -> DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(absence.getDateDebut()), new DateTime(absence.getDateFin()))).sum();
             log.info("nombre de jours d'absence : {}", nombreJoursAbsence);
 
             int nombreJoursConge = salarie.getConges().stream()
                 .filter(conge -> conge.getEtat().equals(EtatConge.ACCEPTED) || conge.getEtat().equals(EtatConge.ARCHIVED))
-                .mapToInt(conge -> DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(conge.getDateDebut()), new DateTime(conge.getDateFin()))).sum();
+                .mapToInt(conge -> Period.between(conge.getDateDebut().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), conge.getDateFin().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()).getDays()).sum();
             log.info("nombre de jours de conges : {}", nombreJoursConge);
 
             log.info("Nombre jours sans jours d'absence ou conge : {}", nombreJoursTravail - (nombreJoursAbsence + nombreJoursConge));
-            int mois = ((nombreJoursTravail - (nombreJoursAbsence + nombreJoursConge)) / 30) + 1;
+            int mois = ((nombreJoursTravail - (nombreJoursAbsence + nombreJoursConge)) / 26);
 
             log.info("Nombre mois travail : {}", mois);
+            int joursCongeAjoutes = (int) Math.ceil((float) mois / (12 * 5));
+            Long maxJoursParDefaut = parametresRepository.findById(1L).get().getNombreMinJoursConge();
+            log.info("Max jours conges : {}", maxJoursParDefaut);
+            log.info("Jours ajt : {}", joursCongeAjoutes);
+            salarie.setProperties(new HashMap<>());
 
-            if (mois > 6) {
-                log.info("Autorisé au congé");
+            if (mois >= 6) {
+                salarie.add("max_jours_conge", Long.min(30L, Long.min(maxJoursParDefaut, (long) (mois * 1.5)) + joursCongeAjoutes));
+                log.info("Autorisé au congé : {}", Long.min(30L, Long.min(maxJoursParDefaut, (long) (mois * 1.5)) + joursCongeAjoutes));
             } else {
+                salarie.add("max_jours_conge", 0);
                 log.info("n'est pas Autorisé au congé");
             }
 
-            salarie.setProperties(new HashMap<>());
             salarie.add("jours_travail", nombreJoursTravail - (nombreJoursAbsence + nombreJoursConge));
             salarie.add("mois_travail", mois);
             salarie.add("jours_absence", nombreJoursAbsence);
             salarie.add("jours_conge", nombreJoursConge);
+//            salarie.add("max_jours_conge", mois >= 6 ? 1.5 * mois : 0);
+            salarie.add("age", age);
 
         } catch (NullPointerException e) {
             log.info("Throws a null pointer exception : {}", e.getMessage());
@@ -119,7 +131,7 @@ public class SalarieService {
         Retraite retraite = new Retraite();
         retraite.setSalarie(salarie);
         retraite.setReference("REF" + salarie.getId() + System.currentTimeMillis());
-        retraite.setDateRetraite(LocalDate.now().plusMonths(6));
+        retraite.setDateRetraite(salarie.getDateNaissance().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusYears(60));
         log.info("Ref de retraite : {}", retraite.getReference());
         log.info("Date de retraite : {}", retraite.getDateRetraite().toString());
         if (typeRetraiteRepository.findFirstByTypeRetraite("Retraite automatique") == null)
@@ -132,16 +144,16 @@ public class SalarieService {
         receiver.add(salarie.getUser());
 
         notificationService.send(Notification.builder()
-            .content("Il reste moins de six mois pour votre retraite. Voir la page des retraites pour plus d'informations")
-            .build(),
+                .content("Il reste moins de six mois pour votre retraite. Voir la page des retraites pour plus d'informations")
+                .build(),
             salarie.getUser()
         );
 
         List<User> agents = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE);
 
         notificationService.send(Notification.builder()
-            .content("Une retraite a été enregistrée automatiquement pour le salarié " + salarie.getUser().getFullname())
-            .build(),
+                .content("Une retraite a été enregistrée automatiquement pour le salarié " + salarie.getUser().getFullname())
+                .build(),
             agents.toArray(new User[agents.size()])
         );
 

@@ -71,6 +71,9 @@ public class RhSalariesController {
     private ActivitiesService activitiesService;
 
     @Autowired
+    private DiplomeRepository diplomeRepository;
+
+    @Autowired
     private AuthService authService;
 
     private String service = "Gestion des RH - Gestion des salariés";
@@ -106,6 +109,70 @@ public class RhSalariesController {
         if (!user.getPhoto().equals(filename))
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         Resource resource = downloadService.downloadImage(user.getPhoto());
+
+        // setting content-type header
+        String contentType = null;
+        try {
+            // setting content-type header according to file type
+            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException e) {
+            System.out.println("Type indéfini.");
+        }
+        // setting content-type header to generic octet-stream
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(contentType))
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+            .body(resource);
+    }
+
+    @GetMapping("{id}/cv/{filename}")
+    public ResponseEntity<Resource> donwloadCV(HttpServletRequest request, @PathVariable("id") Long id, @PathVariable("filename") String filename) {
+        Salarie salarie = getOneSalarie(id);
+
+        if (salarie.getCv() == null)
+            throw new ResponseStatusException(HttpStatus.OK, "Pas de CV disponible.");
+
+        if (!salarie.getCv().equals(filename))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        Resource resource = downloadService.downloadCV(salarie.getCv());
+
+        // setting content-type header
+        String contentType = null;
+        try {
+            // setting content-type header according to file type
+            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException e) {
+            System.out.println("Type indéfini.");
+        }
+        // setting content-type header to generic octet-stream
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(contentType))
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+            .body(resource);
+    }
+
+    @GetMapping("/diplomes/{id}/{filename}")
+    public ResponseEntity<Resource> donwloadDiplome(HttpServletRequest request, @PathVariable("id") Long id, @PathVariable("filename") String filename) {
+        Diplome diplome = diplomeRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Diplome introuvable")
+        );
+//
+//        if (salarie.getCv() == null)
+//            throw new ResponseStatusException(HttpStatus.OK, "Pas de CV disponible.");
+
+        if (!diplome.getPath().equals(filename))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        Resource resource = downloadService.downloadDiplome(diplome.getPath());
 
         // setting content-type header
         String contentType = null;
@@ -170,9 +237,6 @@ public class RhSalariesController {
     public Salarie retirerAvantages(@PathVariable(value = "id") Long id, @RequestBody List<AvantageNat> avantages) {
         Salarie salarie = getOneSalarie(id);
         Retraite retraite = salarie.getRetraite();
-        if (retraite == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-
 
         for (AvantageNat element : avantages) {
             element = avantageNatRepository.findById(element.getId()).orElseThrow(
@@ -182,20 +246,22 @@ public class RhSalariesController {
             if (element.getSalarie() == salarie) {
                 element.setRetire(true);
                 avantageNatRepository.save(element);
+
+                activitiesService.saveAndSend(
+                    Activity.builder()
+                        .evenement("Retraite de l'avantage en nature " + element.getSpecification() + " de : " + element.getSalarie().getUser().getFullname())
+                        .service(this.service + " : Retraite des avantages")
+                        .user(authService.getCurrentUser())
+                        .scope(Role.ADMIN)
+                        .build()
+                );
             }
         }
+//        if (retraite != null) {
+//            retraite.setEtat(EtatRetraite.PENDING_VALID);
+//            retraiteRepository.save(retraite);
+//        }
 
-        retraite.setEtat(EtatRetraite.PENDING_VALID);
-        retraiteRepository.save(retraite);
-
-        activitiesService.saveAndSend(
-            Activity.builder()
-                .evenement("Retraite des avantages en nature de : " + retraite.getSalarie().getUser().getFullname())
-                .service(this.service + " : Retraite des avantages")
-                .user(authService.getCurrentUser())
-                .scope(Role.ADMIN)
-                .build()
-        );
 
         return salarie;
     }
@@ -222,6 +288,58 @@ public class RhSalariesController {
         );
 
         return retraite;
+    }
+
+    @PutMapping(value = "/{id}/retraite/modifier") //works
+    public Retraite modifierRetraite(@PathVariable(value = "id") Long id, @RequestBody Retraite request) {
+        Salarie salarie = getOneSalarie(id);
+        Retraite retraite = salarie.getRetraite();
+
+        if (retraite == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+        retraite.setType(request.getType());
+        retraite.setReference(request.getReference());
+        retraite.setDateRetraite(request.getDateRetraite());
+
+        salarie.setRetraite(retraite);
+        retraiteRepository.save(retraite);
+
+        salarieRepository.save(salarie);
+
+        activitiesService.saveAndSend(
+            Activity.builder()
+                .evenement("Modification des informations de la retraite de : " + salarie.getUser().getFullname())
+                .service(this.service + " : Retraites")
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
+
+        return retraite;
+    }
+
+    @DeleteMapping("/{id}/retraite/supprimer")
+    @ResponseStatus(HttpStatus.OK)
+    public void supprimerRetraite(@PathVariable Long id) {
+        Salarie salarie = getOneSalarie(id);
+        Retraite retraite = salarie.getRetraite();
+        if (retraite == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+        retraiteRepository.delete(retraite);
+
+        salarie.setRetraite(null);
+        salarieRepository.save(salarie);
+
+        activitiesService.saveAndSend(
+            Activity.builder()
+                .evenement("Suppression de la retraite de : " + retraite.getSalarie().getUser().getFullname())
+                .service(this.service + " : Retraites")
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
     }
 
 
@@ -306,7 +424,7 @@ public class RhSalariesController {
 
 
         Notification notification = Notification.builder()
-            .content(String.format("%s a enregistré un nouveau salarié %s" , authService.getCurrentUser().getFullname(), newSalarie.getUser().getFullname()))
+            .content(String.format("%s a enregistré un nouveau salarié %s", authService.getCurrentUser().getFullname(), newSalarie.getUser().getFullname()))
             .build();
 
         notificationService.send(notification, receivers.toArray(new User[receivers.size()]));

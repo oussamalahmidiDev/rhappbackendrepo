@@ -129,13 +129,13 @@ public class RhCongesController {
                 new SimpleDateFormat("dd-MM-yyyy").format(salarie.getDateRecrutement()) + ")");
 
         salarie.getAbsences().forEach(absence -> {
-            if (request.getDateDebut().before(absence.getDateFin()) && request.getDateDebut().after(absence.getDateDebut()))
+            if (request.getDateDebut().before(absence.getDateFin()) && request.getDateDebut().after(absence.getDateDebut()) || (request.getDateDebut().before(absence.getDateDebut()) && request.getDateFin().after(absence.getDateFin())))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible d'enregistrer un congé de maladie durant cette période par ce qu'il y a déjà une absence enregsitrée durant cette période " +
                     "(de " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateFin()) + ")");
         });
 
         salarie.getConges().forEach(conge -> {
-            if (!conge.getEtat().equals(EtatConge.REJECTED) && !conge.getEtat().equals(EtatConge.PENDING_RESPONSE) && request.getDateDebut().before(conge.getDateFin()) && request.getDateDebut().after(conge.getDateDebut()))
+            if (!conge.getEtat().equals(EtatConge.REJECTED) && !conge.getEtat().equals(EtatConge.PENDING_RESPONSE) && request.getDateDebut().before(conge.getDateFin()) && request.getDateDebut().after(conge.getDateDebut()) || (request.getDateDebut().before(conge.getDateDebut()) && request.getDateFin().after(conge.getDateFin())))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible d'enregistrer un congé de maladie durant cette période par ce que le salarié était en congé durant cette période " +
                     "(de " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateFin()) + ")");
         });
@@ -216,6 +216,12 @@ public class RhCongesController {
                 .scope(Role.ADMIN)
                 .build()
         );
+
+        Notification notification = Notification.builder()
+            .content(String.format("L'agent %s a declaré votre retour du congé", authService.getCurrentUser().getFullname()))
+            .build();
+
+        notificationService.send(notification, conge.getSalarie().getUser());
 
         return conge;
     }

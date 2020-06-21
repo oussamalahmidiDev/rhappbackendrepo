@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface RetraiteRepository extends CrudRepository<Retraite,Long> {
+public interface RetraiteRepository extends JpaRepository<Retraite,Long> {
     Optional<Retraite> findBySalarieId(Long id);
 
 

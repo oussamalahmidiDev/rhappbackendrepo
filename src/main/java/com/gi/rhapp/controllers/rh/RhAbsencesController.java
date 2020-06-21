@@ -132,20 +132,22 @@ public class RhAbsencesController {
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Salarie introuvable")
         );
 
-        Date dernierAbsence = absenceRepository.getMaxDate(salarieId);
+//        Date dernierAbsence = absenceRepository.getMaxDate(salarieId);
 
         if (dateDebut.before(salarie.getDateRecrutement()))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date de recrutement (" +
                 new SimpleDateFormat("dd-MM-yyyy").format(salarie.getDateRecrutement()) + ")");
 
         salarie.getAbsences().forEach(absence -> {
-            if (dateDebut.before(absence.getDateFin()) && dateDebut.after(absence.getDateDebut()))
+            if ((dateDebut.before(absence.getDateFin()) && dateDebut.after(absence.getDateDebut())) || (dateDebut.before(absence.getDateDebut()) && dateFin.after(absence.getDateFin())))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence durant cette période par ce qu'il y a déjà une absence enregsitrée durant cette période " +
                     "(de " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateFin()) + ")");
         });
 
         salarie.getConges().forEach(conge -> {
-            if (!conge.getEtat().equals(EtatConge.REJECTED) && !conge.getEtat().equals(EtatConge.PENDING_RESPONSE) && dateDebut.before(conge.getDateFin()) && dateDebut.after(conge.getDateDebut()))
+            if (!conge.getEtat().equals(EtatConge.REJECTED)
+                && !conge.getEtat().equals(EtatConge.PENDING_RESPONSE)
+                && (dateDebut.before(conge.getDateFin()) && dateDebut.after(conge.getDateDebut()))  || (dateDebut.before(conge.getDateDebut()) && dateFin.after(conge.getDateFin())))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence durant cette période par ce que le salarié était en congé durant cette période " +
                     "(de " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateFin()) + ")");
         });
@@ -219,7 +221,7 @@ public class RhAbsencesController {
 
         activitiesService.saveAndSend(
             Activity.builder()
-                .evenement(avis.equals("accepter")? "Acceptation ":"Refus " + " de la justification de absence de " + absence.getSalarie().getUser().getFullname() + " de la date " + new SimpleDateFormat("dd/MM/yyyy").format(absence.getDateDebut()))
+                .evenement(avis.equals("accepter")? "Acceptation " + " de la justification de absence de " + absence.getSalarie().getUser().getFullname() + " de la date " + new SimpleDateFormat("dd/MM/yyyy").format(absence.getDateDebut()) : "Refus " + " de la justification de absence de " + absence.getSalarie().getUser().getFullname() + " de la date " + new SimpleDateFormat("dd/MM/yyyy").format(absence.getDateDebut()))
                 .service("Gestion des RH - Gestion des absences")
                 .user(authService.getCurrentUser())
                 .scope(Role.RH)

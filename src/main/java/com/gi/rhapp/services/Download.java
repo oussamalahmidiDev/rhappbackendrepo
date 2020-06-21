@@ -81,4 +81,32 @@ public class Download {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Image introuvable");
         }
     }
+
+    public Resource downloadCV(String filename) {
+        try {
+            Path filePath = Paths.get(this.fileStorageLocation.toString() + "/cv").resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists())
+                return resource;
+            else
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + filename);
+        } catch (MalformedURLException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + filename);
+        }
+    }
+
+    public Resource downloadDiplome(String filename) {
+        try {
+            Path filePath = Paths.get(this.fileStorageLocation.toString() + "/diplomes").resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists())
+                return resource;
+            else
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + filename);
+        } catch (MalformedURLException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fichier introuvable : " + filename);
+        }
+    }
 }
