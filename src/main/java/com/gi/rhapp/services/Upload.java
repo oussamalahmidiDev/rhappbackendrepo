@@ -69,6 +69,7 @@ public class Upload {
     private static String DB_PATH = "uploads/img";
 
     private static String UPLOAD_CV_DIR = "./src/main/resources/uploads/cv";
+    private static String UPLOAD_JUSTIF_DIR = "./src/main/resources/uploads/justificatifs";
     private static String UPLOAD_DIPLOME_DIR = "./src/main/resources/uploads/diplomes";
 
     public Upload(/*Storage fileStorageProperties*/) {
@@ -105,7 +106,6 @@ public class Upload {
 
         // normaliser le nom de fichier avec un nom standard (justificatfif + timestamp)
         String fileName = StringUtils.cleanPath(FilenameUtils.getFilename(file) + "_" + System.currentTimeMillis() + "." + FilenameUtils.getExtension(file));
-
         logger.info("New file name : {}, file size = {}", fileName, file.getSize());
 
 
@@ -235,6 +235,29 @@ public class Upload {
 
 
     }
+//    public ResponseEntity uploadJustification(MultipartFile file,Salarie salarie){
+//        String extension = file.getContentType().split("/")[1];
+//        Date date= new Date();
+//        if(extension.equals("pdf") ){
+//
+//            try{
+////                String fileName = Long.toString(date.getTime())+"."+file.getContentType().split("/")[1];
+//                String fileName = salarie.getUser().getNom()+salarie.getUser().getPrenom()+"_Justification"+"."+file.getContentType().split("/")[1];
+//                String path = UPLOAD_JUSTIF_DIR + File.separator +fileName;
+//                salarie.setCv(fileName);
+//                salarieRepository.save(salarie) ;
+//                Storage.saveFile(file.getInputStream(),path);
+//                return new ResponseEntity(HttpStatus.OK);
+//            }catch (Exception e){
+//                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Failed Upload , try again!");
+//
+//            }
+//        }
+//        else
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Format incorrect");
+//
+//
+//    }
 
 
 

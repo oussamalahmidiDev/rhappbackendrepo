@@ -154,9 +154,10 @@ class SalarieListener {
         SalarieListener.service = service;
         log.info("Initializing with dependency [" + service + "]");
     }
-
+//
     @PostLoad
     public void onPostLoad(Salarie salarie) {
+
         service.addProperties(salarie);
     }
 }

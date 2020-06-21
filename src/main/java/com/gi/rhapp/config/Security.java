@@ -37,12 +37,13 @@ public class Security extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 //      Disable CSRF
         httpSecurity.cors().disable().csrf().disable()
 //      Allow certain routes
-            .authorizeRequests().antMatchers("/test/**", "/ws/**", "/", "/api/auth", "/api/forgot_password", "/confirm", "/set_password").permitAll().
+            .authorizeRequests().antMatchers("/test/**", "/ws/**", "/", "/api/auth","/api/istokenvalid", "/api/forgot_password", "/confirm", "/set_password").permitAll().
             and().authorizeRequests().antMatchers("/api/auth").permitAll().
             and().authorizeRequests().antMatchers("/rh/**").hasAnyRole(Role.ADMIN.name(), Role.RH.name()).
 //            and().authorizeRequests().antMatchers("/rh/users").hasRole(Role.ADMIN.name()).

@@ -2,6 +2,7 @@ package com.gi.rhapp.services;
 
 import com.gi.rhapp.models.User;
 import com.gi.rhapp.repositories.UserRepository;
+import com.gi.rhapp.utilities.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,6 +25,8 @@ public class AuthService implements UserDetailsService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
@@ -40,11 +43,13 @@ public class AuthService implements UserDetailsService {
             throw new Exception("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
             throw new Exception("INVALID_CREDENTIALS", e);
+
         }
     }
 
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println(principal);
         if (principal instanceof UserDetails) {
             return userRepository.findByEmail(((UserDetails) principal).getUsername());
         } else {
@@ -52,4 +57,17 @@ public class AuthService implements UserDetailsService {
             return null;
         }
     }
+//
+//    public User getCurrentUser() {
+//        try {
+//            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//            System.out.println(((UserDetails) principal).getUsername());
+//            return userRepository.findByEmail(((UserDetails) principal).getUsername());
+//        }catch (Exception e){
+//            return null;
+//        }
+//
+//
+//    }
+
 }
