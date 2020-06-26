@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -33,12 +35,15 @@ public class User implements UserDetails {
 
     @Email
     @Column(unique = true)
+    @NotNull
     private String email;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @NotBlank
     private String nom;
+    @NotBlank
     private String prenom;
     private String photo;
     private String telephone;

@@ -18,6 +18,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.ParameterizedType;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -113,21 +115,24 @@ public class RhCongesController {
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Salarie introuvable")
         );
 
-        if (request.getDateDebut().before(salarie.getDateRecrutement()))
+        if (request.getDateDebut().isBefore(salarie.getDateRecrutement()))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date de recrutement (" +
-                new SimpleDateFormat("dd-MM-yyyy").format(salarie.getDateRecrutement()) + ")");
+                salarie.getDateRecrutement() + ")");
 
         salarie.getAbsences().forEach(absence -> {
-            if (request.getDateDebut().before(absence.getDateFin()) && request.getDateDebut().after(absence.getDateDebut()) || (request.getDateDebut().before(absence.getDateDebut()) && request.getDateFin().after(absence.getDateFin())))
+            if (request.getDateDebut().isBefore(absence.getDateFin()) && request.getDateDebut().isAfter(absence.getDateDebut()) || (request.getDateDebut().isBefore(absence.getDateDebut()) && request.getDateFin().isAfter(absence.getDateFin())))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible d'enregistrer un congé de maladie durant cette période par ce qu'il y a déjà une absence enregsitrée durant cette période " +
-                    "(de " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateFin()) + ")");
+                    "(de " + absence.getDateDebut() + " jusqu'à " + absence.getDateFin() + ")");
         });
 
         salarie.getConges().forEach(conge -> {
-            if (!conge.getEtat().equals(EtatConge.REJECTED) && !conge.getEtat().equals(EtatConge.PENDING_RESPONSE) && request.getDateDebut().before(conge.getDateFin()) && request.getDateDebut().after(conge.getDateDebut()) || (request.getDateDebut().before(conge.getDateDebut()) && request.getDateFin().after(conge.getDateFin())))
+            if (!conge.getEtat().equals(EtatConge.REJECTED) && !conge.getEtat().equals(EtatConge.PENDING_RESPONSE) && request.getDateDebut().isBefore(conge.getDateFin()) && request.getDateDebut().isAfter(conge.getDateDebut()) || (request.getDateDebut().isBefore(conge.getDateDebut()) && request.getDateFin().isAfter(conge.getDateFin())))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible d'enregistrer un congé de maladie durant cette période par ce que le salarié était en congé durant cette période " +
-                    "(de " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateFin()) + ")");
+                    "(de " + conge.getDateDebut() + " jusqu'à " + conge.getDateFin() + ")");
         });
+
+//        if (ChronoUnit.DAYS.between(request.getDateDebut(), request.getDateFin()) > salarie.getProperties().get("jours_conge"))
+//            throw new Res
 
         TypeConge maladie = typeCongeRepository.findFirstByTypeConge("MALADIE");
         if (maladie == null)
@@ -170,11 +175,11 @@ public class RhCongesController {
         if (!conge.getEtat().equals(EtatConge.ACCEPTED) )
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Ce congé n'est pas accepté.");
 
-        if (conge.getDateFin().after(new Date()))
+        if (conge.getDateFin().isAfter(LocalDate.now()))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Ce congé n'a pas encore achevé.");
 
         conge.setEtat(EtatConge.ARCHIVED);
-        conge.setDateRetour(new Date());
+        conge.setDateRetour(LocalDate.now());
 
         int jours = DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(conge.getDateFin()), new DateTime(conge.getDateRetour()));
         log.info("Jours entre date de fin et date de retour : {}", jours);

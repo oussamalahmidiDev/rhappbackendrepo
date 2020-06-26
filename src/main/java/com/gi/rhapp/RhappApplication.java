@@ -88,38 +88,38 @@ public class RhappApplication implements CommandLineRunner {
         return "Hello From RH APP from HEROKU v2";
     }
 
-    @GetMapping("/test/salarie_states/{id}")
-    public void salarieStates(@PathVariable Long id) {
-        Salarie salarie = salarieRepository.findById(id).orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
-        );
-
-        Date dateNaissance = salarie.getDateNaissance();
-        Date dateRecrutement = salarie.getDateRecrutement();
-        log.info("Date naissance : {}", new SimpleDateFormat("dd-MM-yyyy").format(dateNaissance));
-        log.info("Date recr : {}", new SimpleDateFormat("dd-MM-yyyy").format(dateRecrutement));
-
-        log.info("------");
-
-        int nombreJoursTravail = DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(dateRecrutement), DateTime.now());
-        log.info("Nombre jours travail : {}", nombreJoursTravail);
-
-        int nombreJoursAbsence = salarie.getAbsences().stream()
-            .filter(absence -> !absence.getAccepted())
-            .mapToInt(absence -> DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(absence.getDateDebut()), new DateTime(absence.getDateFin()))).sum();
-
-        log.info("nombre de jours d'absence : {}", nombreJoursAbsence);
-        log.info("Nombre jours sans jours d'absence : {}", nombreJoursTravail - nombreJoursAbsence);
-        int mois = ((nombreJoursTravail - nombreJoursAbsence) / 30) + 1;
-
-        log.info("Nombre mois travail : {}", mois);
-
-        if (mois > 6) {
-            log.info("Autorisé au congé");
-        } else {
-            log.info("n'est pas Autorisé au congé");
-        }
-    }
+//    @GetMapping("/test/salarie_states/{id}")
+//    public void salarieStates(@PathVariable Long id) {
+//        Salarie salarie = salarieRepository.findById(id).orElseThrow(
+//            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+//        );
+//
+//        Date dateNaissance = salarie.getDateNaissance();
+////        LocalDate dateRecrutement = salarie.getDateRecrutement();
+//        log.info("Date naissance : {}", new SimpleDateFormat("dd-MM-yyyy").format(dateNaissance));
+//        log.info("Date recr : {}", new SimpleDateFormat("dd-MM-yyyy").format(dateRecrutement));
+//
+//        log.info("------");
+//
+//        int nombreJoursTravail = DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(dateRecrutement), DateTime.now());
+//        log.info("Nombre jours travail : {}", nombreJoursTravail);
+//
+//        int nombreJoursAbsence = salarie.getAbsences().stream()
+//            .filter(absence -> !absence.getAccepted())
+//            .mapToInt(absence -> DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(absence.getDateDebut()), new DateTime(absence.getDateFin()))).sum();
+//
+//        log.info("nombre de jours d'absence : {}", nombreJoursAbsence);
+//        log.info("Nombre jours sans jours d'absence : {}", nombreJoursTravail - nombreJoursAbsence);
+//        int mois = ((nombreJoursTravail - nombreJoursAbsence) / 30) + 1;
+//
+//        log.info("Nombre mois travail : {}", mois);
+//
+//        if (mois > 6) {
+//            log.info("Autorisé au congé");
+//        } else {
+//            log.info("n'est pas Autorisé au congé");
+//        }
+//    }
 
 
 

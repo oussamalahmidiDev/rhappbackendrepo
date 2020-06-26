@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.criteria.Path;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -349,15 +350,17 @@ public class RhSalariesController {
     }
 
     @PostMapping(value = "/create") //works
-    public Salarie createSalarie(@RequestBody SalarieRequest request) {
+    public Salarie createSalarie(@Valid @RequestBody SalarieRequest request) {
+
         if (userRepository.findByEmail(request.getEmail()) != null)
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Cet email existe déjà");
 
-        if (request.getDateRecrutement().after(new Date()))
+        if (request.getDateRecrutement().isAfter(LocalDate.now()))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "La date de recrutement doit être une date antérieure");
 
         if (request.getDateNaissance().after(new Date()))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "La date de naissance doit être une date antérieure");
+
 
 
         User user = User.builder()
@@ -401,7 +404,7 @@ public class RhSalariesController {
             .service(service)
             .dateRecrutement(request.getDateRecrutement())
             .dateNaissance(request.getDateNaissance())
-            .solde(request.getSolde())
+//            .solde(request.getSolde())
             .user(user)
             .build();
 
@@ -439,8 +442,9 @@ public class RhSalariesController {
     }
 
     @PutMapping("/{id}/modifier")
-    public Salarie modifierSalarie(@PathVariable Long id, @RequestBody SalarieRequest request) {
-        if (request.getDateRecrutement().after(new Date()))
+    public Salarie modifierSalarie(@PathVariable Long id, @Valid @RequestBody SalarieRequest request) {
+
+        if (request.getDateRecrutement().isAfter(LocalDate.now()))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "La date de recrutement doit être une date antérieure");
 
         if (request.getDateNaissance().after(new Date()))
@@ -479,7 +483,7 @@ public class RhSalariesController {
 
         salarie.setDirection(direction);
         salarie.setService(service);
-        salarie.setSolde(request.getSolde());
+//        salarie.setSolde(request.getSolde());
         salarie.setDateNaissance(request.getDateNaissance());
         salarie.setDateRecrutement(request.getDateRecrutement());
         return salarieRepository.save(salarie);

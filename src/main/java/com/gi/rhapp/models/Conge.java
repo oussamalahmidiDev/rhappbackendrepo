@@ -13,6 +13,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -28,15 +29,15 @@ public class Conge  {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Date dateDebut;
+    private LocalDate dateDebut;
 
-    private Date dateFin;
+    private LocalDate dateFin;
 
-    private Date dateRetour;
-
-    private int duree;
+    private LocalDate dateRetour;
 
     private String motif;
+
+    private int duree;
 
     private String reponse;
 

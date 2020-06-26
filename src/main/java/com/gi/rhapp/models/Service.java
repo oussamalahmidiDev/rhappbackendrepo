@@ -31,13 +31,13 @@ public class Service  {
     @UpdateTimestamp
     private Date dateUpdate;
 
-    @OneToMany(mappedBy = "service")
-//    @JsonIgnoreProperties({"service"})
-    @JsonIgnore
-    private List<Salarie> salaries;
-
-    @OneToMany(mappedBy = "direction")
-//    @JsonIgnoreProperties({"service"})
-    @JsonIgnore
-    private List<Poste> postes;
+//    @OneToMany(mappedBy = "service")
+////    @JsonIgnoreProperties({"service"})
+//    @JsonIgnore
+//    private List<Salarie> salaries;
+//
+//    @OneToMany(mappedBy = "direction")
+////    @JsonIgnoreProperties({"service"})
+//    @JsonIgnore
+//    private List<Poste> postes;
 }

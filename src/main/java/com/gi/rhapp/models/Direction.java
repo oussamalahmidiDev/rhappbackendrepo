@@ -30,13 +30,13 @@ public class Direction  {
     @UpdateTimestamp
     private Date dateUpdate;
 
-    @OneToMany(mappedBy = "direction")
-    @JsonIgnore
-    private List<Salarie> salaries;
-
-
-    @OneToMany(mappedBy = "direction")
-    @JsonIgnore
-    private List<Poste> postes;
+//    @OneToMany(mappedBy = "direction")
+//    @JsonIgnore
+//    private List<Salarie> salaries;
+//
+//
+//    @OneToMany(mappedBy = "direction")
+//    @JsonIgnore
+//    private List<Poste> postes;
 
 }

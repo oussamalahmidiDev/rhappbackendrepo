@@ -63,7 +63,7 @@ public class Salarie {
     private String cv;
 
     private Date dateNaissance;
-    private Date dateRecrutement;
+    private LocalDate dateRecrutement;
 
     private String lieuNaissance;
 
@@ -89,9 +89,7 @@ public class Salarie {
     private String cinUrg, nomUrg, prenomUrg, adresseUrg, telephoneUrg;
 
     @Email
-    @Column(nullable = true)
     private String emailUrg;
-//    private Long solde;
 
     @ManyToOne
     @JsonIgnoreProperties({"salaries", "postes"})

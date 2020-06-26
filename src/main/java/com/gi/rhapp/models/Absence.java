@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -25,13 +26,13 @@ public class Absence  {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Date dateDebut, dateFin;
+    private LocalDate dateDebut, dateFin;
 
     private String justificatif;
     private String description;
-
-    @Transient
-    private String justificatifLink;
+//
+//    @Transient
+//    private String justificatifLink;
 
     @JsonProperty("justificatif_link")
     public String getJustificatifLink(){

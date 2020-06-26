@@ -46,10 +46,10 @@ public class SalarieService {
         log.info("Calcul de jours de travail");
         try {
             Date dateNaissance = salarie.getDateNaissance();
-            Date dateRecrutement = salarie.getDateRecrutement();
+            LocalDate dateRecrutement = salarie.getDateRecrutement();
 
             log.info("Date naissance : {}", new SimpleDateFormat("dd-MM-yyyy").format(dateNaissance));
-            log.info("Date recr : {}", new SimpleDateFormat("dd-MM-yyyy").format(dateRecrutement));
+            log.info("Date recr : {}", dateRecrutement);
             int ageApresSixMois = Period.between(dateNaissance.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now().plusMonths(6)).getYears();
             log.info("Age apres 6 mois : {}", ageApresSixMois);
             log.info("------");
@@ -82,17 +82,17 @@ public class SalarieService {
                     agents.toArray(new User[agents.size()])
                 );
             }
-            int nombreJoursTravail = DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(dateRecrutement), DateTime.now());
+            int nombreJoursTravail = DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(Date.from(dateRecrutement.atStartOfDay(ZoneId.systemDefault()).toInstant())), DateTime.now());
             log.info("Nombre jours travail : {}", nombreJoursTravail);
 
             int nombreJoursAbsence = salarie.getAbsences().stream()
                 .filter(absence -> !absence.getType().equals("Décès"))
-                .mapToInt(absence -> DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(absence.getDateDebut()), new DateTime(absence.getDateFin()))).sum();
+                .mapToInt(absence -> DateUtils.getDaysBetweenIgnoreWeekends(new DateTime(Date.from(absence.getDateDebut().atStartOfDay(ZoneId.systemDefault()).toInstant())), new DateTime(Date.from(absence.getDateFin().atStartOfDay(ZoneId.systemDefault()).toInstant())))).sum();
             log.info("nombre de jours d'absence : {}", nombreJoursAbsence);
 
             int nombreJoursConge = salarie.getConges().stream()
                 .filter(conge -> conge.getEtat().equals(EtatConge.ACCEPTED) || conge.getEtat().equals(EtatConge.ARCHIVED))
-                .mapToInt(conge -> Period.between(conge.getDateDebut().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), conge.getDateFin().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()).getDays()).sum();
+                .mapToInt(conge -> Period.between(conge.getDateDebut(), conge.getDateFin()).getDays()).sum();
             log.info("nombre de jours de conges : {}", nombreJoursConge);
 
             log.info("Nombre jours sans jours d'absence ou conge : {}", nombreJoursTravail - (nombreJoursAbsence + nombreJoursConge));

@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -73,14 +75,30 @@ public class CongeAppController {
     @PostMapping("/create")
     public Conge createConge (@RequestBody CongeSalarieRequest congeRequest ) {
         Conge conge = congeRequest.getConge();
+        Salarie salarie = getProfile();
         TypeConge type = typeCongeRepository.save(TypeConge.builder().typeConge(congeRequest.getTypeConge()).build());
         conge.setType(type);
         System.out.println("NOMBRE");
 //        System.out.println(parametresRepository.findById(1L).get().getNombreMinJoursConge());
 
-        if ((int)getProfile().getProperties().get("jours_conge") < conge.getDuree())
+        if ((int)getProfile().getProperties().get("max_jours_conge") < conge.getDuree())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Vous ne pouvez pas dépasser %d jours du congé.",getProfile().getProperties().get("jours_conge")));
 
+        if (conge.getDateDebut().isBefore(salarie.getDateRecrutement()))
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date de recrutement (" +
+                salarie.getDateRecrutement() + ")");
+
+        salarie.getAbsences().forEach(absence -> {
+            if (conge.getDateDebut().isBefore(absence.getDateFin()) && conge.getDateDebut().isAfter(absence.getDateDebut()) || (conge.getDateDebut().isBefore(absence.getDateDebut()) && conge.getDateFin().isAfter(absence.getDateFin())))
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible d'enregistrer un congé de maladie durant cette période par ce qu'il y a déjà une absence enregsitrée durant cette période " +
+                    "(de " + absence.getDateDebut() + " jusqu'à " + absence.getDateFin() + ")");
+        });
+
+        salarie.getConges().forEach(element -> {
+            if (!element.getEtat().equals(EtatConge.REJECTED) && !element.getEtat().equals(EtatConge.PENDING_RESPONSE) && conge.getDateDebut().isBefore(element.getDateFin()) && conge.getDateDebut().isAfter(element.getDateDebut()) || (conge.getDateDebut().isBefore(element.getDateDebut()) && conge.getDateFin().isAfter(element.getDateFin())))
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible d'enregistrer un congé de maladie durant cette période par ce que le salarié était en congé durant cette période " +
+                    "(de " + conge.getDateDebut() + " jusqu'à " + conge.getDateFin() + ")");
+        });
         congeRepository.save(Conge.builder()
                 .salarie(getProfile())
                 .type(type)
@@ -99,13 +117,6 @@ public class CongeAppController {
                         .build()
         );
 
-//        Notification notification = Notification.builder()
-//            .content(String.format("Le salarié \"%s\" a ajouté une demande de congé à partir de %d/%d/%d", conge.getSalarie().getUser().getFullname(), conge.getDateDebut().getDay(), conge.getDateDebut().getMonth(), conge.getDateDebut().getYear()))
-//            .to(userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE))
-//            .build();
-
-//        notificationRepository.save(notification);
-
         return conge;
     }
 
@@ -116,6 +127,23 @@ public class CongeAppController {
 //            System.out.println(congeRequest);
             TypeConge type = typeCongeRepository.save(TypeConge.builder().typeConge(congeRequest.getTypeConge()).build());
             Conge newConge = congeRequest.getConge();
+            Salarie salarie = getProfile();
+
+            if (newConge.getDateDebut().isBefore(salarie.getDateRecrutement()))
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date de recrutement (" +
+                    new SimpleDateFormat("dd-MM-yyyy").format(salarie.getDateRecrutement()) + ")");
+
+            salarie.getAbsences().forEach(absence -> {
+                if (newConge.getDateDebut().isBefore(absence.getDateFin()) && newConge.getDateDebut().isAfter(absence.getDateDebut()) || (newConge.getDateDebut().isBefore(absence.getDateDebut()) && newConge.getDateFin().isAfter(absence.getDateFin())))
+                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible d'enregistrer un congé de maladie durant cette période par ce qu'il y a déjà une absence enregsitrée durant cette période " +
+                        "(de " + absence.getDateDebut() + " jusqu'à " + absence.getDateFin() + ")");
+            });
+
+            salarie.getConges().forEach(element -> {
+                if (!element.getEtat().equals(EtatConge.REJECTED) && !element.getEtat().equals(EtatConge.PENDING_RESPONSE) && newConge.getDateDebut().isBefore(element.getDateFin()) && newConge.getDateDebut().isAfter(element.getDateDebut()) || (newConge.getDateDebut().isBefore(element.getDateDebut()) && newConge.getDateFin().isAfter(element.getDateFin())))
+                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible d'enregistrer un congé de maladie durant cette période par ce que le salarié était en congé durant cette période " +
+                        "(de " + newConge.getDateDebut() + " jusqu'à " + newConge.getDateFin() + ")");
+            });
             congeRepository.save(Conge.builder()
                     .salarie(getProfile())
                     .type(type)
@@ -159,7 +187,7 @@ public class CongeAppController {
     }
 
     @PutMapping("/{id}/retour")
-    public Conge addRetourDate(@PathVariable(value = "id")Long id , @RequestParam("dateRetour") Date dateRetour){
+    public Conge addRetourDate(@PathVariable(value = "id")Long id , @RequestParam("dateRetour") LocalDate dateRetour){
          System.out.println(dateRetour);
          Conge conge = congeRepository.findById(id).get();
          conge.setDateRetour(dateRetour);

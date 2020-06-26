@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -43,7 +44,7 @@ public class RhUsersController {
     }
 
     @PostMapping("/create")
-    public User createUser(@RequestBody User user) {
+    public User createUser(@Valid @RequestBody User user) {
         if (repository.findByEmail(user.getEmail()) != null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cet email existe déjà");
 
@@ -61,9 +62,8 @@ public class RhUsersController {
     }
 
     @PutMapping("/{id}/modifier")
-    public User updateUser(@PathVariable("id") Long id, @RequestBody User user) {
+    public User updateUser(@PathVariable("id") Long id, @Valid  @RequestBody User user) {
         User userFromDB = getUser(id);
-        user.setId(id);
 //        if (!repository.findByEmail(user.getEmail()).getId().equals(id))
 //            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cet email existe déjà");
         userFromDB.setNom(user.getNom());

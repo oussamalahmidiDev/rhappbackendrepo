@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -122,8 +123,8 @@ public class RhAbsencesController {
     public Absence createAbsence(
         @RequestParam("salarie_id") Long salarieId,
         @RequestParam("type") String type,
-        @RequestParam("dateDebut") Date dateDebut,
-        @RequestParam("dateFin") Date dateFin,
+        @RequestParam("dateDebut") LocalDate dateDebut,
+        @RequestParam("dateFin") LocalDate dateFin,
 
         // i used @RequestPart here instead of @RequestParm to mark this param as optional
         @RequestPart(name = "justificatif", required = false) MultipartFile justificatif
@@ -134,12 +135,12 @@ public class RhAbsencesController {
 
 //        Date dernierAbsence = absenceRepository.getMaxDate(salarieId);
 
-        if (dateDebut.before(salarie.getDateRecrutement()))
+        if (dateDebut.isBefore(salarie.getDateRecrutement()))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date de recrutement (" +
                 new SimpleDateFormat("dd-MM-yyyy").format(salarie.getDateRecrutement()) + ")");
 
         salarie.getAbsences().forEach(absence -> {
-            if ((dateDebut.before(absence.getDateFin()) && dateDebut.after(absence.getDateDebut())) || (dateDebut.before(absence.getDateDebut()) && dateFin.after(absence.getDateFin())))
+            if ((dateDebut.isBefore(absence.getDateFin()) && dateDebut.isAfter(absence.getDateDebut())) || (dateDebut.isBefore(absence.getDateDebut()) && dateFin.isAfter(absence.getDateFin())))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence durant cette période par ce qu'il y a déjà une absence enregsitrée durant cette période " +
                     "(de " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateFin()) + ")");
         });
@@ -147,7 +148,7 @@ public class RhAbsencesController {
         salarie.getConges().forEach(conge -> {
             if (!conge.getEtat().equals(EtatConge.REJECTED)
                 && !conge.getEtat().equals(EtatConge.PENDING_RESPONSE)
-                && (dateDebut.before(conge.getDateFin()) && dateDebut.after(conge.getDateDebut()))  || (dateDebut.before(conge.getDateDebut()) && dateFin.after(conge.getDateFin())))
+                && (dateDebut.isBefore(conge.getDateFin()) && dateDebut.isAfter(conge.getDateDebut()))  || (dateDebut.isBefore(conge.getDateDebut()) && dateFin.isAfter(conge.getDateFin())))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence durant cette période par ce que le salarié était en congé durant cette période " +
                     "(de " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateFin()) + ")");
         });
@@ -157,7 +158,7 @@ public class RhAbsencesController {
 //            if (dateDebut.before(dernierAbsence))
 //                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date " + new SimpleDateFormat("dd-MM-yyyy").format(dernierAbsence));
 
-        if (dateDebut.after(dateFin))
+        if (dateDebut.isAfter(dateFin))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "La date de début ne peut pas être aprés la date de fin");
 
 
