@@ -1,8 +1,11 @@
 package com.gi.rhapp.utilities;
 
+import com.gi.rhapp.models.User;
+import com.gi.rhapp.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -21,6 +24,11 @@ public class JwtUtil {
     @Value("${security.jwt.secret}")
     private String secret;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    private String CLAIMS_ID = "id";
+
     //retrieve username from jwt token
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
@@ -37,12 +45,12 @@ public class JwtUtil {
     }
 
     //for retrieveing any information from token we will need the secret key
-    private Claims getAllClaimsFromToken(String token) {
+    public Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
 //check if the token has expired
-    private Boolean isTokenExpired(String token) {
+    public Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }
@@ -55,9 +63,16 @@ public class JwtUtil {
 
 
     private String doGenerateToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-            .signWith(SignatureAlgorithm.HS512, secret).compact();
+//        User user = userRepository.findByEmail(subject);
+//        claims.put(CLAIMS_ID ,user.getId());
+        return Jwts.
+                builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .compact();
     }
 
 //validate token

@@ -54,7 +54,7 @@ public class Salarie {
     @Column(unique = true)
     private String cin;
 
-    private int joursDisponible;
+//    private int joursDisponible;
 
 
 //    private double salaire;
@@ -91,7 +91,7 @@ public class Salarie {
     @Email
     @Column(nullable = true)
     private String emailUrg;
-    private Long solde;
+//    private Long solde;
 
     @ManyToOne
     @JsonIgnoreProperties({"salaries", "postes"})
@@ -128,7 +128,7 @@ public class Salarie {
 
     @PrePersist
     void initialStat() {
-        joursDisponible = 18;
+//        joursDisponible = 18;
         deleted = false;
     }
 

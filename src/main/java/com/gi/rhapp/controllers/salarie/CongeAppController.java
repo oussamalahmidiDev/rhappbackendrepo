@@ -49,6 +49,9 @@ public class CongeAppController {
     private UserRepository userRepository;
 
     @Autowired
+    private ParametresRepository parametresRepository;
+
+    @Autowired
     private NotificationRepository notificationRepository;
 
     public Salarie getProfile(){
@@ -72,11 +75,11 @@ public class CongeAppController {
         Conge conge = congeRequest.getConge();
         TypeConge type = typeCongeRepository.save(TypeConge.builder().typeConge(congeRequest.getTypeConge()).build());
         conge.setType(type);
-        System.out.println(getProfile().getSolde());
+        System.out.println("NOMBRE");
+//        System.out.println(parametresRepository.findById(1L).get().getNombreMinJoursConge());
 
-
-        if (getProfile().getJoursDisponible() < conge.getDuree())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Vous ne pouvez pas dépasser %d jours du congé.", getProfile().getSolde()));
+        if ((int)getProfile().getProperties().get("jours_conge") < conge.getDuree())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Vous ne pouvez pas dépasser %d jours du congé.",getProfile().getProperties().get("jours_conge")));
 
         congeRepository.save(Conge.builder()
                 .salarie(getProfile())
