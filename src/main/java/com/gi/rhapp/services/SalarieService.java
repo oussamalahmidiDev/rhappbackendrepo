@@ -48,7 +48,6 @@ public class SalarieService {
             Date dateNaissance = salarie.getDateNaissance();
             Date dateRecrutement = salarie.getDateRecrutement();
 
-            log.info("Salarie : {}", salarie.getUser().getFullname());
             log.info("Date naissance : {}", new SimpleDateFormat("dd-MM-yyyy").format(dateNaissance));
             log.info("Date recr : {}", new SimpleDateFormat("dd-MM-yyyy").format(dateRecrutement));
             int ageApresSixMois = Period.between(dateNaissance.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now().plusMonths(6)).getYears();

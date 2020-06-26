@@ -3,23 +3,28 @@ package com.gi.rhapp.controllers.salarie;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.Absence;
 import com.gi.rhapp.models.Activity;
-import com.gi.rhapp.models.Notification;
 import com.gi.rhapp.models.Salarie;
 import com.gi.rhapp.repositories.AbsenceRepository;
-import com.gi.rhapp.repositories.NotificationRepository;
-import com.gi.rhapp.repositories.UserRepository;
-import com.gi.rhapp.services.ActivitiesService;
+import com.gi.rhapp.repositories.ActivityRepository;
+import com.gi.rhapp.services.Download;
 import com.gi.rhapp.services.Upload;
+import com.gi.rhapp.utilities.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.SimpleDateFormat;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/salarie/api/absences")
@@ -28,23 +33,27 @@ public class AbsenceAppController {
 
     Logger log = LoggerFactory.getLogger(AbsenceAppController.class);
 
+
+    @Autowired
+    private ProfileAppController profileAppController;
+
     @Autowired
     private AbsenceRepository absenceRepository;
 
     @Autowired
-    private Upload uploadService;
+    private Upload upload;
 
     @Autowired
-    private ActivitiesService activitiesService;
+    private Download download;
 
     @Autowired
-    private NotificationRepository notificationRepository;
+    private ActivityRepository activityRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    String service = "Panneau de salarié - Demandes de Absence";
 
-    @Autowired
-    private ProfileAppController profileAppController;
+
+    private static String UPLOAD_JUSTIF_DIR = "./src/main/resources/uploads/justificatifs";
+
 
     public Salarie getProfile(){
         return profileAppController.getProfile();
@@ -57,25 +66,100 @@ public class AbsenceAppController {
         return getProfile().getAbsences();
     }
 
-    @PostMapping("/{id}/justifier")
-    public Absence justifier(@PathVariable Long id, @RequestPart(name = "justificatif", required = true) MultipartFile justificatif) {
-        Absence absence = absenceRepository.findByIdAndSalarie(id, getProfile()).orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+    @GetMapping("/{id}")
+    public Absence getOneAbsence (@PathVariable("id")Long id) {
+        activityRepository.save(
+                Activity.builder()
+                        .evenement("Voir la liste des absences")
+                        .service(service)
+                        .user(getProfile().getUser())
+                        .scope(Role.SALARIE)
+                        .build()
         );
+        return absenceRepository.findById(id).orElseThrow( ()->new ResponseStatusException(HttpStatus.NOT_FOUND, "L'absence avec id = " + id + " est introuvable."));
+    }
 
-        String filename = uploadService.uploadJustificatif(justificatif);
-        absence.setJustificatif(filename);
-        absenceRepository.save(absence);
+    @PostMapping("{id}/upload/justification")
+    public ResponseEntity uploadJustif(@PathVariable("id") Long id , @RequestParam("file") MultipartFile file ) throws ParseException {
 
-        activitiesService.saveAndSend(
-            Activity.builder()
-                .evenement("Justification de l'absence de la date " + new SimpleDateFormat("dd/MM/yyyy").format(absence.getDateDebut()))
-                .service("Gestion des RH - Gestion des absences")
-                .user(getProfile().getUser())
-                .scope(Role.SALARIE)
-                .build()
+        try{
+            Absence absence = absenceRepository.findById(id).get();
+            String fileName = upload.uploadJustificatif(file);
+            absence.setJustificatif(fileName);
+//            absence.setDescription(description);
+
+            absenceRepository.save(absence);
+
+            activityRepository.save(
+                    Activity.builder()
+                            .evenement("Ajouté la justification de l'absence : " +id)
+                            .service(service)
+                            .user(getProfile().getUser())
+                            .scope(Role.SALARIE)
+                            .build()
+            );
+            return new ResponseEntity(HttpStatus.OK);
+        }catch (NoSuchElementException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "L'absence avec id = " + id + " est introuvable.");
+        }
+
+
+    }
+
+    @PostMapping("{id}/description")
+    public ResponseEntity addDescription(@PathVariable("id") Long id , @RequestParam("description") String description ) throws ParseException {
+
+        try{
+            Absence absence = absenceRepository.findById(id).get();
+            absence.setDescription(description);
+            absenceRepository.save(absence);
+
+            activityRepository.save(
+                    Activity.builder()
+                            .evenement("Ajouté une description pour l'absence : "+ absence.getId())
+                            .service(service)
+                            .user(getProfile().getUser())
+                            .scope(Role.SALARIE)
+                            .build()
+            );
+
+            return new ResponseEntity(HttpStatus.OK);
+        }catch (NoSuchElementException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "L'absence avec id = " + id + " est introuvable.");
+        }
+
+    }
+
+//    @PostMapping("{id}/upload/justif")
+//    public ResponseEntity uploadJusti(@PathVariable("id") Long id , @RequestParam("file") MultipartFile file) throws ParseException {
+//
+//        activityRepository.save(
+//                Activity.builder()
+//                        .evenement("Le salarié " + getProfile().getUser().getFullname() + " a ajouté un diplôme")
+//                        .service(service)
+//                        .user(getProfile().getUser())
+//                        .scope(Role.RH)
+//                        .build()
+//        );
+//        return upload.uploadDiplome(file,name,dateDiplome,expDiplome,getProfile());
+
+//    }
+
+//    @PostMapping(value = "/download/justification")
+//    public ResponseEntity<?> getDiplome(HttpServletResponse response , @RequestParam("fileName") String name ) throws IOException {
+//        return download.loadImage(response,name,UPLOAD_JUSTIF_DIR);
+//    }
+
+    @PostMapping(value = "/download/justification")
+    public ResponseEntity<?> getDiplome(HttpServletResponse response , @RequestParam("fileName") String name ) throws IOException {
+        activityRepository.save(
+                Activity.builder()
+                        .evenement("Téléchargé la justification : " + name)
+                        .service(service)
+                        .user(getProfile().getUser())
+                        .scope(Role.SALARIE)
+                        .build()
         );
-
-        return absence;
+        return download.loadImage(response,name,UPLOAD_JUSTIF_DIR);
     }
 }

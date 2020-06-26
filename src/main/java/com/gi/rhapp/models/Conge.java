@@ -32,15 +32,13 @@ public class Conge  {
 
     private Date dateFin;
 
-    private Date DateRetour;
+    private Date dateRetour;
 
     private int duree;
 
     private String motif;
 
     private String reponse;
-
-    private int joursDisponible;
 
     @Enumerated(EnumType.STRING)
     private EtatConge etat;

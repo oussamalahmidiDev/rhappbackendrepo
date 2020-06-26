@@ -57,9 +57,12 @@ public class GenericController {
 
     @PostMapping("/api/auth")
     @ResponseBody
-    public ResponseEntity<?> authenticate (@RequestBody User credentials)  {
+    public ResponseEntity<?> authenticate (@RequestBody User credentials) throws Exception {
+        System.out.println(credentials.getEmail() +" "+ credentials.getPassword());
+
         try {
             authService.authenticate(credentials.getEmail(), credentials.getPassword());
+
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "L'email ou mot de passe est incorrect");
         }
@@ -83,6 +86,19 @@ public class GenericController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/api/istokenvalid")
+    @ResponseBody
+    public boolean isTokenValid(@RequestParam("token")String token){
+        try{
+            System.out.println("token is valid : ");
+            System.out.println(!jwtTokenUtil.isTokenExpired(token));
+            return  !jwtTokenUtil.isTokenExpired(token);
+        }catch (Exception e){
+            return false;
+        }
+
     }
 
     @PostMapping("/api/forgot_password")

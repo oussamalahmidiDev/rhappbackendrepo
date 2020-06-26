@@ -41,6 +41,7 @@ public class Download {
         try {
             // recuperer le path de fichier demandé
             Path filePath = Paths.get(this.fileStorageLocation.toString() + "/justificatifs").resolve(filename).normalize();
+            System.out.println(filePath);
 //            Path filePath = this.fileStorageLocation.resolve(fil).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 

@@ -63,6 +63,7 @@ public class CongeAppController {
 
     @GetMapping("/{id}")
     public Conge  getOneConge(@PathVariable(value = "id")Long id){
+
         return congeRepository.findById(id).orElseThrow( ()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Le Conge avec id = " + id + " est introuvable."));
     }
 
@@ -71,9 +72,10 @@ public class CongeAppController {
         Conge conge = congeRequest.getConge();
         TypeConge type = typeCongeRepository.save(TypeConge.builder().typeConge(congeRequest.getTypeConge()).build());
         conge.setType(type);
-        System.out.println(conge);
+        System.out.println(getProfile().getSolde());
 
-        if (getProfile().getSolde() < conge.getDuree())
+
+        if (getProfile().getJoursDisponible() < conge.getDuree())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Vous ne pouvez pas dépasser %d jours du congé.", getProfile().getSolde()));
 
         congeRepository.save(Conge.builder()
@@ -81,16 +83,17 @@ public class CongeAppController {
                 .type(type)
                 .dateDebut(conge.getDateDebut())
                 .dateFin(conge.getDateFin())
+                .duree(conge.getDuree())
                 .motif(conge.getMotif())
                 .build());
 
         activityRepository.save(
-            Activity.builder()
-                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a ajouté une demande de congé")
-                .service(service)
-                .user(getProfile().getUser())
-                .scope(Role.RH)
-                .build()
+                Activity.builder()
+                        .evenement("Le salarié " + getProfile().getUser().getFullname() + " a ajouté une demande de congé")
+                        .service(service)
+                        .user(getProfile().getUser())
+                        .scope(Role.RH)
+                        .build()
         );
 
 //        Notification notification = Notification.builder()
@@ -107,13 +110,14 @@ public class CongeAppController {
     @Modifying
     public Conge modifyConge(@PathVariable(value = "id")Long id , @RequestBody CongeSalarieRequest congeRequest){
         try{
-            System.out.println(congeRequest);
+//            System.out.println(congeRequest);
             TypeConge type = typeCongeRepository.save(TypeConge.builder().typeConge(congeRequest.getTypeConge()).build());
             Conge newConge = congeRequest.getConge();
             congeRepository.save(Conge.builder()
                     .salarie(getProfile())
                     .type(type)
                     .id(newConge.getId())
+                    .duree(newConge.getDuree())
                     .dateCreation(newConge.getDateCreation())
                     .etat(newConge.getEtat())
                     .dateDebut(newConge.getDateDebut())
@@ -122,12 +126,12 @@ public class CongeAppController {
                     .build());
 
             activityRepository.save(
-                Activity.builder()
-                    .evenement("Le salarié " + getProfile().getUser().getFullname() + " a modifié sa demande de congé")
-                    .service(service)
-                    .user(getProfile().getUser())
-                    .scope(Role.RH)
-                    .build()
+                    Activity.builder()
+                            .evenement("Le salarié " + getProfile().getUser().getFullname() + " a modifié sa demande de congé")
+                            .service(service)
+                            .user(getProfile().getUser())
+                            .scope(Role.RH)
+                            .build()
             );
             return newConge;
 
@@ -141,13 +145,23 @@ public class CongeAppController {
     public void  deleteConge(@PathVariable(value = "id")Long id){
         congeRepository.deleteById(id);
         activityRepository.save(
-            Activity.builder()
-                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a supprimé sa demande de congé")
-                .service(service)
-                .user(getProfile().getUser())
-                .scope(Role.RH)
-                .build()
+                Activity.builder()
+                        .evenement("Le salarié " + getProfile().getUser().getFullname() + " a supprimé sa demande de congé")
+                        .service(service)
+                        .user(getProfile().getUser())
+                        .scope(Role.RH)
+                        .build()
         );
 //        return ResponseEntity.ok("l'Absence est supprimer avec succès");
+    }
+
+    @PutMapping("/{id}/retour")
+    public Conge addRetourDate(@PathVariable(value = "id")Long id , @RequestParam("dateRetour") Date dateRetour){
+         System.out.println(dateRetour);
+         Conge conge = congeRepository.findById(id).get();
+         conge.setDateRetour(dateRetour);
+         conge.setEtat(EtatConge.PENDING_RESPONSE);
+         return congeRepository.save(conge);
+
     }
 }

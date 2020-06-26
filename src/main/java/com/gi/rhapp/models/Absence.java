@@ -28,6 +28,7 @@ public class Absence  {
     private Date dateDebut, dateFin;
 
     private String justificatif;
+    private String description;
 
     @Transient
     private String justificatifLink;

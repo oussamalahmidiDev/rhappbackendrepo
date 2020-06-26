@@ -4,10 +4,7 @@ import com.gi.rhapp.config.Storage;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
-import com.gi.rhapp.services.AuthService;
-import com.gi.rhapp.services.Download;
-import com.gi.rhapp.services.MailService;
-import com.gi.rhapp.services.Upload;
+import com.gi.rhapp.services.*;
 import com.gi.rhapp.utilities.JwtUtil;
 import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
@@ -87,6 +84,10 @@ public class ProfileAppController {
     @Autowired
     private ActivityRepository activityRepository;
 
+    @Autowired
+    private SalarieService salarieService;
+
+
     Logger log = LoggerFactory.getLogger(ProfileAppController.class);
 
 
@@ -98,11 +99,18 @@ public class ProfileAppController {
 
     @GetMapping()
     public Salarie getProfile() {
-        long id =authService.getCurrentUser().getSalarie().getId();
+//        long id =authService.getCurrentUser().getSalarie().getId();
         try{
+//            System.out.println("SALARIE : ");
+//            System.out.println(authService.getCurrentUser().getSalarie().getId());
+//            Salarie salarie = salarieRepository.findById(authService.getCurrentUser().getSalarie().getId()).get();
+//            salarieService.addProperties(authService.getCurrentUser().getSalarie());
+
             return authService.getCurrentUser().getSalarie();
+
+//            return salarie;
         }catch (NoSuchElementException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie avec id = " + id + " est introuvable.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie  est introuvable." +e.toString());
         }
 
     }
@@ -152,21 +160,23 @@ public class ProfileAppController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Votre ancien mot de passe est incorrect");
         }
     }
-    @PutMapping("/modifier/contacts")
+    @PutMapping("/modifier/contact")
     public Salarie modifierProfilContact(@RequestBody Salarie salarie) {
-        System.out.println(salarie);
+//        System.out.println(salarie.getLieuNaissance());
+//        System.out.println(salarie.getSolde());
+        System.out.println();
         Salarie originSalarie = getProfile();
         originSalarie.setDateNaissance(salarie.getDateNaissance());
         originSalarie.setLieuNaissance(salarie.getLieuNaissance());
         originSalarie.setAdresse(salarie.getAdresse());
         originSalarie.setEtatFamiliale(salarie.getEtatFamiliale());
         originSalarie.setNmbEnf(salarie.getNmbEnf());
-//        salarie.setUser(getProfile().getUser());
-//        salarie.setPoste(getProfile().getPoste());
-//        salarie.setRetraite(getProfile().getRetraite());
-        User user = getProfile().getUser();
-//        user.setSalarie(originSalarie);
-        System.out.println(salarie);
+        originSalarie.setCinUrg(salarie.getCinUrg());
+        originSalarie.setAdresseUrg(salarie.getAdresseUrg());
+        originSalarie.setEmailUrg(salarie.getEmailUrg());
+        originSalarie.setNomUrg(salarie.getNomUrg());
+        originSalarie.setPrenomUrg(salarie.getPrenomUrg());
+        originSalarie.setTelephoneUrg(salarie.getTelephoneUrg());
 
         activityRepository.save(
             Activity.builder()
@@ -177,8 +187,55 @@ public class ProfileAppController {
                 .build()
         );
 
+
+
         return salarieRepository.save(originSalarie);
     }
+
+    //just in case the first method dsnt work , tired to fix it
+    @PutMapping("/modifier/contacts")
+    public Salarie modifierProfilContactTwo(@RequestParam("lieuNaissance") String lieuNaissance,
+                                            @RequestParam("adresse") String adresse,
+                                            @RequestParam("etatFamiliale") String etatFamiliale,
+                                            @RequestParam("nmbEnf") int nmbEnf,
+                                            @RequestParam("cinUrg") String cinUrg,
+                                            @RequestParam("adresseUrg") String adresseUrg,
+                                            @RequestParam("emailUrg") String emailUrg,
+                                            @RequestParam("nomUrg") String nomUrg,
+                                            @RequestParam("prenomUrg") String prenomUrg,
+                                            @RequestParam("telephoneUrg") String telephoneUrg
+
+    ) {
+//        System.out.println(salarie.getLieuNaissance());
+//        System.out.println(salarie.getSolde());
+        Salarie originSalarie = getProfile();
+//        originSalarie.setDateNaissance(dateNaissance);
+        if(lieuNaissance !=null){ originSalarie.setLieuNaissance(lieuNaissance); }
+        if(adresse !=null){originSalarie.setAdresse(adresse);}
+        if(etatFamiliale !=null){originSalarie.setEtatFamiliale(etatFamiliale);}
+        if(nmbEnf !=0){originSalarie.setNmbEnf(nmbEnf);}
+        if(cinUrg !=null){originSalarie.setCinUrg(cinUrg);}
+        if(adresseUrg !=null){originSalarie.setAdresseUrg(adresseUrg);}
+        if(emailUrg !=null){originSalarie.setEmailUrg(emailUrg);}
+        if(nomUrg !=null){originSalarie.setNomUrg(nomUrg);}
+        if(prenomUrg !=null){originSalarie.setPrenomUrg(prenomUrg);}
+        if(telephoneUrg !=null){originSalarie.setTelephoneUrg(telephoneUrg);}
+
+        activityRepository.save(
+                Activity.builder()
+                        .evenement("Le salarié " + getProfile().getUser().getFullname() + " a modifié ses informations de contact")
+                        .service(service)
+                        .user(getProfile().getUser())
+                        .scope(Role.RH)
+                        .build()
+        );
+
+
+
+        return salarieRepository.save(originSalarie);
+    }
+
+
 
 
     @PostMapping("/upload/image")
@@ -230,6 +287,8 @@ public class ProfileAppController {
         return upload.uploadDiplome(file,name,dateDiplome,expDiplome,getProfile());
 
     }
+
+
 
     @DeleteMapping("/upload/diplome/{id}/delete")
     public ResponseEntity deleteDiplome(@PathVariable Long id){
