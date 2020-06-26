@@ -131,7 +131,7 @@ public class RhappApplication implements CommandLineRunner {
 //
 //        }
         Parametres parametres = new Parametres();
-        parametres.setNombreMinJoursConge(18L);
+        parametres.setCoeffConge(1.5);
         parametres.setId(1L);
         parametresRepository.save(parametres);
     }

@@ -81,7 +81,8 @@ public class RhCongesController {
     @PostMapping("/parametres")
     public Parametres setParametres(@RequestBody Parametres parametres) {
         Parametres currentParametres = parametresRepository.getOne(1L);
-        currentParametres.setNombreMinJoursConge(parametres.getNombreMinJoursConge());
+        if (currentParametres.getCoeffConge() != null && currentParametres.getCoeffConge() >= 1.5)
+            currentParametres.setCoeffConge(parametres.getCoeffConge());
         return parametresRepository.save(currentParametres);
     }
 
@@ -95,18 +96,6 @@ public class RhCongesController {
 
         conge.setEtat(EtatConge.valueOf(request.getEtat()));
         conge.setReponse(request.getReponse());
-//
-//        List<User> receivers = userRepository.findAllByRoleIsNotOrderByDateCreationDesc(Role.SALARIE).stream()
-//            .filter(user -> !user.equals(authService.getCurrentUser()))
-//            .collect(Collectors.toList());
-//
-//
-//        Notification notification = Notification.builder()
-//            .content(String.format("%s a enregistré une absence pour le salarié %s" , authService.getCurrentUser().getFullname(), salarie.getUser().getFullname()))
-//            .build();
-//
-//
-//        notificationService.send(notification, receivers.toArray(new User[receivers.size()]));
 
         Notification notificationToSalarie = Notification.builder()
             .content(String.format("%s a repondu à votre demande de congé."))

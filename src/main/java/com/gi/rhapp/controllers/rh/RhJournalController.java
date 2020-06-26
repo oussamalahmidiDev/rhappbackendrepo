@@ -27,7 +27,6 @@ public class RhJournalController {
 
     @GetMapping()
     public Page<Activity> getActivities(@RequestParam("limit") int limit) {
-//        int page = limit <= 50 ? 0 : limit - 50;
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "timestamp"));
         if (authService.getCurrentUser().getRole() == Role.ADMIN)
             return repository.findAll(pageable);
@@ -37,7 +36,6 @@ public class RhJournalController {
 
     @GetMapping("/personnal")
     public Page<Activity> getPersonnalActivities(@RequestParam("limit") int limit) {
-//        int page = limit <= 50 ? 0 : limit - 50;
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "timestamp"));
         return repository.findAllByUser(authService.getCurrentUser(), pageable);
     }

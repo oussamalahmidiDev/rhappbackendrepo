@@ -192,7 +192,7 @@ public class RhPostesController {
             .content(String.format("Le salarié \"%s\" été déaffecté du poste de \"%s\" (service de %s)", salarie.getUser().getFullname(), poste.getNom(), poste.getService().getNom()))
             .build();
 
-        notificationService.send(notificationToAgents, (User[]) otherAgents.toArray());
+        notificationService.send(notificationToAgents, otherAgents.toArray(new User[otherAgents.size()]));
 
         Notification notificationToSalarie = Notification.builder()
             .content(String.format("Vous avez été déaffecté du poste de \"%s\" (service de %s)", poste.getNom(), poste.getService().getNom()))

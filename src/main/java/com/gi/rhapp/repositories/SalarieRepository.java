@@ -11,7 +11,5 @@ import java.util.List;
 
 @RepositoryRestResource
 public interface SalarieRepository extends JpaRepository<Salarie , Long>, JpaSpecificationExecutor<Salarie> {
-
     List<Salarie> findAllByOrderByDateCreationDesc();
-
 }

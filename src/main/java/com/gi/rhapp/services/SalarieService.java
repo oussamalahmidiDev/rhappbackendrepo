@@ -101,14 +101,14 @@ public class SalarieService {
 
             log.info("Nombre mois travail : {}", mois);
             int joursCongeAjoutes = (int) Math.ceil((float) mois / (12 * 5));
-            Long maxJoursParDefaut = parametresRepository.findById(1L).get().getNombreMinJoursConge();
-            log.info("Max jours conges : {}", maxJoursParDefaut);
+            Double coeffConge = parametresRepository.findById(1L).get().getCoeffConge();
+            log.info("Coeff : {}", coeffConge);
             log.info("Jours ajt : {}", joursCongeAjoutes);
             salarie.setProperties(new HashMap<>());
 
             if (mois >= 6) {
-                salarie.add("max_jours_conge", Long.min(30L, Long.min(maxJoursParDefaut, (long) (mois * 1.5)) + joursCongeAjoutes));
-                log.info("Autorisé au congé : {}", Long.min(30L, Long.min(maxJoursParDefaut, (long) (mois * 1.5)) + joursCongeAjoutes));
+                salarie.add("max_jours_conge", Long.min(30L, Long.min( (long) (mois * coeffConge), (long) (mois * 1.5)) + joursCongeAjoutes));
+                log.info("Autorisé au congé : {}", Long.min(30L, Long.min((long) (mois * coeffConge), (long) (mois * 1.5)) + joursCongeAjoutes));
             } else {
                 salarie.add("max_jours_conge", 0);
                 log.info("n'est pas Autorisé au congé");

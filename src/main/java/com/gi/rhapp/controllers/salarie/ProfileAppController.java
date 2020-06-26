@@ -118,7 +118,7 @@ public class ProfileAppController {
 
         activityRepository.save(
             Activity.builder()
-                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a modifié ses informations de compte")
+                .evenement("Modification des informations de compte")
                 .service(service)
                 .user(getProfile().getUser())
                 .scope(Role.RH)
@@ -138,6 +138,14 @@ public class ProfileAppController {
             user.setSalarie(getProfile());
             user.setPassword(encoder.encode(user.getNewPassword()));
             userRepository.save(user);
+            activityRepository.save(
+                Activity.builder()
+                    .evenement("Modification de mot de passe")
+                    .service(service)
+                    .user(getProfile().getUser())
+                    .scope(Role.RH)
+                    .build()
+            );
             return new ResponseEntity(HttpStatus.OK);
         }
         else{
@@ -162,7 +170,7 @@ public class ProfileAppController {
 
         activityRepository.save(
             Activity.builder()
-                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a modifié ses informations de contact")
+                .evenement("Modification des informations de contact")
                 .service(service)
                 .user(getProfile().getUser())
                 .scope(Role.RH)
@@ -213,7 +221,7 @@ public class ProfileAppController {
 
         activityRepository.save(
             Activity.builder()
-                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a ajouté un diplôme")
+                .evenement("Ajout de diplôme de " + name)
                 .service(service)
                 .user(getProfile().getUser())
                 .scope(Role.RH)

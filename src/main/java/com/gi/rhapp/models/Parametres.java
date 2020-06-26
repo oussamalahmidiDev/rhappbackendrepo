@@ -17,8 +17,7 @@ public class Parametres {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Value("${rh.default.min-jours-conge:18}")
-    private Long nombreMinJoursConge;
+    private Double coeffConge;
 
 
 }

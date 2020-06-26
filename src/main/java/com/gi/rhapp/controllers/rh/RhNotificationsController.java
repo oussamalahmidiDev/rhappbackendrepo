@@ -28,9 +28,6 @@ import java.util.stream.Collectors;
 @Log4j2
 public class RhNotificationsController {
 
-//    @Autowired
-//    private NotificationService notificationService;
-
     @Autowired
     private UserRepository userRepository;
 
