@@ -393,7 +393,7 @@ public class ProfileAppController {
     }
 
 
-    @DeleteMapping("/upload/diplome/{id}/delete")
+    @DeleteMapping("/diplome/{id}/delete")
     public ResponseEntity deleteDiplome(@PathVariable Long id){
         try{
             String path = diplomeRepository.getOne(id).getPath();
@@ -406,7 +406,7 @@ public class ProfileAppController {
 
     }
 
-    @DeleteMapping("/upload/cv/delete")
+    @DeleteMapping("/cv/delete")
     public ResponseEntity deleteCv(){
         try{
             String path = getProfile().getCv();
@@ -422,7 +422,7 @@ public class ProfileAppController {
 
     }
 
-    @DeleteMapping("/upload/image/delete")
+    @DeleteMapping("/image/delete")
     public ResponseEntity deleteImage(){
         try{
             String path = getProfile().getUser().getPhoto();
