@@ -150,16 +150,16 @@ public class AbsenceAppController {
 //        return download.loadImage(response,name,UPLOAD_JUSTIF_DIR);
 //    }
 
-    @PostMapping(value = "/download/justification")
-    public ResponseEntity<?> getDiplome(HttpServletResponse response , @RequestParam("fileName") String name ) throws IOException {
-        activityRepository.save(
-                Activity.builder()
-                        .evenement("Téléchargé la justification : " + name)
-                        .service(service)
-                        .user(getProfile().getUser())
-                        .scope(Role.SALARIE)
-                        .build()
-        );
-        return download.loadImage(response,name,UPLOAD_JUSTIF_DIR);
-    }
+//    @PostMapping(value = "/download/justification")
+//    public ResponseEntity<?> getjuftification(HttpServletResponse response , @RequestParam("fileName") String name ) throws IOException {
+//        activityRepository.save(
+//                Activity.builder()
+//                        .evenement("Téléchargé la justification : " + name)
+//                        .service(service)
+//                        .user(getProfile().getUser())
+//                        .scope(Role.SALARIE)
+//                        .build()
+//        );
+//        return download.loadImage(response,name,UPLOAD_JUSTIF_DIR);
+//    }
 }

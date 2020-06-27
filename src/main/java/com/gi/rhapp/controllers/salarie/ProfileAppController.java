@@ -87,20 +87,22 @@ public class ProfileAppController {
     @Autowired
     private SalarieService salarieService;
 
+    @Autowired
+    private Download downloadService;
+
 
     Logger log = LoggerFactory.getLogger(ProfileAppController.class);
 
 
-    private  String UPLOAD_CV_DIR = "./src/main/resources/uploads/cv";
-    private  String UPLOAD_DIPLOME_DIR = "./src/main/resources/uploads/diplomes";
-    private  String UPLOAD_IMAGE_DIR = "./src/main/resources/uploads/img";
-
+    private String UPLOAD_CV_DIR = "./src/main/resources/uploads/cv";
+    private String UPLOAD_DIPLOME_DIR = "./src/main/resources/uploads/diplomes";
+    private String UPLOAD_IMAGE_DIR = "./src/main/resources/uploads/img";
 
 
     @GetMapping()
     public Salarie getProfile() {
 //        long id =authService.getCurrentUser().getSalarie().getId();
-        try{
+        try {
 //            System.out.println("SALARIE : ");
 //            System.out.println(authService.getCurrentUser().getSalarie().getId());
 //            Salarie salarie = salarieRepository.findById(authService.getCurrentUser().getSalarie().getId()).get();
@@ -109,8 +111,8 @@ public class ProfileAppController {
             return authService.getCurrentUser().getSalarie();
 
 //            return salarie;
-        }catch (NoSuchElementException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie  est introuvable." +e.toString());
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Le salarie  est introuvable." + e.toString());
         }
 
     }
@@ -125,12 +127,12 @@ public class ProfileAppController {
         originUser.setTelephone(user.getTelephone());
 
         activityRepository.save(
-            Activity.builder()
-                .evenement("Modification des informations de compte")
-                .service(service)
-                .user(getProfile().getUser())
-                .scope(Role.RH)
-                .build()
+                Activity.builder()
+                        .evenement("Modification des informations de compte")
+                        .service(service)
+                        .user(getProfile().getUser())
+                        .scope(Role.RH)
+                        .build()
         );
         return userRepository.save(originUser);
     }
@@ -141,86 +143,63 @@ public class ProfileAppController {
 //        user.setPassword(encoder.encode("khalil"));
 //        System.out.println(user.getPassword());
         User currentUser = getProfile().getUser();
-        Boolean isMatch = encoder.matches(user.getPassword(),currentUser.getPassword());
-        if(isMatch){
+        Boolean isMatch = encoder.matches(user.getPassword(), currentUser.getPassword());
+        if (isMatch) {
             user.setSalarie(getProfile());
             user.setPassword(encoder.encode(user.getNewPassword()));
             userRepository.save(user);
             activityRepository.save(
-                Activity.builder()
-                    .evenement("Modification de mot de passe")
-                    .service(service)
-                    .user(getProfile().getUser())
-                    .scope(Role.RH)
-                    .build()
+                    Activity.builder()
+                            .evenement("Modification de mot de passe")
+                            .service(service)
+                            .user(getProfile().getUser())
+                            .scope(Role.RH)
+                            .build()
             );
             return new ResponseEntity(HttpStatus.OK);
-        }
-        else{
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Votre ancien mot de passe est incorrect");
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Votre ancien mot de passe est incorrect");
         }
     }
+
     @PutMapping("/modifier/contact")
-    public Salarie modifierProfilContact(@RequestBody Salarie salarie) {
-//        System.out.println(salarie.getLieuNaissance());
-//        System.out.println(salarie.getSolde());
-        System.out.println();
+    public Salarie modifierProfilContact(@RequestBody SalarieProfileRequest salarieProfileRequest) {
+
         Salarie originSalarie = getProfile();
-        originSalarie.setDateNaissance(salarie.getDateNaissance());
-        originSalarie.setLieuNaissance(salarie.getLieuNaissance());
-        originSalarie.setAdresse(salarie.getAdresse());
-        originSalarie.setEtatFamiliale(salarie.getEtatFamiliale());
-        originSalarie.setNmbEnf(salarie.getNmbEnf());
-        originSalarie.setCinUrg(salarie.getCinUrg());
-        originSalarie.setAdresseUrg(salarie.getAdresseUrg());
-        originSalarie.setEmailUrg(salarie.getEmailUrg());
-        originSalarie.setNomUrg(salarie.getNomUrg());
-        originSalarie.setPrenomUrg(salarie.getPrenomUrg());
-        originSalarie.setTelephoneUrg(salarie.getTelephoneUrg());
-
-        activityRepository.save(
-            Activity.builder()
-                .evenement("Modification des informations de contact")
-                .service(service)
-                .user(getProfile().getUser())
-                .scope(Role.RH)
-                .build()
-        );
-
-
-
-        return salarieRepository.save(originSalarie);
-    }
-
-    //just in case the first method dsnt work , tired to fix it
-    @PutMapping("/modifier/contacts")
-    public Salarie modifierProfilContactTwo(@RequestParam("lieuNaissance") String lieuNaissance,
-                                            @RequestParam("adresse") String adresse,
-                                            @RequestParam("etatFamiliale") String etatFamiliale,
-                                            @RequestParam("nmbEnf") int nmbEnf,
-                                            @RequestParam("cinUrg") String cinUrg,
-                                            @RequestParam("adresseUrg") String adresseUrg,
-                                            @RequestParam("emailUrg") String emailUrg,
-                                            @RequestParam("nomUrg") String nomUrg,
-                                            @RequestParam("prenomUrg") String prenomUrg,
-                                            @RequestParam("telephoneUrg") String telephoneUrg
-
-    ) {
-//        System.out.println(salarie.getLieuNaissance());
-//        System.out.println(salarie.getSolde());
-        Salarie originSalarie = getProfile();
-//        originSalarie.setDateNaissance(dateNaissance);
-        if(lieuNaissance !=null){ originSalarie.setLieuNaissance(lieuNaissance); }
-        if(adresse !=null){originSalarie.setAdresse(adresse);}
-        if(etatFamiliale !=null){originSalarie.setEtatFamiliale(etatFamiliale);}
-        if(nmbEnf !=0){originSalarie.setNmbEnf(nmbEnf);}
-        if(cinUrg !=null){originSalarie.setCinUrg(cinUrg);}
-        if(adresseUrg !=null){originSalarie.setAdresseUrg(adresseUrg);}
-        if(emailUrg !=null){originSalarie.setEmailUrg(emailUrg);}
-        if(nomUrg !=null){originSalarie.setNomUrg(nomUrg);}
-        if(prenomUrg !=null){originSalarie.setPrenomUrg(prenomUrg);}
-        if(telephoneUrg !=null){originSalarie.setTelephoneUrg(telephoneUrg);}
-
+        log.info("MODIFY SALARIE : " + salarieProfileRequest.getLieuNaissance());
+        if (salarieProfileRequest.getLieuNaissance() != null) {
+            originSalarie.setLieuNaissance(salarieProfileRequest.getLieuNaissance());
+        }
+        if (salarieProfileRequest.getDateNaissance() != null) {
+            originSalarie.setDateNaissance(salarieProfileRequest.getDateNaissance());
+        }
+        if (salarieProfileRequest.getAdresse() != null) {
+            originSalarie.setAdresse(salarieProfileRequest.getAdresse());
+        }
+        if (salarieProfileRequest.getEtatFamiliale() != null) {
+            originSalarie.setEtatFamiliale(salarieProfileRequest.getEtatFamiliale());
+        }
+        if (salarieProfileRequest.getNmbEnf() != 0) {
+            originSalarie.setNmbEnf(salarieProfileRequest.getNmbEnf());
+        }
+        if (salarieProfileRequest.getCinUrg() != null) {
+            originSalarie.setCinUrg(salarieProfileRequest.getCinUrg());
+        }
+        if (salarieProfileRequest.getAdresseUrg() != null) {
+            originSalarie.setAdresseUrg(salarieProfileRequest.getAdresseUrg());
+        }
+        if (salarieProfileRequest.getEmailUrg() != null) {
+            originSalarie.setEmailUrg(salarieProfileRequest.getEmailUrg());
+        }
+        if (salarieProfileRequest.getNomUrg() != null) {
+            originSalarie.setNomUrg(salarieProfileRequest.getNomUrg());
+        }
+        if (salarieProfileRequest.getPrenomUrg() != null) {
+            originSalarie.setPrenomUrg(salarieProfileRequest.getPrenomUrg());
+        }
+        if (salarieProfileRequest.getTelephoneUrg() != null) {
+            originSalarie.setTelephoneUrg(salarieProfileRequest.getTelephoneUrg());
+        }
         activityRepository.save(
                 Activity.builder()
                         .evenement("Le salarié " + getProfile().getUser().getFullname() + " a modifié ses informations de contact")
@@ -229,65 +208,189 @@ public class ProfileAppController {
                         .scope(Role.RH)
                         .build()
         );
-
-
-
         return salarieRepository.save(originSalarie);
+
     }
 
-
+    //just in case the first method dsnt work , tired to fix it
+//    @PutMapping("/modifier/contacts")
+//    public Salarie modifierProfilContactTwo(@RequestParam("lieuNaissance") String lieuNaissance,
+//                                            @RequestParam("adresse") String adresse,
+//                                            @RequestParam("etatFamiliale") String etatFamiliale,
+//                                            @RequestParam("nmbEnf") int nmbEnf,
+//                                            @RequestParam("cinUrg") String cinUrg,
+//                                            @RequestParam("adresseUrg") String adresseUrg,
+//                                            @RequestParam("emailUrg") String emailUrg,
+//                                            @RequestParam("nomUrg") String nomUrg,
+//                                            @RequestParam("prenomUrg") String prenomUrg,
+//                                            @RequestParam("telephoneUrg") String telephoneUrg,
+//                                            @RequestBody Date dateNaissance
+//
+//    ) throws ParseException {
+////        System.out.println(salarie.getLieuNaissance());
+////        System.out.println(salarie.getSolde());
+//        Salarie originSalarie = getProfile();
+//        if(lieuNaissance !=null){ originSalarie.setLieuNaissance(lieuNaissance); }
+//        if(dateNaissance !=null){ originSalarie.setDateNaissance(dateNaissance); }
+//        if(adresse !=null){originSalarie.setAdresse(adresse);}
+//        if(etatFamiliale !=null){originSalarie.setEtatFamiliale(etatFamiliale);}
+//        if(nmbEnf !=0){originSalarie.setNmbEnf(nmbEnf);}
+//        if(cinUrg !=null){originSalarie.setCinUrg(cinUrg);}
+//        if(adresseUrg !=null){originSalarie.setAdresseUrg(adresseUrg);}
+//        if(emailUrg !=null){originSalarie.setEmailUrg(emailUrg);}
+//        if(nomUrg !=null){originSalarie.setNomUrg(nomUrg);}
+//        if(prenomUrg !=null){originSalarie.setPrenomUrg(prenomUrg);}
+//        if(telephoneUrg !=null){originSalarie.setTelephoneUrg(telephoneUrg);}
+//
+//        activityRepository.save(
+//                Activity.builder()
+//                        .evenement("Le salarié " + getProfile().getUser().getFullname() + " a modifié ses informations de contact")
+//                        .service(service)
+//                        .user(getProfile().getUser())
+//                        .scope(Role.RH)
+//                        .build()
+//        );
+//
+//
+//
+//        return salarieRepository.save(originSalarie);
+//    }
 
 
     @PostMapping("/upload/image")
     public ResponseEntity uploadImage(@RequestParam("file") MultipartFile file) {
-            return upload.uploadImage(file, getProfile());
+
+        try{
+            String fileName = upload.storeImage(file);
+            String path = UPLOAD_IMAGE_DIR + File.separator +fileName;
+            User user = getProfile().getUser();
+            user.setPhoto(fileName);
+            userRepository.save(user);
+            Storage.saveFile(file.getInputStream(),path);
+            return new ResponseEntity(HttpStatus.OK);
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Failed Upload , try again!");
+        }
     }
 
     @PostMapping(value = "/download/image")
-    public ResponseEntity<?> getImage(HttpServletResponse response , @RequestParam("pictureName") String name ) throws IOException {
-        return download.loadImage(response,name,UPLOAD_IMAGE_DIR);
+    public ResponseEntity<?> getImage(HttpServletResponse response, @RequestParam("pictureName") String name) throws IOException {
+        return download.loadImage(response, name, UPLOAD_IMAGE_DIR);
+
     }
 
+//    @GetMapping("/download/image")
+//    public ResponseEntity<Resource> getAvatar(HttpServletRequest request, @RequestParam("filename") String filename) throws IOException {
+//        User user = getProfile().getUser();
+//
+//        if (user.getPhoto() == null)
+//            throw new ResponseStatusException(HttpStatus.OK, "Pas de photo définie.");
+//
+//        if (!user.getPhoto().equals(filename))
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+////        Resource resource = downloadService.loadImage(filename,UPLOAD_IMAGE_DIR);
+//
+//        // setting content-type header
+//        String contentType = null;
+//        try {
+//            // setting content-type header according to file type
+//            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+//        } catch (IOException e) {
+//            System.out.println("Type indéfini.");
+//        }
+//        // setting content-type header to generic octet-stream
+//        if (contentType == null) {
+//            contentType = "application/octet-stream";
+//        }
+//
+//        return ResponseEntity.ok()
+//                .contentType(MediaType.parseMediaType(contentType))
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+//                .body(resource);
+//    }
+
     @PostMapping(value = "/download/cv")
-    public ResponseEntity<?> getCV(HttpServletResponse response , @RequestParam("cvName") String name ) throws IOException {
-        return download.loadImage(response,name,UPLOAD_CV_DIR);
+    public ResponseEntity<?> getCV(HttpServletResponse response, @RequestParam("cvName") String name) throws IOException {
+        return download.loadImage(response, name, UPLOAD_CV_DIR);
     }
+
     @PostMapping(value = "/download/diplome")
-    public ResponseEntity<?> getDiplome(HttpServletResponse response , @RequestParam("diplomeName") String name ) throws IOException {
-        return download.loadImage(response,name,UPLOAD_DIPLOME_DIR);
+    public ResponseEntity<?> getDiplome(HttpServletResponse response, @RequestParam("diplomeName") String name) throws IOException {
+        return download.loadImage(response, name, UPLOAD_DIPLOME_DIR);
     }
 
     @PostMapping("/upload/cv")
-    public ResponseEntity uploadCv(@RequestParam("file") MultipartFile file){
-        activityRepository.save(
-            Activity.builder()
-                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a ajouté son CV")
-                .service(service)
-                .user(getProfile().getUser())
-                .scope(Role.RH)
-                .build()
-        );
-        return upload.uploadCv(file,getProfile());
+    public ResponseEntity uploadCv(@RequestParam("file") MultipartFile file) {
+
+        Salarie salarie = getProfile();
+        try{
+                String fileName = upload.uploadCv(file);
+                String path = UPLOAD_CV_DIR + File.separator +fileName;
+                salarie.setCv(fileName);
+                salarieRepository.save(salarie) ;
+                Storage.saveFile(file.getInputStream(),path);
+
+
+                activityRepository.save(
+                        Activity.builder()
+                                .evenement("Le salarié " + getProfile().getUser().getFullname() + " a ajouté son CV")
+                                .service(service)
+                                .user(getProfile().getUser())
+                                .scope(Role.RH)
+                                .build()
+                );
+
+                return new ResponseEntity(HttpStatus.OK);
+            }catch (Exception e){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Failed Upload , try again!");
+
+            }
+
     }
 
     @PostMapping("/upload/diplome")
-    public ResponseEntity uploadDiplome(@RequestParam("file") MultipartFile file ,
-                                     @RequestParam("name") String  name ,
-                                     @RequestParam("dateDiplome") Date dateDiplome ,
-                                     @RequestParam("expDiplome") String expDiplome  ) throws ParseException {
+    public ResponseEntity uploadDiplome(@RequestParam("file") MultipartFile file,
+                                        @RequestParam("name") String name,
+                                        @RequestParam("dateDiplome") Date dateDiplome,
+                                        @RequestParam("expDiplome") String expDiplome) throws ParseException {
 
-        activityRepository.save(
-            Activity.builder()
-                .evenement("Ajout de diplôme de " + name)
-                .service(service)
-                .user(getProfile().getUser())
-                .scope(Role.RH)
-                .build()
-        );
-        return upload.uploadDiplome(file,name,dateDiplome,expDiplome,getProfile());
+        Salarie salarie = getProfile();
+        try {
+            String fileName = upload.uploadJustificatif(file);
+            String path = UPLOAD_DIPLOME_DIR + File.separator + fileName;
+            if (!expDiplome.equals("")) {
+                System.out.println(expDiplome);
+                diplomeRepository.save(Diplome.builder()
+                        .salarie(salarie)
+                        .name(name)
+                        .expDiplome(new SimpleDateFormat("yyyy-MM-dd").parse(expDiplome))
+                        .dateDiplome(dateDiplome)
+                        .path(fileName)
+                        .build());
+            } else {
+                diplomeRepository.save(Diplome.builder()
+                        .salarie(salarie)
+                        .name(name)
+                        .dateDiplome(dateDiplome)
+                        .path(fileName)
+                        .build());
+            }
+
+            activityRepository.save(Activity.builder()
+                    .evenement("Ajout de diplôme de " + name )
+                    .service(service)
+                    .user(getProfile().getUser())
+                    .scope(Role.RH)
+                    .build());
+
+            Storage.saveFile(file.getInputStream(), path);
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
 
     }
-
 
 
     @DeleteMapping("/upload/diplome/{id}/delete")

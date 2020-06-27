@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -129,6 +130,9 @@ public class CongeAppController {
             Conge newConge = congeRequest.getConge();
             Salarie salarie = getProfile();
 
+            if (Long.valueOf(salarie.getProperties().get("max_jours_conge").toString()) < congeRequest.getConge().getDuree())
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Vous ne pouvez pas dépasser %d jours du congé.",getProfile().getProperties().get("jours_conge")));
+
             if (newConge.getDateDebut().isBefore(salarie.getDateRecrutement()))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date de recrutement (" +
                     new SimpleDateFormat("dd-MM-yyyy").format(salarie.getDateRecrutement()) + ")");
@@ -173,17 +177,20 @@ public class CongeAppController {
     }
 
     @DeleteMapping("/{id}/supprimer")
-    public void  deleteConge(@PathVariable(value = "id")Long id){
-        congeRepository.deleteById(id);
-        activityRepository.save(
-                Activity.builder()
-                        .evenement("Le salarié " + getProfile().getUser().getFullname() + " a supprimé sa demande de congé")
-                        .service(service)
-                        .user(getProfile().getUser())
-                        .scope(Role.RH)
-                        .build()
-        );
-//        return ResponseEntity.ok("l'Absence est supprimer avec succès");
+    public ResponseEntity<?>  deleteConge(@PathVariable(value = "id")Long id){
+        Conge conge = getOneConge(id);
+        log.info("DELETE CONGE");
+        conge.setSalarie(null);
+        congeRepository.save(conge);
+//        activityRepository.save(
+//                Activity.builder()
+//                        .evenement("Le salarié " + getProfile().getUser().getFullname() + " a supprimé sa demande de congé")
+//                        .service(service)
+//                        .user(getProfile().getUser())
+//                        .scope(Role.RH)
+//                        .build()
+//        );
+        return ResponseEntity.ok("l'Absence est supprimer avec succès");
     }
 
     @PutMapping("/{id}/retour")

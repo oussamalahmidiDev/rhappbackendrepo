@@ -25,7 +25,7 @@ public class Retraite  {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public LocalDate dateRetraite, dateValidation;
+    private LocalDate dateRetraite, dateValidation;
 
     private String remarques;
 
