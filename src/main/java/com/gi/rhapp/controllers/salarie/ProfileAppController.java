@@ -163,7 +163,7 @@ public class ProfileAppController {
     }
 
     @PutMapping("/modifier/contact")
-    public Salarie modifierProfilContact(@RequestBody SalarieProfileRequest salarieProfileRequest) {
+    public Salarie modifierProfilContact(@RequestBody SalarieRequest salarieProfileRequest) {
 
         Salarie originSalarie = getProfile();
         log.info("MODIFY SALARIE : " + salarieProfileRequest.getLieuNaissance());
@@ -273,41 +273,41 @@ public class ProfileAppController {
         }
     }
 
-    @PostMapping(value = "/download/image")
-    public ResponseEntity<?> getImage(HttpServletResponse response, @RequestParam("pictureName") String name) throws IOException {
-        return download.loadImage(response, name, UPLOAD_IMAGE_DIR);
-
-    }
-
-//    @GetMapping("/download/image")
-//    public ResponseEntity<Resource> getAvatar(HttpServletRequest request, @RequestParam("filename") String filename) throws IOException {
-//        User user = getProfile().getUser();
+//    @PostMapping(value = "/download/image")
+//    public ResponseEntity<?> getImage(HttpServletResponse response, @RequestParam("pictureName") String name) throws IOException {
+//        return download.loadImage(response, name, UPLOAD_IMAGE_DIR);
 //
-//        if (user.getPhoto() == null)
-//            throw new ResponseStatusException(HttpStatus.OK, "Pas de photo définie.");
-//
-//        if (!user.getPhoto().equals(filename))
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-////        Resource resource = downloadService.loadImage(filename,UPLOAD_IMAGE_DIR);
-//
-//        // setting content-type header
-//        String contentType = null;
-//        try {
-//            // setting content-type header according to file type
-//            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-//        } catch (IOException e) {
-//            System.out.println("Type indéfini.");
-//        }
-//        // setting content-type header to generic octet-stream
-//        if (contentType == null) {
-//            contentType = "application/octet-stream";
-//        }
-//
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.parseMediaType(contentType))
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-//                .body(resource);
 //    }
+
+    @GetMapping("/download/image")
+    public ResponseEntity<Resource> getAvatar(HttpServletRequest request, @RequestParam("pictureName") String filename) throws IOException {
+        User user = getProfile().getUser();
+
+        if (user.getPhoto() == null)
+            throw new ResponseStatusException(HttpStatus.OK, "Pas de photo définie.");
+
+        if (!user.getPhoto().equals(filename))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        Resource resource = downloadService.downloadImage(filename);
+
+        // setting content-type header
+        String contentType = null;
+        try {
+            // setting content-type header according to file type
+            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException e) {
+            System.out.println("Type indéfini.");
+        }
+        // setting content-type header to generic octet-stream
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
 
     @PostMapping(value = "/download/cv")
     public ResponseEntity<?> getCV(HttpServletResponse response, @RequestParam("cvName") String name) throws IOException {
