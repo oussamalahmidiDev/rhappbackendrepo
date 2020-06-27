@@ -81,7 +81,7 @@ public class CongeAppController {
         System.out.println("NOMBRE");
 //        System.out.println(parametresRepository.findById(1L).get().getNombreMinJoursConge());
 
-        if ((int)getProfile().getProperties().get("max_jours_conge") < conge.getDuree())
+        if (Long.valueOf(salarie.getProperties().get("max_jours_conge").toString()) < conge.getDuree())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Vous ne pouvez pas dépasser %d jours du congé.",getProfile().getProperties().get("jours_conge")));
 
         if (conge.getDateDebut().isBefore(salarie.getDateRecrutement()))

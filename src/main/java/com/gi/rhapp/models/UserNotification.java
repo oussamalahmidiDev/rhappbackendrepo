@@ -18,7 +18,6 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(NotificationListener.class)
 public class UserNotification implements Serializable {
 
     @Id
@@ -39,21 +38,6 @@ public class UserNotification implements Serializable {
     @PrePersist
     public void intialValues() {
         isSeen = false;
-    }
-
-}
-
-// Notification listener to send notification after persisting entity in the DB.
-@Component
-class NotificationListener {
-
-    @Autowired
-    private SimpMessagingTemplate template;
-
-    @PostPersist
-    void send (UserNotification notification) {
-        template.convertAndSendToUser(notification.getReceiver().getEmail(), "topic/notifications", notification);
-
     }
 
 }

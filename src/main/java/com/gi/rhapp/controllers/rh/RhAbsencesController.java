@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Example;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -123,8 +124,8 @@ public class RhAbsencesController {
     public Absence createAbsence(
         @RequestParam("salarie_id") Long salarieId,
         @RequestParam("type") String type,
-        @RequestParam("dateDebut") LocalDate dateDebut,
-        @RequestParam("dateFin") LocalDate dateFin,
+        @RequestParam(value = "dateDebut") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateDebut,
+        @RequestParam("dateFin") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateFin,
 
         // i used @RequestPart here instead of @RequestParm to mark this param as optional
         @RequestPart(name = "justificatif", required = false) MultipartFile justificatif
@@ -137,12 +138,12 @@ public class RhAbsencesController {
 
         if (dateDebut.isBefore(salarie.getDateRecrutement()))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence avant la date de recrutement (" +
-                new SimpleDateFormat("dd-MM-yyyy").format(salarie.getDateRecrutement()) + ")");
+                salarie.getDateRecrutement() + ")");
 
         salarie.getAbsences().forEach(absence -> {
             if ((dateDebut.isBefore(absence.getDateFin()) && dateDebut.isAfter(absence.getDateDebut())) || (dateDebut.isBefore(absence.getDateDebut()) && dateFin.isAfter(absence.getDateFin())))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence durant cette période par ce qu'il y a déjà une absence enregsitrée durant cette période " +
-                    "(de " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateFin()) + ")");
+                    "(de " + absence.getDateDebut() + " jusqu'à " + absence.getDateFin() + ")");
         });
 
         salarie.getConges().forEach(conge -> {
@@ -150,7 +151,7 @@ public class RhAbsencesController {
                 && !conge.getEtat().equals(EtatConge.PENDING_RESPONSE)
                 && (dateDebut.isBefore(conge.getDateFin()) && dateDebut.isAfter(conge.getDateDebut()))  || (dateDebut.isBefore(conge.getDateDebut()) && dateFin.isAfter(conge.getDateFin())))
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Impossible de créer une absence durant cette période par ce que le salarié était en congé durant cette période " +
-                    "(de " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateDebut()) + " jusqu'à " + new SimpleDateFormat("dd-MM-yyyy").format(conge.getDateFin()) + ")");
+                    "(de " + conge.getDateDebut() + " jusqu'à " + conge.getDateFin() + ")");
         });
 
 
@@ -177,7 +178,7 @@ public class RhAbsencesController {
 
         activitiesService.saveAndSend(
             Activity.builder()
-                .evenement("Enregistrement d'un absence du salarié " + salarie.getUser().getFullname() + " pour la date " + new SimpleDateFormat("dd-MM-yyyy").format(absence.getDateDebut()))
+                .evenement("Enregistrement d'un absence du salarié " + salarie.getUser().getFullname() + " pour la date " + absence.getDateDebut())
                 .service("Gestion des RH - Gestion des absences")
                 .user(authService.getCurrentUser())
                 .scope(Role.RH)
@@ -222,7 +223,7 @@ public class RhAbsencesController {
 
         activitiesService.saveAndSend(
             Activity.builder()
-                .evenement(avis.equals("accepter")? "Acceptation " + " de la justification de absence de " + absence.getSalarie().getUser().getFullname() + " de la date " + new SimpleDateFormat("dd/MM/yyyy").format(absence.getDateDebut()) : "Refus " + " de la justification de absence de " + absence.getSalarie().getUser().getFullname() + " de la date " + new SimpleDateFormat("dd/MM/yyyy").format(absence.getDateDebut()))
+                .evenement(avis.equals("accepter")? "Acceptation " + " de la justification de absence de " + absence.getSalarie().getUser().getFullname() + " de la date " + absence.getDateDebut() : "Refus " + " de la justification de absence de " + absence.getSalarie().getUser().getFullname() + " de la date " + absence.getDateDebut())
                 .service("Gestion des RH - Gestion des absences")
                 .user(authService.getCurrentUser())
                 .scope(Role.RH)

@@ -8,9 +8,11 @@ import com.gi.rhapp.repositories.UserRepository;
 import lombok.Builder;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.PostPersist;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +26,9 @@ public class NotificationService {
 
     @Autowired
     private NotificationRepository repository;
+
+    @Autowired
+    private SimpMessagingTemplate template;
 
     public void send(Notification notification, User ...receivers) {
 
@@ -43,7 +48,16 @@ public class NotificationService {
 
         log.info("Saving notif");
         repository.save(notification);
+
+        notification.getUserNotification().forEach(
+            userNotification -> publish(userNotification)
+        );
+
         log.info("Notif saved");
+    }
+
+    void publish (UserNotification notification) {
+        template.convertAndSendToUser(notification.getReceiver().getEmail(), "topic/notifications", notification);
     }
 
 }

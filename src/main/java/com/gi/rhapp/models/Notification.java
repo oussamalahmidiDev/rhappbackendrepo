@@ -3,10 +3,7 @@ package com.gi.rhapp.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gi.rhapp.utilities.VerificationTokenGenerator;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +17,8 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @Builder
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Notification {
 
