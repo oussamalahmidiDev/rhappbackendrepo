@@ -64,6 +64,9 @@ public class Upload {
     @Autowired
     private DiplomeRepository diplomeRepository;
 
+    @Autowired
+    private FilenameUtils filenameUtils;
+
     @Value("spring.servlet.multipart.location")
     private static String UPLOAD_IMAGE_DIR = "./src/main/resources/uploads/img";
     private static String DB_PATH = "uploads/img";
@@ -174,65 +177,56 @@ public class Upload {
 
 
 
-    public ResponseEntity uploadDiplome(MultipartFile file ,
-                                     String  name ,
-                                      Date dateDiplome ,
-                                      String expDiplome , Salarie salarie ) throws ParseException {
-        Date date = new Date();
-        System.out.println(file.getOriginalFilename());
-        System.out.println(dateDiplome);
+//    public ResponseEntity uploadDiplome(MultipartFile file ,
+//                                     String  name ,
+//                                      Date dateDiplome ,
+//                                      String expDiplome , Salarie salarie ) throws ParseException {
+//        Date date = new Date();
+//        System.out.println(file.getOriginalFilename());
+//        System.out.println(dateDiplome);
+//
+//        try{
+//            String fileName = date.getTime()+"."+file.getContentType().split("/")[1];
+//            System.out.println(fileName);
+//            String path = UPLOAD_DIPLOME_DIR + File.separator +fileName;
+//            if(!expDiplome.equals("")){
+//                System.out.println(expDiplome);
+//                diplomeRepository.save(Diplome.builder()
+//                        .salarie(salarie)
+//                        .name(name)
+//                        .expDiplome(new SimpleDateFormat("yyyy-MM-dd").parse(expDiplome))
+//                        .dateDiplome(dateDiplome)
+//                        .path(fileName)
+//                        .build());}
+//            else{
+//                System.out.println("here");
+//                diplomeRepository.save(Diplome.builder()
+//                        .salarie(salarie)
+//                        .name(name)
+//                        .dateDiplome(dateDiplome)
+//                        .path(fileName)
+//                        .build());
+//            }
+//            Storage.saveFile(file.getInputStream(),path);
+//            return new ResponseEntity(HttpStatus.OK);
+//        }catch (Exception e){
+//            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+//        }
+//
+//    }
 
-        try{
-            String fileName = Long.toString(date.getTime())+"."+file.getContentType().split("/")[1];
-            System.out.println(fileName);
-            String path = UPLOAD_DIPLOME_DIR + File.separator +fileName;
-            if(!expDiplome.equals("")){
-                System.out.println(expDiplome);
-                diplomeRepository.save(Diplome.builder()
-                        .salarie(salarie)
-                        .name(name)
-                        .expDiplome(new SimpleDateFormat("yyyy-MM-dd").parse(expDiplome))
-                        .dateDiplome(dateDiplome)
-                        .path(fileName)
-                        .build());}
-            else{
-                System.out.println("here");
-                diplomeRepository.save(Diplome.builder()
-                        .salarie(salarie)
-                        .name(name)
-                        .dateDiplome(dateDiplome)
-                        .path(fileName)
-                        .build());
-            }
-            Storage.saveFile(file.getInputStream(),path);
-            return new ResponseEntity(HttpStatus.OK);
-        }catch (Exception e){
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
-
-    }
-
-    public ResponseEntity uploadCv(MultipartFile file,Salarie salarie){
-        String extension = file.getContentType().split("/")[1];
-        Date date= new Date();
+    public String uploadCv(MultipartFile file){
+        String extension = filenameUtils.getExtension(file);
         if(extension.equals("pdf") ){
-
             try{
-//                String fileName = Long.toString(date.getTime())+"."+file.getContentType().split("/")[1];
-                String fileName = salarie.getUser().getNom()+salarie.getUser().getPrenom()+"_CV"+"."+file.getContentType().split("/")[1];
-                String path = UPLOAD_CV_DIR + File.separator +fileName;
-                salarie.setCv(fileName);
-                salarieRepository.save(salarie) ;
-                Storage.saveFile(file.getInputStream(),path);
-                return new ResponseEntity(HttpStatus.OK);
+                String fileName = StringUtils.cleanPath(System.currentTimeMillis() + "_CV." + FilenameUtils.getExtension(file));
+                return fileName;
             }catch (Exception e){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Failed Upload , try again!");
-
             }
         }
         else
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Format incorrect");
-
 
     }
 //    public ResponseEntity uploadJustification(MultipartFile file,Salarie salarie){

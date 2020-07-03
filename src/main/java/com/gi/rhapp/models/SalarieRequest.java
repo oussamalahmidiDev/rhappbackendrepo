@@ -25,4 +25,15 @@ public class SalarieRequest {
 
     private Date dateNaissance;
     private LocalDate dateRecrutement;
+
+    private String lieuNaissance;
+    private String adresse;
+    private String etatFamiliale;
+    private int nmbEnf;
+    private String cinUrg;
+    private String adresseUrg;
+    private String emailUrg;
+    private String nomUrg;
+    private String prenomUrg;
+    private String telephoneUrg;
 }

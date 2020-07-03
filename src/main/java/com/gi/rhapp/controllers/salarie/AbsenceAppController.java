@@ -1,5 +1,6 @@
 package com.gi.rhapp.controllers.salarie;
 
+import com.gi.rhapp.config.Storage;
 import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.Absence;
 import com.gi.rhapp.models.Activity;
@@ -151,7 +152,7 @@ public class AbsenceAppController {
 //    }
 
     @PostMapping(value = "/download/justification")
-    public ResponseEntity<?> getDiplome(HttpServletResponse response , @RequestParam("fileName") String name ) throws IOException {
+    public ResponseEntity<?> getjuftification(HttpServletResponse response , @RequestParam("fileName") String name ) throws IOException {
         activityRepository.save(
                 Activity.builder()
                         .evenement("Téléchargé la justification : " + name)
@@ -161,5 +162,17 @@ public class AbsenceAppController {
                         .build()
         );
         return download.loadImage(response,name,UPLOAD_JUSTIF_DIR);
+    }
+
+    @DeleteMapping("{id}/justification/delete")
+    public ResponseEntity deleteDiplome(@PathVariable Long id){
+        Absence absence = absenceRepository.findById(id)
+                .orElseThrow( ()->new
+                        ResponseStatusException(HttpStatus.NOT_FOUND, "L'absence avec id = " + id + " est introuvable."));
+            String path = absenceRepository.getOne(id).getJustificatif();
+            Storage.deleteFile(id,path,UPLOAD_JUSTIF_DIR);
+            absence.setJustificatif(null);
+            absenceRepository.save(absence);
+            return new ResponseEntity(HttpStatus.OK);
     }
 }
