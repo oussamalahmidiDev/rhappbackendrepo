@@ -490,7 +490,7 @@ public class RhSalariesController {
     }
 
     @DeleteMapping("/{id}/supprimer")
-    public ResponseEntity<?> deleteAbsence(@PathVariable Long id, @RequestBody Salarie request) {
+    public ResponseEntity<?> deleteSalarie(@PathVariable Long id, @RequestBody Salarie request) {
         Salarie salarie = getOneSalarie(id);
         salarie.setRaisonSuppression(request.getRaisonSuppression());
 
@@ -508,6 +508,26 @@ public class RhSalariesController {
         );
         return ResponseEntity.ok(salarie);
     }
+
+    @DeleteMapping("/{id}/restore")
+    public ResponseEntity<?> cancelDeleteSalarie(@PathVariable Long id) {
+        Salarie salarie = getOneSalarie(id);
+        salarie.setRaisonSuppression(null);
+
+        salarie.setDeleted(false);
+        userRepository.save(salarie.getUser());
+
+        activitiesService.saveAndSend(
+            Activity.builder()
+                .evenement("Annulation de la suppression du salarié : " + salarie.getUser().getFullname())
+                .service(this.service)
+                .user(authService.getCurrentUser())
+                .scope(Role.ADMIN)
+                .build()
+        );
+        return ResponseEntity.ok(salarie);
+    }
+
 
 }
 

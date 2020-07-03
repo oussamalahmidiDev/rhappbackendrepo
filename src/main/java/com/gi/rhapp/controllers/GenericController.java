@@ -60,18 +60,12 @@ public class GenericController {
     public ResponseEntity<?> authenticate (@RequestBody User credentials) throws Exception {
         System.out.println(credentials.getEmail() +" "+ credentials.getPassword());
 
-        try {
-            authService.authenticate(credentials.getEmail(), credentials.getPassword());
+        User user = authService.authenticate(credentials.getEmail(), credentials.getPassword());
 
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "L'email ou mot de passe est incorrect");
-        }
+//        final UserDetails userDetails = authService.loadUserByUsername(credentials.getEmail());
 
-        final UserDetails userDetails = authService.loadUserByUsername(credentials.getEmail());
+        final String token = jwtTokenUtil.generateToken(user);
 
-        final String token = jwtTokenUtil.generateToken(userDetails);
-
-        User user = userRepository.findByEmail(credentials.getEmail());
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
