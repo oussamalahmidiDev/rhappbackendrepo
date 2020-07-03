@@ -1,5 +1,6 @@
 package com.gi.rhapp;
 
+import com.gi.rhapp.enumerations.Role;
 import com.gi.rhapp.models.*;
 import com.gi.rhapp.repositories.*;
 import com.gi.rhapp.utilities.DateUtils;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -75,6 +77,9 @@ public class RhappApplication implements CommandLineRunner {
 
     @Autowired
     private ParametresRepository parametresRepository;
+
+    @Autowired
+    private PasswordEncoder encoder;
 
 
     public static void main(String[] args) {
@@ -134,5 +139,17 @@ public class RhappApplication implements CommandLineRunner {
         parametres.setCoeffConge(1.5);
         parametres.setId(1L);
         parametresRepository.save(parametres);
+
+        if (userRepository.findByEmail("admin@rehapp.com") == null) {
+            log.info("Default admin user not found. Creating a new one.");
+            userRepository.save(User.builder()
+                .email("admin@rehapp.com")
+                .nom("Admin")
+                .prenom("Default")
+                .role(Role.ADMIN)
+                .password(encoder.encode("admin"))
+                .build());
+
+        }
     }
 }
