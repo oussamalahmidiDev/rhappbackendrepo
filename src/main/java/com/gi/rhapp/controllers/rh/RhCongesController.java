@@ -100,7 +100,7 @@ public class RhCongesController {
         conge.setReponse(request.getReponse());
 
         Notification notificationToSalarie = Notification.builder()
-            .content(String.format("%s a repondu à votre demande de congé."))
+            .content(String.format("%s a repondu à votre demande de congé.", authService.getCurrentUser().getFullname()))
             .build();
 
         notificationService.send(notificationToSalarie, conge.getSalarie().getUser());
